@@ -1,7 +1,10 @@
-
-
+mod io;
+use io::{EEPROM};
 
 
 fn main() {
-    println!("Hello, world!");
+
+    let eeprom = EEPROM::new();
+
+
 }
