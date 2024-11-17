@@ -74,4 +74,14 @@ impl DB {
 
     }
 
+    pub async fn module_delete_by_id(&self, id: i64) -> Result<(), sqlx::Error> {
+
+        sqlx::query!("DELETE FROM modules WHERE id=?1", id)
+            .execute(&self.conn)
+            .await?;
+
+        Ok(())
+
+    }
+
 }
