@@ -25,7 +25,7 @@
 
 ### Uploading Code to RPi4
 
-Run Upload Script (`up.sh`)
+Run Upload Script (`up.sh`)\
 **IMPORTANT**: Make sure the constants in `up.sh` are correct
 
 - Upload and build
