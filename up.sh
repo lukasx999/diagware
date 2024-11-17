@@ -7,6 +7,7 @@ IP=10.0.0.253
 REMOTE=${USER}@${IP}
 DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo
+RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 
 
 function print_usage {
@@ -14,8 +15,17 @@ function print_usage {
     exit 1
 }
 
+function run {
+    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${CARGO} r -r --color always"
+}
 
-[[ $# < 1 ]] && opt="build" || opt=$1
+function build {
+    rsync -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
+    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db" ${CARGO} b -r --color always"
+}
+
+
+[[ $# < 1 ]] && opt="build_and_run" || opt=$1
 
 if [[ $# > 1 ]]; then
     echo "$0: too many arguments" 1>&2
@@ -25,12 +35,16 @@ fi
 
 if [[ $opt == "run" ]]; then
 
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${CARGO} r -r --color always"
+    run
 
 elif [[ $opt == "build" ]]; then
 
-    rsync -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from='rsync_exclude.txt'
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db" ${CARGO} b -r --color always"
+    build
+
+elif [[ $opt == "build_and_run" ]]; then
+
+    build
+    run
 
 else
     echo "$0: invalid option: $opt" 1>&2
