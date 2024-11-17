@@ -3,6 +3,7 @@
 ## Questions
 
 - **Serial**: how many bytes? including characters?
+- **Docs**: installation instructions?
 
 
 ## TODO
@@ -38,6 +39,10 @@
   - `sqlite> .tables`
   - `sqlite> .schema`
   - `sqlite> SELECT * FROM <table>`
+
+### Installing Rust
+
+- [Rustup](rustup.rs) - run command specified for `Unix`
 
 
 
