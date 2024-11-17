@@ -1,10 +1,22 @@
 mod io;
 use io::{EEPROM};
 
+mod db;
+use db::{DB, Module};
 
-fn main() {
+type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
 
-    let eeprom = EEPROM::new();
 
+
+#[tokio::main]
+async fn main() -> AnyError<()> {
+
+    let db = DB::new().await?;
+    let m = db.get_modules_all().await?;
+
+    db.module_add(Module::new(None, "esp32", "123")).await?;
+
+
+    Ok(())
 
 }

@@ -1,0 +1,2 @@
+[env]
+DATABASE_URL = { relative = false, value = "sqlite:///home/lukas/Code/Projects/diagware-rs/src/database.db" }
