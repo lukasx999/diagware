@@ -5,9 +5,14 @@
 - **Serial**: how many bytes? including characters?
 
 
-## Notes
+
+## **NOTES**
 
 - Always (cargo) run from the project root
+- Ensure that `.cargo/config.toml` holds the correct url to the database
+  - (needed for compile-time query checking by sqlx)
+
+
 
 ## Procedures
 
