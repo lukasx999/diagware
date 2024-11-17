@@ -42,7 +42,7 @@
 
 ### Installing Rust
 
-- [Rustup](rustup.rs) - run command specified for `Unix`
+- [Rustup](https://rustup.rs/) - run command specified for `Unix`
 
 
 
