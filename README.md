@@ -23,6 +23,17 @@
 
 ## Procedures
 
+### Uploading Code to RPi4
+
+Run Upload Script (`up.sh`)
+
+- This will do the following:
+  - Uploade the Code via `rsync`, excluding files from `rsync_exclude.txt`
+  - cd into the project directory
+  - Build the project
+
+
+
 ### Setting up DB
 
 - Run setup script
@@ -40,9 +51,17 @@
   - `sqlite> .schema`
   - `sqlite> SELECT * FROM <table>`
 
+
 ### Installing Rust
 
 - [Rustup](https://rustup.rs/) - run command specified for `Unix`
+
+
+### Building
+
+- `cargo build --release`
+*or:*
+- `cargo b -r`
 
 
 

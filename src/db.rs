@@ -1,12 +1,11 @@
-use sqlx::{SqliteConnection, SqlitePool, SqliteExecutor, Connection, Executor};
-use sqlx::Row;
-
+use sqlx::SqlitePool;
 
 
 // Modify here!
 const DB_FILENAME: &str = "src/database.db";
 
 
+// Model
 
 #[derive(Debug, Clone)]
 pub struct Module {
@@ -74,7 +73,9 @@ impl DB {
 
     }
 
-    pub async fn module_delete_by_id(&self, id: i64) -> Result<(), sqlx::Error> {
+    pub async fn module_delete_by_id(
+        &self, id: i64
+    ) -> Result<(), sqlx::Error> {
 
         sqlx::query!("DELETE FROM modules WHERE id=?1", id)
             .execute(&self.conn)
