@@ -17,7 +17,6 @@ async fn main() -> AnyError<()> {
     db.module_add(Module::new(None, "esp32", "123")).await?;
     db.module_delete_by_id(4).await?;
 
-
     Ok(())
 
 }
