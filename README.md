@@ -14,7 +14,7 @@
 ### Setting up DB
 
 - Run setup script
-  - `sqlite3 database.db < db_scripts/setup.sql` *(bash-specific)*
+  - `sqlite3 database.db < db_scripts/setup.sql` *(bash-specific)*\
   *or:*
   - `sqlite> .read db_scripts/setup.sql`
 
