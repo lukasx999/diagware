@@ -2,17 +2,17 @@
 set -euxo pipefail
 
 
-function print_usage {
-    echo "Usage: $0 <build | run>" 1>&2
-    exit 1
-}
-
-
 USER=pi
 IP=10.0.0.253
 REMOTE=${USER}@${IP}
 DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo
+
+
+function print_usage {
+    echo "Usage: $0 <build | run>" 1>&2
+    exit 1
+}
 
 
 [[ $# < 1 ]] && opt="build" || opt=$1

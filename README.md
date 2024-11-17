@@ -26,11 +26,12 @@
 ### Uploading Code to RPi4
 
 Run Upload Script (`up.sh`)
+**IMPORTANT**: Make sure the constants in `up.sh` are correct
 
-- This will do the following:
-  - Uploade the Code via `rsync`, excluding files from `rsync_exclude.txt`
-  - cd into the project directory
-  - Build the project
+- Upload and build
+  - `./up.sh build` or just `./up.sh`
+- Remotely run the code
+  - `./up.sh run`
 
 
 
