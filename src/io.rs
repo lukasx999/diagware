@@ -27,10 +27,19 @@ impl EEPROM {
     }
 
     pub fn read(&mut self) -> i2c::Result<()> {
-        let mut buf = [0_u8; 5];
-        self.i2c.read(&mut buf)?;
+        let mut buf = [0_u8; 5]; // TODO: change this to required byte size
+        // self.i2c.read(&mut buf)?;
+        self.i2c.block_read(0_u8, &mut buf)?;
         dbg!(&buf);
         Ok(())
+    }
+
+    pub fn get_serial() -> i2c::Result<i32> {
+        todo!();
+    }
+
+    pub fn write_serial(serial: i32) -> i2c::Result<()> {
+        todo!();
     }
 
 }
