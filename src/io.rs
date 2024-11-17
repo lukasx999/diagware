@@ -12,6 +12,7 @@ const EEPROM_ADDRESS: u16 = 0x50;
 const EEPROM_I2C_BUS: u8  = 0x1;
 
 
+
 #[derive(Debug)]
 pub struct EEPROM {
     i2c: I2c,

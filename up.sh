@@ -8,6 +8,7 @@ REMOTE=${USER}@${IP}
 DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
+ENV=DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db"
 
 
 function print_usage {
@@ -15,13 +16,16 @@ function print_usage {
     exit 1
 }
 
+function transfer {
+    rsync -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
+}
+
 function run {
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${CARGO} r -r --color always"
+    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} r -r --color always"
 }
 
 function build {
-    rsync -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db" ${CARGO} b -r --color always"
+    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} b -r --color always"
 }
 
 
@@ -35,14 +39,17 @@ fi
 
 if [[ $opt == "run" ]]; then
 
+    transfer
     run
 
 elif [[ $opt == "build" ]]; then
 
+    transfer
     build
 
 elif [[ $opt == "build_and_run" ]]; then
 
+    transfer
     build
     run
 
