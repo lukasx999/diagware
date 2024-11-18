@@ -29,7 +29,7 @@ function build {
 }
 
 
-[[ $# < 1 ]] && opt="build_and_run" || opt=$1
+[[ $# < 1 ]] && opt="run" || opt=$1
 
 if [[ $# > 1 ]]; then
     echo "$0: too many arguments" 1>&2
@@ -46,12 +46,6 @@ elif [[ $opt == "build" ]]; then
 
     transfer
     build
-
-elif [[ $opt == "build_and_run" ]]; then
-
-    transfer
-    build
-    run
 
 else
     echo "$0: invalid option: $opt" 1>&2

@@ -18,8 +18,10 @@ async fn main() -> AnyError<()> {
     // db.module_delete_by_id(4).await?;
 
 
-    let mut eeprom = EEPROM::new()?;
-    eeprom.read()?;
+    let eeprom = EEPROM::new()?;
+    eeprom.write_serial("greetings")?;
+    // dbg!(eeprom.get_serial()?);
+    // eeprom.clear()?;
 
 
     Ok(())
