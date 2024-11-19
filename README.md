@@ -8,9 +8,10 @@
 
 ## TODO
 
-- Testing Code on RPi4
-- X11 config
-- Writing serial to EEPROM
+- [ ] X11 config
+- [ ] Multiple DB (stable/experimental)
+- [x] Testing Code on RPi4
+- [x] Writing serial to EEPROM
 
 
 ## NOTES

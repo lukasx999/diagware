@@ -1,5 +1,5 @@
-INSERT INTO modules (name, serial) VALUES ('214232', 'SUM');
-INSERT INTO modules (name, serial) VALUES ('554839', 'PAMP');
-INSERT INTO modules (name, serial) VALUES ('838429', 'DIFF');
-INSERT INTO modules (name, serial) VALUES ('09485546', 'ESP32');
-INSERT INTO modules (name, serial) VALUES ('488404322', 'INTEG');
+INSERT INTO modules (name, serial) VALUES ('SUM',   '214232');
+INSERT INTO modules (name, serial) VALUES ('PAMP',  '554839');
+INSERT INTO modules (name, serial) VALUES ('DIFF',  '838429');
+INSERT INTO modules (name, serial) VALUES ('ESP32', '09485546');
+INSERT INTO modules (name, serial) VALUES ('INTEG', '488404322');

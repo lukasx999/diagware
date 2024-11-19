@@ -18,13 +18,11 @@ impl Module {
     pub fn new(id: Option<i64>, name: &str, serial: &str) -> Self {
         Self {
             id,
-            name:   name.to_owned(),
+            name: name.to_owned(),
             serial: serial.to_owned()
         }
     }
 }
-
-
 
 
 
@@ -55,6 +53,16 @@ impl DB {
     ) -> Result<Module, sqlx::Error> {
 
         Ok(sqlx::query_as!(Module, "SELECT * FROM modules WHERE id=?1", id)
+            .fetch_one(&self.conn)
+            .await?)
+
+    }
+
+    pub async fn get_module_by_serial(
+        &self, serial: &str
+    ) -> Result<Module, sqlx::Error> {
+
+        Ok(sqlx::query_as!(Module, "SELECT * FROM modules WHERE serial=?1", serial)
             .fetch_one(&self.conn)
             .await?)
 

@@ -1,4 +1,4 @@
 CREATE TABLE modules (
 id      INTEGER PRIMARY KEY,
-name    TEXT NOT NULL,
-serial  TEXT NOT NULL);
+name    TEXT NOT NULL UNIQUE,
+serial  TEXT NOT NULL UNIQUE);
