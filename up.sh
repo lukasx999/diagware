@@ -17,7 +17,7 @@ function print_usage {
 }
 
 function transfer {
-    rsync -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
+    rsync --delete -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
 }
 
 function run {

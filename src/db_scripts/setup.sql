@@ -4,13 +4,22 @@ CREATE TABLE modules (
     serial  TEXT    NOT NULL UNIQUE
 );
 
+-- Sollwerte
 CREATE TABLE targetvalues (
     id         INTEGER PRIMARY KEY,
-    module_id  INTEGER,
+    module_id  INTEGER NOT NULL,
     identifier TEXT    NOT NULL,
     descriptor TEXT,
     value      DOUBLE  NOT NULL,
     unit       TEXT,
+    FOREIGN KEY(module_id) REFERENCES modules(id)
+);
+
+-- Übungsblätter
+CREATE TABLE documents (
+    id         INTEGER PRIMARY KEY,
+    module_id  INTEGER NOT NULL,
+    document   BLOB NOT NULL,
     FOREIGN KEY(module_id) REFERENCES modules(id)
 );
 
