@@ -24,7 +24,7 @@ async fn main() -> AnyError<()> {
 
     let db = DB::new().await?;
 
-    ui::app(db)?;
+    ui::run_gui(db)?;
 
 
 

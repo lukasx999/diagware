@@ -5,13 +5,13 @@ use crate::db::{DB, Module};
 
 
 
-const WIDTH:  f32 = 320.0;
-const HEIGHT: f32 = 240.0;
+const WIDTH:  f32 = 300.0;
+const HEIGHT: f32 = 300.0;
 
 
 
 
-struct MyApp {
+struct GuiState {
 
     db: DB,
 
@@ -21,25 +21,43 @@ struct MyApp {
 
 
 
-impl MyApp {
+impl GuiState {
     pub fn new(db: DB) -> Self {
         Self {
             db,
             show_db_manager: false,
         }
     }
+
+
+    // fn db_manager(
+    //     &mut self
+    // ) -> Box<dyn FnMut(&egui::Context, egui::ViewportClass)> {
+    //
+    //     Box::new(|ctx, _class| {
+    //         CentralPanel::default().show(ctx, |ui| {
+    //             ui.heading("Database");
+    //             ui.label("Hier findet die DB Verwaltung statt");
+    //         });
+    //
+    //         if ctx.input(|i| i.viewport().close_requested()) {
+    //             self.show_db_manager = false;
+    //         }
+    //     }
+    //     )
+    //
+    // }
+
 }
 
 
 
 
 
-
-
-
-
-impl eframe::App for MyApp {
+impl eframe::App for GuiState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+
+        ctx.set_pixels_per_point(2.0);
 
         CentralPanel::default().show(ctx, |ui| {
 
@@ -50,6 +68,28 @@ impl eframe::App for MyApp {
             let viewport = ViewportBuilder::default()
                 .with_title("DB Manager")
                 .with_inner_size([WIDTH, HEIGHT]);
+
+            // egui_extras::TableBuilder::new(ui)
+            //     .column(egui_extras::Column::auto().resizable(true))
+            //     .header(20.0, |mut header| {
+            //         header.col(|ui| {
+            //             ui.heading("foo");
+            //         });
+            //         header.col(|ui| {
+            //             ui.heading("foo");
+            //         });
+            //
+            //     }).body(|mut body| {
+            //         body.row(30.0, |mut row| {
+            //             row.col(|ui| {
+            //                 ui.label("bar");
+            //             });
+            //             row.col(|ui| {
+            //                 ui.label("baz");
+            //             });
+            //         });
+            //     });
+
 
 
             if ui.button("click me").clicked() {
@@ -77,12 +117,12 @@ impl eframe::App for MyApp {
         });
 
     }
-}
+    }
 
 
 
 
-pub fn app(db: DB) -> eframe::Result {
+pub fn run_gui(db: DB) -> eframe::Result {
 
     let options = eframe::NativeOptions {
 
@@ -98,7 +138,7 @@ pub fn app(db: DB) -> eframe::Result {
         "Diagware",
         options,
         Box::new(|_cc| {
-            Ok(Box::new(MyApp::new(db)))
+            Ok(Box::new(GuiState::new(db)))
         }),
 
     )

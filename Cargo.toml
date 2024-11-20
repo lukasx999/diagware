@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 eframe = "0.29.1"
 egui = "0.29.1"
+egui_extras = "0.29.1"
 rppal = "0.19.0"
 sqlx = { version = "0.8", features = [ "runtime-tokio", "sqlite" ] }
 tokio = { version = "1.41.1", features = ["rt-multi-thread", "full"] }
