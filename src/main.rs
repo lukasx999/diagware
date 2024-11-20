@@ -4,6 +4,10 @@ use io::EEPROM;
 mod db;
 use db::{DB, Module};
 
+mod ui;
+
+
+
 type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
 
 
@@ -11,12 +15,21 @@ type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
 #[tokio::main]
 async fn main() -> AnyError<()> {
 
-    let db = DB::new().await?;
-    let eeprom = EEPROM::new()?;
 
-    let serial: String = eeprom.get_serial()?;
-    let module: Module = db.get_module_by_serial(serial.as_str()).await?;
-    dbg!(module);
+    // let eeprom = EEPROM::new()?;
+    //
+    // let serial: String = eeprom.get_serial()?;
+    // let module: Module = db.get_module_by_serial(serial.as_str()).await?;
+    // dbg!(module);
+
+    let db = DB::new().await?;
+
+    ui::app(db)?;
+
+
+
+
+
 
 
     // dbg!(db.get_targetvalues_all().await?);

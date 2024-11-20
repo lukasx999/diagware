@@ -74,7 +74,9 @@ impl DB {
         })
     }
 
-    pub async fn get_modules_all(&self) -> Result<Vec<Module>, sqlx::Error> {
+    pub async fn get_modules_all(
+        &self
+    ) -> Result<Vec<Module>, sqlx::Error> {
 
         Ok(sqlx::query_as!(Module, "SELECT * FROM modules")
             .fetch_all(&self.conn)
