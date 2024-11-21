@@ -8,6 +8,7 @@
 
 ## TODO
 
+- [ ] File path handling for SQLx and egui::include_image!
 - [ ] X11 config
 - [ ] Multiple DB (stable/experimental)
 - [ ] LaTeX docs

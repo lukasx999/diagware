@@ -53,7 +53,7 @@ impl EEPROM {
         Ok(Self { i2c })
     }
 
-    fn delay(&self) {
+    fn delay() {
         thread::sleep(Duration::from_millis(EEPROM_I2C_DELAY_MS));
     }
 
@@ -61,7 +61,7 @@ impl EEPROM {
 
         let mut buf = [0_u8; EEPROM_COLUMNS];
         self.i2c.block_read(0x0, &mut buf)?;
-        self.delay();
+        Self::delay();
 
         let s: String = std::str::from_utf8(&buf)?
             .trim_matches(char::from(0)) // strip nullbytes
@@ -80,7 +80,7 @@ impl EEPROM {
         let bytes: &[u8] = serial.as_bytes();
 
         self.i2c.block_write(0x0, bytes)?;
-        self.delay();
+        Self::delay();
 
         Ok(())
     }
@@ -90,7 +90,7 @@ impl EEPROM {
 
         for row in (0x0..=EEPROM_ROW_MAX).step_by(EEPROM_ROW_STEP) {
             self.i2c.block_write(row, &bytes)?;
-            self.delay();
+            Self::delay();
         }
 
         Ok(())
