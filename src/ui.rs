@@ -1,36 +1,19 @@
 use std::borrow::Cow;
 
 use eframe::egui;
-use egui::{CentralPanel, ViewportBuilder, ViewportId};
+use egui::{CentralPanel,
+    ViewportBuilder,
+    ViewportId,
+    PopupCloseBehavior,
+    containers::ComboBox};
 
 use crate::db::{DB, Module};
 
 
 
-// egui_extras::TableBuilder::new(ui)
-//     .column(egui_extras::Column::auto().resizable(true))
-//     .header(20.0, |mut header| {
-//         header.col(|ui| {
-//             ui.heading("foo");
-//         });
-//         header.col(|ui| {
-//             ui.heading("foo");
-//         });
-//
-//     }).body(|mut body| {
-//         body.row(30.0, |mut row| {
-//             row.col(|ui| {
-//                 ui.label("bar");
-//             });
-//             row.col(|ui| {
-//                 ui.label("baz");
-//             });
-//         });
-//     });
 
 
-
-
+const EXPERT_PASSWORD: &str = "foo";
 
 const WINDOW_WIDTH:  f32 = 300.0;
 const WINDOW_HEIGHT: f32 = 300.0;
@@ -38,14 +21,67 @@ const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
 
 
+// let id = egui::ViewportId::from_hash_of("db");
+// let viewport = ViewportBuilder::default()
+//     .with_title("DB Manager")
+//     .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
+//
+// if self.show_db_manager {
+//     ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
+//
+//         CentralPanel::default().show(ctx, |ui| {
+//             self.db_manager_ui(ui);
+//         });
+//
+//         if ctx.input(|i| i.viewport().close_requested()) {
+//             self.show_db_manager = false;
+//         }
+//
+//     });
+// }
+
+
+
+
+
+
+// let img = egui::Image::new(egui::ImageSource::Uri(
+//     Cow::Borrowed("file://src/img_poweroff.png")));
+// ui.add(egui::widgets::ImageButton::new(img));
+
+// let popup_id = egui::Id::new("login-popup");
+// let res = ui.button("login");
+//
+// if res.clicked() {
+//     ui.memory_mut(|mem| mem.toggle_popup(popup_id));
+// }
+//
+// egui::popup_below_widget(ui, popup_id, &res, egui::PopupCloseBehavior::CloseOnClickOutside, |ui| {
+//     ui.label("popup!");
+// });
+//
+// // ui.menu_button("menu", |ui| {
+// //     ui.button("poweroff");
+// //     ui.button("reboot");
+// //     ui.button("logout");
+// // });
+
+
+
+
+
+
+
+
+
 
 
 struct GuiState {
-
     db: DB,
-
+    is_expert_mode:  bool,
     show_db_manager: bool,
 
+    db_manager_selected: String,
 }
 
 
@@ -55,13 +91,65 @@ impl GuiState {
     pub fn new(db: DB) -> Self {
         Self {
             db,
+            is_expert_mode:  false,
             show_db_manager: false,
+            db_manager_selected: "".to_owned(),
         }
     }
 
-    fn db_manager_ui(&mut self, ui: &mut egui::Ui) {
+    fn db_manager_ui(&mut self, ui: &mut egui::Ui) -> Result<(), sqlx::Error> {
         ui.heading("Database");
-        ui.label("Hier findet die DB Verwaltung statt");
+        ui.label("DB Verwaltung");
+        ui.separator();
+
+
+        // TODO: fetch from db
+        // let runtime = tokio::runtime::Runtime::new()?;
+        // let modules: Vec<Module> = runtime.block_on(self.db.get_modules_all())?;
+
+        ComboBox::from_label("Modul")
+            .selected_text(&self.db_manager_selected)
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut self.db_manager_selected, "foo".to_owned(), "foo");
+                ui.selectable_value(&mut self.db_manager_selected, "bar".to_owned(), "bar");
+                ui.selectable_value(&mut self.db_manager_selected, "baz".to_owned(), "baz");
+            });
+
+        ui.separator();
+
+        egui_extras::TableBuilder::new(ui)
+            .column(egui_extras::Column::auto().resizable(true))
+            .column(egui_extras::Column::auto().resizable(true))
+            .column(egui_extras::Column::remainder())
+            .header(20.0, |mut header| {
+                header.col(|ui| {
+                    ui.heading("id");
+                });
+                header.col(|ui| {
+                    ui.heading("name");
+                });
+                header.col(|ui| {
+                    ui.heading("serial");
+                });
+            })
+            .body(|mut body| {
+                body.row(10.0, |mut row| {
+                    row.col(|ui| {
+                        ui.label("1");
+                    });
+                    row.col(|ui| {
+                        ui.label("OPV");
+                    });
+                    row.col(|ui| {
+                        ui.label("123");
+                    });
+                });
+            });
+
+
+        Ok(())
+
+
     }
 
 
@@ -100,6 +188,13 @@ impl GuiState {
 
     }
 
+
+    fn ui_config(ctx: &egui::Context) {
+        ctx.set_pixels_per_point(2.0);
+        ctx.set_theme(egui::Theme::Dark);
+    }
+
+
 }
 
 
@@ -109,86 +204,47 @@ impl GuiState {
 impl eframe::App for GuiState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
-        ctx.set_pixels_per_point(2.0);
-        ctx.set_theme(egui::Theme::Dark);
+        Self::ui_config(ctx);
 
         CentralPanel::default().show(ctx, |ui| {
 
             ui.vertical_centered(|ui| {
                 ui.heading("Home");
                 ui.label(Self::get_time());
+                ui.separator();
 
-                let _ = ui.button("Diagnose");
+                if ui.button("Diagnose").clicked() {
+                }
 
                 if ui.button("DB-Manager").clicked() {
                     self.show_db_manager = true;
                 }
 
-                // let img_src = egui::include_image!("./src/ferris.png");
-                // let img_src = egui::ImageSource::Uri(Cow::Borrowed("file://src/img_poweroff.png"));
-                // let img = egui::Image::new(img_src);
-                // ui.add(egui::widgets::ImageButton::new(img));
-
-                let popup_id = egui::Id::new("login-popup");
-                let res = ui.button("login");
-
-                if res.clicked() {
-                    ui.memory_mut(|mem| mem.toggle_popup(popup_id));
-                }
-
-                egui::popup_below_widget(ui, popup_id, &res, egui::PopupCloseBehavior::CloseOnClickOutside, |ui| {
-                    ui.label("popup!");
-                });
-
-                // ui.menu_button("menu", |ui| {
-                //     ui.button("poweroff");
-                //     ui.button("reboot");
-                //     ui.button("logout");
-                // });
-
+                ui.separator();
+                let _ = ui.button(egui_phosphor::regular::POWER); // Poweroff
             });
 
 
-            let mut should_close: bool = false;
+
+
+
+            let id = egui::ViewportId::from_hash_of("db");
+            let viewport = ViewportBuilder::default()
+                .with_title("DB Manager")
+                .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
 
             if self.show_db_manager {
-
-                should_close =
-                    Self::new_window("db", ctx, |ctx| {
-
-                        CentralPanel::default().show(ctx, |ui| {
-                            ui.heading("greetings");
-                        });
-
+                ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
+                    CentralPanel::default().show(ctx, |ui| {
+                        self.db_manager_ui(ui);
                     });
 
+                    if ctx.input(|i| i.viewport().close_requested()) {
+                        self.show_db_manager = false;
+                    }
+
+                });
             }
-
-            if should_close {
-                self.show_db_manager = false;
-            }
-
-
-            // let id = egui::ViewportId::from_hash_of("db");
-            // let viewport = ViewportBuilder::default()
-            //     .with_title("DB Manager")
-            //     .with_inner_size([WIDTH, HEIGHT]);
-            //
-            // if self.show_db_manager {
-            //
-            //     ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
-            //
-            //         CentralPanel::default().show(ctx, |ui| {
-            //             self.db_manager_ui(ui);
-            //         });
-            //
-            //         if ctx.input(|i| i.viewport().close_requested()) {
-            //             self.show_db_manager = false;
-            //         }
-            //
-            //     });
-            //
-            // }
 
 
         });
@@ -205,6 +261,7 @@ pub fn run_gui(db: DB) -> eframe::Result {
         viewport: ViewportBuilder::default()
             .with_title("Home")
             .with_position([SCREEN_WIDTH/2.0 + WINDOW_WIDTH/2.0, SCREEN_HEIGHT/2.0])
+            .with_resizable(false)
             .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]),
         ..Default::default()
     };
@@ -214,7 +271,14 @@ pub fn run_gui(db: DB) -> eframe::Result {
         options,
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
+
+            // Phosphor icons
+            let mut fonts = egui::FontDefinitions::default();
+            egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
+            cc.egui_ctx.set_fonts(fonts);
+
             Ok(Box::new(GuiState::new(db)))
+
         }),
     )
 
