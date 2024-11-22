@@ -104,8 +104,6 @@ impl GuiState {
 
 
         // TODO: fetch from db
-        // let runtime = tokio::runtime::Runtime::new()?;
-        // let modules: Vec<Module> = runtime.block_on(self.db.get_modules_all())?;
 
         ComboBox::from_label("Modul")
             .selected_text(&self.db_manager_selected)
@@ -205,6 +203,11 @@ impl eframe::App for GuiState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
         Self::ui_config(ctx);
+
+        // let runtime = tokio::runtime::Runtime::new().unwrap();
+        // let modules: Vec<Module> = runtime.block_on(self.db.get_modules_all()).unwrap();
+        // dbg!(modules);
+
 
         CentralPanel::default().show(ctx, |ui| {
 

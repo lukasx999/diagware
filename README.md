@@ -8,6 +8,7 @@
 
 ## TODO
 
+- [ ] Cargo Script for uploading to rpi
 - [ ] Login
 - [ ] File path handling for SQLx and egui::include_image!
 - [ ] X11 config
