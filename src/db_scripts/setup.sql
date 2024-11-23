@@ -19,7 +19,8 @@ CREATE TABLE targetvalues (
 CREATE TABLE documents (
     id         INTEGER PRIMARY KEY,
     module_id  INTEGER NOT NULL,
-    document   BLOB NOT NULL,
+    document   BLOB    NOT NULL,
+    descriptor TEXT NOT NULL,
     FOREIGN KEY(module_id) REFERENCES modules(id)
 );
 
