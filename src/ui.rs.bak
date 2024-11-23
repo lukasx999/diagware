@@ -1,7 +1,5 @@
-use std::collections::HashMap;
-
-use eframe::egui::{
-    self,
+use eframe::egui;
+use egui::{
     CentralPanel,
     ViewportBuilder,
     ViewportId,
@@ -19,17 +17,12 @@ use crate::db::{
 
 
 
-
-// Modify here!
 const EXPERT_PASSWORD: &str = "foo";
 
 const WINDOW_WIDTH:  f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
 const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
-
-const PAGE_DIAGNOSIS:    &str = "Diagnosis";
-const PAGE_DBMANAGEMENT: &str = "DB-Management";
 
 
 
@@ -111,8 +104,7 @@ impl Into<WidgetText> for Module {
 struct GuiState {
     db: DB,
     is_expert_mode:  bool,
-    show_windowlist: bool,
-    state_pages: HashMap<String, bool>,
+    show_db_manager: bool,
 }
 
 
@@ -123,11 +115,7 @@ impl GuiState {
         Self {
             db,
             is_expert_mode:  false,
-            show_windowlist: false,
-            state_pages: HashMap::from([
-                ("Diagnosis".to_owned(),     false),
-                ("DB-Management".to_owned(), false),
-            ]),
+            show_db_manager: false,
         }
     }
 
@@ -149,27 +137,17 @@ impl GuiState {
     }
 
 
-    fn ui_topbar(&mut self, ui: &mut egui::Ui) {
+    fn new_window(title: &str) -> (ViewportId, ViewportBuilder) {
 
-        ui.horizontal(|ui| {
+        let id = ViewportId::from_hash_of(title);
+        let viewport = ViewportBuilder::default()
+            .with_title(title)
+            .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
 
-            ui.toggle_value(&mut self.show_windowlist, "ToggleWindowList");
-
-            if ui.button(egui_phosphor::regular::POWER).clicked() {
-                todo!("Poweroff");
-            }
-
-            ui.label(format!("{}", Self::get_time()));
-
-        });
+        (id, viewport)
 
     }
 
-
-    fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Diag!");
-        ui.label("Diagnose!");
-    }
 
 
     fn ui_dbmanager(&mut self, ui: &mut egui::Ui) {
@@ -234,38 +212,73 @@ impl eframe::App for GuiState {
 
         Self::ui_config(ctx);
 
-
-        egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
-            self.ui_topbar(ui);
+        egui::Window::new("Diagnosis").show(ctx, |ui| {
+            ui.heading("foo");
+            ui.label("greetings");
         });
 
+        egui::Window::new("DB Management").show(ctx, |ui| {
+            ui.heading("foo");
+            ui.label("greetings");
+        });
 
-        egui::SidePanel::left("WindowList")
-            .show_animated(ctx, self.show_windowlist, |ui| {
-                for page in &mut self.state_pages {
-                    ui.toggle_value(page.1, page.0);
+        egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
+            ui.label("foo");
+        });
+
+        egui::SidePanel::left("WindowList").show(ctx, |ui| {
+            ui.toggle_value(&mut self.show_db_manager, "DB");
+        });
+
+        CentralPanel::default().show(ctx, |ui| {
+            egui::containers::frame::Frame::default().show(ui, |ui| ());
+        });
+
+        egui::Window::new("Diagware")
+            .show(ctx, |ui| {
+
+            ui.vertical_centered(|ui| {
+                ui.heading("Home");
+                ui.label(Self::get_time());
+                ui.separator();
+
+                if ui.button("Diagnose").clicked() {
+                    todo!("diagnosis");
+                }
+
+                if ui.button("DB-Manager").clicked() {
+                    self.show_db_manager = true;
+                }
+
+                ui.separator();
+                if ui.button(egui_phosphor::regular::POWER).clicked() {
+                    todo!("Poweroff");
                 }
             });
 
 
-        if self.state_pages[PAGE_DBMANAGEMENT] {
-            egui::Window::new(PAGE_DBMANAGEMENT).show(ctx, |ui| {
-                self.ui_dbmanager(ui);
-            });
-        }
+            let _window = Self::new_window("DB Manager");
+
+            let id = egui::ViewportId::from_hash_of("db");
+            let viewport = ViewportBuilder::default()
+                .with_title("DB Manager")
+                .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
+
+            if self.show_db_manager {
+                ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
+                    CentralPanel::default().show(ctx, |ui| {
+                        self.ui_dbmanager(ui);
+                    });
+
+                    if ctx.input(|i| i.viewport().close_requested()) {
+                        self.show_db_manager = false;
+                    }
+
+                });
+            }
 
 
-        if self.state_pages[PAGE_DIAGNOSIS] {
-            egui::Window::new(PAGE_DIAGNOSIS).show(ctx, |ui| {
-                self.ui_diagnosis(ui);
-            });
-        }
-
-
-        CentralPanel::default().show(ctx, |ui| {
-            egui::containers::Frame::default().show(ui, |_ui| ());
         });
-
 
     }
     }
