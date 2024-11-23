@@ -1,13 +1,61 @@
 use sqlx::SqlitePool;
-use tokio::runtime::Runtime as TokioRuntime;
 
-pub mod model;
-use model::{Module, TargetValue};
 
 // Modify here!
 const DB_FILENAME: &str = "src/database.db";
 
 
+// Model
+
+#[derive(Debug, Clone)]
+pub struct Module {
+    pub id:     Option<i64>,
+    pub name:   String,
+    pub serial: String,
+}
+
+impl Module {
+    pub fn new(id: Option<i64>, name: &str, serial: &str) -> Self {
+        Self {
+            id,
+            name: name.to_owned(),
+            serial: serial.to_owned()
+        }
+    }
+}
+
+
+#[derive(Debug, Clone)]
+pub struct TargetValue {
+    pub id:         Option<i64>,
+    pub module_id:  Option<i64>,
+    pub identifier: String,
+    pub descriptor: Option<String>,
+    pub value:      f64,
+    pub unit:       Option<String>,
+}
+
+impl TargetValue {
+    pub fn new(
+        id:         Option<i64>,
+        module_id:  Option<i64>,
+        identifier: String,
+        descriptor: Option<String>,
+        value:      f64,
+        unit:       Option<String>
+    ) -> Self {
+
+        Self {
+            id,
+            module_id,
+            identifier,
+            descriptor,
+            value,
+            unit,
+        }
+
+    }
+}
 
 
 
@@ -16,27 +64,23 @@ const DB_FILENAME: &str = "src/database.db";
 #[derive(Debug)]
 pub struct DB {
     conn: SqlitePool,
-    rt: TokioRuntime,
 }
 
 impl DB {
 
-    pub fn new() -> Result<Self, sqlx::Error> {
-        let rt = TokioRuntime::new()?;
-
+    pub async fn new() -> Result<Self, sqlx::Error> {
         Ok(Self {
-            conn: rt.block_on(SqlitePool::connect(DB_FILENAME))?,
-            rt,
+            conn: SqlitePool::connect(DB_FILENAME).await?
         })
     }
 
-    pub fn get_modules_all(
+    pub async fn get_modules_all(
         &self
     ) -> Result<Vec<Module>, sqlx::Error> {
 
-        Ok(self.rt.block_on(
-            sqlx::query_as!(Module, "SELECT * FROM modules")
-                .fetch_all(&self.conn))?)
+        Ok(sqlx::query_as!(Module, "SELECT * FROM modules")
+            .fetch_all(&self.conn)
+            .await?)
 
     }
 

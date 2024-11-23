@@ -2,7 +2,8 @@ mod io;
 use io::EEPROM;
 
 mod db;
-use db::{DB, Module};
+use db::DB;
+use db::model::{Module, TargetValue};
 
 mod ui;
 
@@ -12,8 +13,7 @@ type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
 
 
 
-#[tokio::main]
-async fn main() -> AnyError<()> {
+fn main() -> AnyError<()> {
 
 
     // let eeprom = EEPROM::new()?;
@@ -22,9 +22,10 @@ async fn main() -> AnyError<()> {
     // let module: Module = db.get_module_by_serial(serial.as_str()).await?;
     // dbg!(module);
 
-    let db = DB::new().await?;
 
-    ui::run_gui(db)?;
+    let db = DB::new()?;
+    let m = db.get_modules_all()?;
+    // ui::run_gui(db)?;
 
 
 

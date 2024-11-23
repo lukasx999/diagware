@@ -7,7 +7,7 @@ use egui::{CentralPanel,
     PopupCloseBehavior,
     containers::ComboBox};
 
-use crate::db::{DB, Module};
+use crate::db::{DB};
 
 
 
@@ -97,13 +97,17 @@ impl GuiState {
         }
     }
 
-    fn db_manager_ui(&mut self, ui: &mut egui::Ui) -> Result<(), sqlx::Error> {
+    fn db_manager_ui(&mut self, ui: &mut egui::Ui) {
+
         ui.heading("Database");
         ui.label("DB Verwaltung");
         ui.separator();
 
 
-        // TODO: fetch from db
+        if ui.button("fetch").clicked() {
+            todo!("fetch from db");
+        }
+
 
         ComboBox::from_label("Modul")
             .selected_text(&self.db_manager_selected)
@@ -143,10 +147,6 @@ impl GuiState {
                     });
                 });
             });
-
-
-        Ok(())
-
 
     }
 
@@ -203,10 +203,6 @@ impl eframe::App for GuiState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
         Self::ui_config(ctx);
-
-        // let runtime = tokio::runtime::Runtime::new().unwrap();
-        // let modules: Vec<Module> = runtime.block_on(self.db.get_modules_all()).unwrap();
-        // dbg!(modules);
 
 
         CentralPanel::default().show(ctx, |ui| {
