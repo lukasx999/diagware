@@ -21,7 +21,7 @@ function transfer {
 }
 
 function run {
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} r -r --color always"
+    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} r -r --color always"
 }
 
 function build {

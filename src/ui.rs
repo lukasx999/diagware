@@ -19,8 +19,8 @@ use crate::db::{
 
 const EXPERT_PASSWORD: &str = "foo";
 
-const WINDOW_WIDTH:  f32 = 300.0;
-const WINDOW_HEIGHT: f32 = 300.0;
+const WINDOW_WIDTH:  f32 = 1280.0;
+const WINDOW_HEIGHT: f32 = 720.0;
 const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
 
@@ -119,12 +119,45 @@ impl GuiState {
         }
     }
 
-    fn db_manager_ui(&mut self, ui: &mut egui::Ui) {
+
+    fn get_time() -> String {
+        chrono::Local::now()
+            .time()
+            .format("%H:%M:%S")
+            .to_string()
+    }
+
+    fn ui_config(ctx: &egui::Context) {
+        ctx.set_pixels_per_point(2.0);
+        ctx.set_theme(egui::Theme::Dark);
+
+        // let mut v = egui::Visuals::default();
+        // v.window_fill = egui::Color32::from_rgb(50, 0, 0);
+        // ctx.set_visuals(v);
+    }
+
+
+    fn new_window(title: &str) -> (ViewportId, ViewportBuilder) {
+
+        let id = ViewportId::from_hash_of(title);
+        let viewport = ViewportBuilder::default()
+            .with_title(title)
+            .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
+
+        (id, viewport)
+
+    }
+
+
+
+    fn ui_dbmanager(&mut self, ui: &mut egui::Ui) {
 
         ui.heading("Database");
         ui.label("DB Verwaltung");
 
-        ui.button("add");
+        if ui.button("add").clicked() {
+            todo!("add");
+        }
         ui.separator();
 
 
@@ -135,8 +168,10 @@ impl GuiState {
         egui_extras::TableBuilder::new(ui)
             .column(egui_extras::Column::auto().resizable(true))
             .column(egui_extras::Column::auto().resizable(true))
+            .column(egui_extras::Column::auto().resizable(true))
             .column(egui_extras::Column::remainder())
             .header(30.0, |mut header| {
+                header.col(|ui| { ui.heading("rm");     });
                 header.col(|ui| { ui.heading("id");     });
                 header.col(|ui| { ui.heading("name");   });
                 header.col(|ui| { ui.heading("serial"); });
@@ -145,6 +180,9 @@ impl GuiState {
 
                 for module in modules {
                     body.row(10.0, |mut row| {
+                        row.col(|ui| {
+                            ui.button(egui_phosphor::regular::X);
+                        });
                         row.col(|ui| {
                             ui.label(format!("{}", module.id.unwrap()));
                         });
@@ -159,51 +197,8 @@ impl GuiState {
 
             });
 
-
-
     }
 
-
-    fn get_time() -> String {
-        chrono::Local::now()
-            .time()
-            .format("%H:%M:%S")
-            .to_string()
-    }
-
-
-    // Returns true if window should be closed
-    fn new_window(
-        name: &str,
-        ctx: &egui::Context,
-        mut callback: impl FnMut(&egui::Context) -> ()
-    ) -> bool {
-
-        let viewport_id = ViewportId::from_hash_of(name);
-        let viewport    = ViewportBuilder::default()
-            .with_title(name)
-            .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
-
-        ctx.show_viewport_immediate(viewport_id, viewport, |ctx, _class| {
-
-            callback(ctx);
-
-            if ctx.input(|i| i.viewport().close_requested()) {
-                true
-            }
-            else {
-                false
-            }
-
-        })
-
-    }
-
-
-    fn ui_config(ctx: &egui::Context) {
-        ctx.set_pixels_per_point(2.0);
-        ctx.set_theme(egui::Theme::Dark);
-    }
 
 
 }
@@ -217,8 +212,24 @@ impl eframe::App for GuiState {
 
         Self::ui_config(ctx);
 
+        egui::Window::new("Diagnosis").show(ctx, |ui| {
+            ui.heading("foo");
+            ui.label("greetings");
+        });
 
-        CentralPanel::default().show(ctx, |ui| {
+        egui::Window::new("DB Management").show(ctx, |ui| {
+            ui.heading("foo");
+            ui.label("greetings");
+        });
+
+
+        egui::SidePanel::left("WindowList").show(ctx, |ui| {
+            ui.toggle_value(&mut self.show_db_manager, "DBMan");
+        });
+
+
+        // CentralPanel::default().show(ctx, |ui| {
+        egui::Window::new("Diagware").show(ctx, |ui| {
 
             ui.vertical_centered(|ui| {
                 ui.heading("Home");
@@ -226,6 +237,7 @@ impl eframe::App for GuiState {
                 ui.separator();
 
                 if ui.button("Diagnose").clicked() {
+                    todo!("diagnosis");
                 }
 
                 if ui.button("DB-Manager").clicked() {
@@ -233,12 +245,13 @@ impl eframe::App for GuiState {
                 }
 
                 ui.separator();
-                let _ = ui.button(egui_phosphor::regular::POWER); // Poweroff
+                if ui.button(egui_phosphor::regular::POWER).clicked() {
+                    todo!("Poweroff");
+                }
             });
 
 
-
-
+            let _window = Self::new_window("DB Manager");
 
             let id = egui::ViewportId::from_hash_of("db");
             let viewport = ViewportBuilder::default()
@@ -248,7 +261,7 @@ impl eframe::App for GuiState {
             if self.show_db_manager {
                 ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
                     CentralPanel::default().show(ctx, |ui| {
-                        self.db_manager_ui(ui);
+                        self.ui_dbmanager(ui);
                     });
 
                     if ctx.input(|i| i.viewport().close_requested()) {
@@ -273,8 +286,11 @@ pub fn run_gui(db: DB) -> eframe::Result {
         viewport: ViewportBuilder::default()
             .with_title("Home")
             .with_position([SCREEN_WIDTH/2.0 + WINDOW_WIDTH/2.0, SCREEN_HEIGHT/2.0])
-            .with_resizable(false)
+            .with_resizable(true)
+            .with_fullscreen(false)
+            .with_maximized(true)
             .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]),
+        centered: true,
         ..Default::default()
     };
 
@@ -282,6 +298,8 @@ pub fn run_gui(db: DB) -> eframe::Result {
         "Diagware",
         options,
         Box::new(|cc| {
+
+            // Image support
             egui_extras::install_image_loaders(&cc.egui_ctx);
 
             // Phosphor icons
