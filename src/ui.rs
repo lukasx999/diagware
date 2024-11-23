@@ -4,7 +4,8 @@ use egui::{
     ViewportBuilder,
     ViewportId,
     PopupCloseBehavior,
-    containers::ComboBox
+    containers::ComboBox,
+    widget_text::WidgetText
 };
 
 use crate::db::{
@@ -22,6 +23,21 @@ const WINDOW_WIDTH:  f32 = 300.0;
 const WINDOW_HEIGHT: f32 = 300.0;
 const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
+
+
+
+// ComboBox::from_label("Modul")
+//     .selected_text(self.ui_dbmanager_currentmod.clone())
+//     .show_ui(ui, |ui| {
+//         for module in &modules {
+//             ui.selectable_value(
+//                 &mut self.ui_dbmanager_currentmod,
+//                 module.clone(),
+//                 module.clone(),
+//             );
+//         }
+//     });
+
 
 
 // let id = egui::ViewportId::from_hash_of("db");
@@ -77,14 +93,18 @@ const SCREEN_HEIGHT: f32 = 1080.0;
 
 
 
+impl Into<WidgetText> for Module {
+    fn into(self) -> WidgetText {
+        WidgetText::RichText(egui::RichText::new(self.name))
+    }
+}
+
 
 
 struct GuiState {
     db: DB,
     is_expert_mode:  bool,
     show_db_manager: bool,
-
-    db_manager_selected: String,
 }
 
 
@@ -96,7 +116,6 @@ impl GuiState {
             db,
             is_expert_mode:  false,
             show_db_manager: false,
-            db_manager_selected: "".to_owned(),
         }
     }
 
@@ -104,52 +123,43 @@ impl GuiState {
 
         ui.heading("Database");
         ui.label("DB Verwaltung");
+
+        ui.button("add");
         ui.separator();
 
+
+
+        // TODO: remove .unwrap()
         let modules: Vec<Module> = self.db.get_modules_all().unwrap();
-
-        ComboBox::from_label("Modul")
-            .selected_text(&self.db_manager_selected)
-            .show_ui(ui, |ui| {
-                for module in modules {
-                    ui.selectable_value(&mut self.db_manager_selected,
-                        module.name.clone(),
-                        format!("{}: {}", module.id.unwrap(), module.name)
-                    );
-                }
-                // ui.selectable_value(&mut self.db_manager_selected, "foo".to_owned(), "foo");
-            });
-
-        ui.separator();
 
         egui_extras::TableBuilder::new(ui)
             .column(egui_extras::Column::auto().resizable(true))
             .column(egui_extras::Column::auto().resizable(true))
             .column(egui_extras::Column::remainder())
-            .header(20.0, |mut header| {
-                header.col(|ui| {
-                    ui.heading("id");
-                });
-                header.col(|ui| {
-                    ui.heading("name");
-                });
-                header.col(|ui| {
-                    ui.heading("serial");
-                });
+            .header(30.0, |mut header| {
+                header.col(|ui| { ui.heading("id");     });
+                header.col(|ui| { ui.heading("name");   });
+                header.col(|ui| { ui.heading("serial"); });
             })
             .body(|mut body| {
-                body.row(10.0, |mut row| {
-                    row.col(|ui| {
-                        ui.label("1");
+
+                for module in modules {
+                    body.row(10.0, |mut row| {
+                        row.col(|ui| {
+                            ui.label(format!("{}", module.id.unwrap()));
+                        });
+                        row.col(|ui| {
+                            ui.label(module.name);
+                        });
+                        row.col(|ui| {
+                            ui.label(module.serial);
+                        });
                     });
-                    row.col(|ui| {
-                        ui.label("OPV");
-                    });
-                    row.col(|ui| {
-                        ui.label("123");
-                    });
-                });
+                }
+
             });
+
+
 
     }
 

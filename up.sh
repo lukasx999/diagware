@@ -42,6 +42,10 @@ if [[ $opt == "run" ]]; then
     transfer
     run
 
+elif [[ $opt == "xfer" ]]; then
+
+    transfer
+
 elif [[ $opt == "build" ]]; then
 
     transfer

@@ -1,37 +1,40 @@
 use sqlx::SqlitePool;
 use tokio::runtime::Runtime as TokioRuntime;
+use std::future::Future;
 
 pub mod model;
 use model::{Module, TargetValue};
-
 
 
 // Modify here!
 const DB_FILENAME: &str = "src/database.db";
 
 
-
-
 #[derive(Debug)]
 pub struct DB {
     conn: SqlitePool,
-    rt: TokioRuntime,
+    rt:   TokioRuntime,
 }
 
 impl DB {
 
     pub fn new() -> Result<Self, sqlx::Error> {
         let rt = TokioRuntime::new()?;
-
         Ok(Self {
             conn: rt.block_on(SqlitePool::connect(DB_FILENAME))?,
-            rt,
+            rt
         })
+    }
+
+    fn run_sync<F>(&self, fut: F) -> F::Output
+        where F: Future
+    {
+        self.rt.block_on(fut)
     }
 
     pub fn get_modules_all(&self) -> Result<Vec<Module>, sqlx::Error> {
 
-        Ok(self.rt.block_on(
+        Ok(self.run_sync(
             sqlx::query_as!(Module, "SELECT * FROM modules")
                 .fetch_all(&self.conn))?)
 
