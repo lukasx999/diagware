@@ -1,13 +1,16 @@
-use std::borrow::Cow;
-
 use eframe::egui;
-use egui::{CentralPanel,
+use egui::{
+    CentralPanel,
     ViewportBuilder,
     ViewportId,
     PopupCloseBehavior,
-    containers::ComboBox};
+    containers::ComboBox
+};
 
-use crate::db::{DB};
+use crate::db::{
+    DB,
+    model::{Module, TargetValue}
+};
 
 
 
@@ -103,18 +106,18 @@ impl GuiState {
         ui.label("DB Verwaltung");
         ui.separator();
 
-
-        if ui.button("fetch").clicked() {
-            todo!("fetch from db");
-        }
-
+        let modules: Vec<Module> = self.db.get_modules_all().unwrap();
 
         ComboBox::from_label("Modul")
             .selected_text(&self.db_manager_selected)
             .show_ui(ui, |ui| {
-                ui.selectable_value(&mut self.db_manager_selected, "foo".to_owned(), "foo");
-                ui.selectable_value(&mut self.db_manager_selected, "bar".to_owned(), "bar");
-                ui.selectable_value(&mut self.db_manager_selected, "baz".to_owned(), "baz");
+                for module in modules {
+                    ui.selectable_value(&mut self.db_manager_selected,
+                        module.name.clone(),
+                        format!("{}: {}", module.id.unwrap(), module.name)
+                    );
+                }
+                // ui.selectable_value(&mut self.db_manager_selected, "foo".to_owned(), "foo");
             });
 
         ui.separator();

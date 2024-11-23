@@ -7,8 +7,8 @@ pub struct Module {
 
 impl Module {
     pub fn new(
-        id: Option<i64>,
-        name: &str,
+        id:     Option<i64>,
+        name:   &str,
         serial: &str
     ) -> Self {
 
@@ -20,7 +20,6 @@ impl Module {
 
     }
 }
-
 
 #[derive(Debug, Clone)]
 pub struct TargetValue {

@@ -24,8 +24,8 @@ fn main() -> AnyError<()> {
 
 
     let db = DB::new()?;
-    let m = db.get_modules_all()?;
-    // ui::run_gui(db)?;
+
+    ui::run_gui(db)?;
 
 
 

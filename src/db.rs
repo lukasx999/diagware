@@ -4,11 +4,10 @@ use tokio::runtime::Runtime as TokioRuntime;
 pub mod model;
 use model::{Module, TargetValue};
 
+
+
 // Modify here!
 const DB_FILENAME: &str = "src/database.db";
-
-
-
 
 
 
@@ -30,9 +29,7 @@ impl DB {
         })
     }
 
-    pub fn get_modules_all(
-        &self
-    ) -> Result<Vec<Module>, sqlx::Error> {
+    pub fn get_modules_all(&self) -> Result<Vec<Module>, sqlx::Error> {
 
         Ok(self.rt.block_on(
             sqlx::query_as!(Module, "SELECT * FROM modules")
