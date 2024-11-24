@@ -15,10 +15,10 @@
 - [ ] X11 config
 - [ ] Multiple DB (stable/experimental)
 - [ ] LaTeX docs
-- [ ] UI (probably last)
-- [ ] exercise sheets in DB
+- [x] UI (probably last)
+- [ ] exercise/data sheets in DB
 - [ ] writing to USB
-- [ ] make use of async
+- [x] make use of async
 - [x] Testing Code on RPi4
 - [x] Writing serial to EEPROM
 

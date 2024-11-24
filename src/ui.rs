@@ -112,7 +112,7 @@ struct GuiState {
     db: DB,
     is_expert_mode:  bool,
     show_windowlist: bool,
-    state_pages: HashMap<String, bool>,
+    state_windows: HashMap<String, bool>,
 }
 
 
@@ -123,14 +123,13 @@ impl GuiState {
         Self {
             db,
             is_expert_mode:  false,
-            show_windowlist: false,
-            state_pages: HashMap::from([
-                ("Diagnosis".to_owned(),     false),
+            show_windowlist: true,
+            state_windows: HashMap::from([
+                ("Diagnosis"    .to_owned(), false),
                 ("DB-Management".to_owned(), false),
             ]),
         }
     }
-
 
     fn get_time() -> String {
         chrono::Local::now()
@@ -159,7 +158,11 @@ impl GuiState {
                 todo!("Poweroff");
             }
 
-            ui.label(format!("{}", Self::get_time()));
+            ui.label(Self::get_time());
+
+            let username = whoami::username();
+            let ip = local_ip_address::local_ip().unwrap();
+            ui.label(format!("{}@{}", username, ip));
 
         });
 
@@ -203,7 +206,9 @@ impl GuiState {
                 for module in modules {
                     body.row(10.0, |mut row| {
                         row.col(|ui| {
-                            ui.button(egui_phosphor::regular::X);
+                            if ui.button(egui_phosphor::regular::X).clicked() {
+                                todo!("Removing entries");
+                            }
                         });
                         row.col(|ui| {
                             ui.label(format!("{}", module.id.unwrap()));
@@ -242,23 +247,39 @@ impl eframe::App for GuiState {
 
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                for page in &mut self.state_pages {
+
+                // TODO: change hashmap hasher (.with_hasher)
+                // right now iteration is randomized every run
+                for page in &mut self.state_windows {
                     ui.toggle_value(page.1, page.0);
                 }
+
             });
 
 
-        if self.state_pages[PAGE_DBMANAGEMENT] {
-            egui::Window::new(PAGE_DBMANAGEMENT).show(ctx, |ui| {
+        let mut active: bool = *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap();
+
+        egui::Window::new(PAGE_DBMANAGEMENT)
+            .fade_in(true)
+            .fade_out(true)
+            .open(&mut active)
+            .show(ctx, |ui| {
                 self.ui_dbmanager(ui);
             });
-        }
+
+        *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap() = active;
 
 
-        if self.state_pages[PAGE_DIAGNOSIS] {
-            egui::Window::new(PAGE_DIAGNOSIS).show(ctx, |ui| {
-                self.ui_diagnosis(ui);
-            });
+
+
+        // TODO: wrapper for this
+        if self.state_windows[PAGE_DIAGNOSIS] {
+            egui::Window::new(PAGE_DIAGNOSIS)
+                .fade_in(true)
+                .fade_out(true)
+                .show(ctx, |ui| {
+                    self.ui_diagnosis(ui);
+                });
         }
 
 
@@ -268,7 +289,7 @@ impl eframe::App for GuiState {
 
 
     }
-    }
+}
 
 
 
