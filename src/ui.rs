@@ -131,6 +131,8 @@ impl GuiState {
         }
     }
 
+
+
     fn get_time() -> String {
         chrono::Local::now()
             .time()
@@ -257,8 +259,12 @@ impl eframe::App for GuiState {
             });
 
 
-        let mut active: bool = *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap();
 
+
+
+
+        // TODO: wrapper for this
+        let mut active: bool = *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap();
         egui::Window::new(PAGE_DBMANAGEMENT)
             .fade_in(true)
             .fade_out(true)
@@ -266,21 +272,27 @@ impl eframe::App for GuiState {
             .show(ctx, |ui| {
                 self.ui_dbmanager(ui);
             });
-
         *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap() = active;
 
 
 
 
-        // TODO: wrapper for this
-        if self.state_windows[PAGE_DIAGNOSIS] {
-            egui::Window::new(PAGE_DIAGNOSIS)
-                .fade_in(true)
-                .fade_out(true)
-                .show(ctx, |ui| {
-                    self.ui_diagnosis(ui);
-                });
-        }
+
+
+        let mut active: bool = *self.state_windows.get_mut(PAGE_DIAGNOSIS).unwrap();
+        egui::Window::new(PAGE_DIAGNOSIS)
+            .fade_in(true)
+            .fade_out(true)
+            .open(&mut active)
+            .show(ctx, |ui| {
+                self.ui_diagnosis(ui);
+            });
+        *self.state_windows.get_mut(PAGE_DIAGNOSIS).unwrap() = active;
+
+
+
+
+
 
 
         CentralPanel::default().show(ctx, |ui| {

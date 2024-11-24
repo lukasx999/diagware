@@ -1,15 +1,26 @@
+mod ui;
+
 mod io;
 use io::EEPROM;
 
 mod db;
-use db::DB;
-use db::model::{Module, TargetValue};
+use db::{
+    DB,
+    model::{Module, TargetValue}
+};
 
-mod ui;
+mod diagnosis;
+use diagnosis::Diagnosis;
+
 
 
 
 type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
+
+
+
+
+
 
 
 
