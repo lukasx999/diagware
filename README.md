@@ -38,6 +38,9 @@
 - Ensure that `.cargo/config.toml` holds the correct url to the database
   - (needed for compile-time query checking by sqlx)
 - **RPi**: username: `pi`, password: `piuser4`
+- Software
+  - Sqlitestudio
+  - `bacon clippy`
 
 
 
