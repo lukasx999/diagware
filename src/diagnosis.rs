@@ -1,4 +1,10 @@
-pub enum DiagnosisStates {
+use crate::EEPROM;
+use crate::{DB, Module};
+use crate::AnyError;
+
+
+
+pub enum DiagnosisState {
     Start,
     ReadSerial,
     DBLookup,
@@ -7,31 +13,47 @@ pub enum DiagnosisStates {
     End,
 }
 
-
 pub struct Diagnosis {
-    state: DiagnosisStates,
-    // TODO: db, eeprom, io
+    state: DiagnosisState,
+    eeprom: EEPROM,
+    db: DB,
 }
 
 impl Diagnosis {
 
-    pub fn new() -> Self {
-        Self { state: DiagnosisStates::Start }
+    pub fn new(eeprom: EEPROM, db: DB) -> Self {
+        Self {
+            state: DiagnosisState::Start,
+            eeprom,
+            db,
+        }
     }
 
-    fn read_serial(&self) {
+    fn read_serial(&mut self) -> AnyError<String> {
+        let serial: String = self.eeprom.get_serial()?;
+        Ok(serial)
     }
 
-    pub fn diagnosis(&mut self) {
+    fn db_lookup(&self, serial: &str) -> AnyError<Module> {
+        let module: Module = self.db.get_module_by_serial(serial)?;
+        Ok(module)
+    }
+
+    pub fn diagnosis(&mut self) -> AnyError<()> {
 
         match self.state {
-            DiagnosisStates::Start        => {}
-            DiagnosisStates::ReadSerial   => {}
-            DiagnosisStates::DBLookup     => {}
-            DiagnosisStates::Measurements => {}
-            DiagnosisStates::CheckValues  => {}
-            DiagnosisStates::End          => {}
+            DiagnosisState::Start        => {}
+            DiagnosisState::ReadSerial   => {
+                self.read_serial()?;
+            }
+            DiagnosisState::DBLookup     => {
+            }
+            DiagnosisState::Measurements => {}
+            DiagnosisState::CheckValues  => {}
+            DiagnosisState::End          => {}
         }
+
+        Ok(())
 
     }
 

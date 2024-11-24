@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use eframe::egui::{
     self,
-    CentralPanel,
     ViewportBuilder,
     ViewportId,
     PopupCloseBehavior,
@@ -33,86 +32,14 @@ const PAGE_DBMANAGEMENT: &str = "DB-Management";
 
 
 
-// ComboBox::from_label("Modul")
-//     .selected_text(self.ui_dbmanager_currentmod.clone())
-//     .show_ui(ui, |ui| {
-//         for module in &modules {
-//             ui.selectable_value(
-//                 &mut self.ui_dbmanager_currentmod,
-//                 module.clone(),
-//                 module.clone(),
-//             );
-//         }
-//     });
-
-
-
-// let id = egui::ViewportId::from_hash_of("db");
-// let viewport = ViewportBuilder::default()
-//     .with_title("DB Manager")
-//     .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]);
-//
-// if self.show_db_manager {
-//     ctx.show_viewport_immediate(id, viewport, |ctx, _class| {
-//
-//         CentralPanel::default().show(ctx, |ui| {
-//             self.db_manager_ui(ui);
-//         });
-//
-//         if ctx.input(|i| i.viewport().close_requested()) {
-//             self.show_db_manager = false;
-//         }
-//
-//     });
-// }
-
-
-
-
-
-
-// let img = egui::Image::new(egui::ImageSource::Uri(
-//     Cow::Borrowed("file://src/img_poweroff.png")));
-// ui.add(egui::widgets::ImageButton::new(img));
-
-// let popup_id = egui::Id::new("login-popup");
-// let res = ui.button("login");
-//
-// if res.clicked() {
-//     ui.memory_mut(|mem| mem.toggle_popup(popup_id));
-// }
-//
-// egui::popup_below_widget(ui, popup_id, &res, egui::PopupCloseBehavior::CloseOnClickOutside, |ui| {
-//     ui.label("popup!");
-// });
-//
-// // ui.menu_button("menu", |ui| {
-// //     ui.button("poweroff");
-// //     ui.button("reboot");
-// //     ui.button("logout");
-// // });
-
-
-
-
-
-
-
-
-
-impl Into<WidgetText> for Module {
-    fn into(self) -> WidgetText {
-        WidgetText::RichText(egui::RichText::new(self.name))
-    }
-}
-
-
 
 struct GuiState {
     db: DB,
     is_expert_mode:  bool,
     show_windowlist: bool,
-    state_windows: HashMap<String, bool>,
+
+    show_diagnosis: bool,
+    show_dbmanager: bool,
 }
 
 
@@ -124,14 +51,11 @@ impl GuiState {
             db,
             is_expert_mode:  false,
             show_windowlist: true,
-            state_windows: HashMap::from([
-                ("Diagnosis"    .to_owned(), false),
-                ("DB-Management".to_owned(), false),
-            ]),
+
+            show_diagnosis: false,
+            show_dbmanager: false,
         }
     }
-
-
 
     fn get_time() -> String {
         chrono::Local::now()
@@ -140,13 +64,35 @@ impl GuiState {
             .to_string()
     }
 
+
+
+    // Returns new state of `enabled`
+    fn new_window(
+        ctx:     &egui::Context,
+        enabled: bool,
+        title:   &str,
+        mut ui_callback: impl FnMut(&mut egui::Ui),
+    ) -> bool {
+
+        let mut active: bool = enabled;
+
+        egui::Window::new(title)
+            .fade_in(true)
+            .fade_out(true)
+            .open(&mut active)
+            .show(ctx, |ui| {
+                ui_callback(ui);
+            });
+
+        active
+
+    }
+
+
+
     fn ui_config(ctx: &egui::Context) {
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
-
-        // let mut v = egui::Visuals::default();
-        // v.window_fill = egui::Color32::from_rgb(50, 0, 0);
-        // ctx.set_visuals(v);
     }
 
 
@@ -172,8 +118,13 @@ impl GuiState {
 
 
     fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
-        ui.heading("Diag!");
-        ui.label("Diagnose!");
+
+        ui.heading("Diagnose");
+
+        if ui.button("Start").clicked() {
+            todo!("Diagnosis");
+        }
+
     }
 
 
@@ -185,11 +136,12 @@ impl GuiState {
         if ui.button("add").clicked() {
             todo!("add");
         }
+
         ui.separator();
 
 
 
-        // TODO: remove .unwrap()
+        // TODO: remove .unwrap() -> Error Popup
         let modules: Vec<Module> = self.db.get_modules_all().unwrap();
 
         egui_extras::TableBuilder::new(ui)
@@ -241,7 +193,6 @@ impl eframe::App for GuiState {
 
         Self::ui_config(ctx);
 
-
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             self.ui_topbar(ui);
         });
@@ -249,53 +200,24 @@ impl eframe::App for GuiState {
 
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-
-                // TODO: change hashmap hasher (.with_hasher)
-                // right now iteration is randomized every run
-                for page in &mut self.state_windows {
-                    ui.toggle_value(page.1, page.0);
-                }
-
+                ui.toggle_value(&mut self.show_dbmanager, PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis, PAGE_DIAGNOSIS);
             });
 
 
-
-
-
-
-        // TODO: wrapper for this
-        let mut active: bool = *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap();
-        egui::Window::new(PAGE_DBMANAGEMENT)
-            .fade_in(true)
-            .fade_out(true)
-            .open(&mut active)
-            .show(ctx, |ui| {
+        self.show_dbmanager =
+            Self::new_window(ctx, self.show_dbmanager, PAGE_DBMANAGEMENT, |ui| {
                 self.ui_dbmanager(ui);
             });
-        *self.state_windows.get_mut(PAGE_DBMANAGEMENT).unwrap() = active;
 
-
-
-
-
-
-        let mut active: bool = *self.state_windows.get_mut(PAGE_DIAGNOSIS).unwrap();
-        egui::Window::new(PAGE_DIAGNOSIS)
-            .fade_in(true)
-            .fade_out(true)
-            .open(&mut active)
-            .show(ctx, |ui| {
+        self.show_diagnosis =
+            Self::new_window(ctx, self.show_diagnosis, PAGE_DIAGNOSIS, |ui| {
                 self.ui_diagnosis(ui);
             });
-        *self.state_windows.get_mut(PAGE_DIAGNOSIS).unwrap() = active;
 
 
 
-
-
-
-
-        CentralPanel::default().show(ctx, |ui| {
+        egui::CentralPanel::default().show(ctx, |ui| {
             egui::containers::Frame::default().show(ui, |_ui| ());
         });
 
@@ -305,20 +227,29 @@ impl eframe::App for GuiState {
 
 
 
+fn setup_options() -> eframe::NativeOptions {
 
-pub fn run_gui(db: DB) -> eframe::Result {
-
-    let options = eframe::NativeOptions {
+    eframe::NativeOptions {
         viewport: ViewportBuilder::default()
-            .with_title("Home")
-            .with_position([SCREEN_WIDTH/2.0 + WINDOW_WIDTH/2.0, SCREEN_HEIGHT/2.0])
-            .with_resizable(true)
-            .with_fullscreen(false)
-            .with_maximized(true)
+            .with_title("Diagware")
+            // .with_resizable(true)
+            // .with_fullscreen(false)
+            // .with_maximized(true)
             .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]),
         centered: true,
         ..Default::default()
-    };
+    }
+
+}
+
+
+
+
+
+
+pub fn run_gui(db: DB) -> eframe::Result {
+
+    let options: eframe::NativeOptions = setup_options();
 
     eframe::run_native(
         "Diagware",

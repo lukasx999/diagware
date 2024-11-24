@@ -26,61 +26,90 @@ impl DB {
         })
     }
 
-    fn run_sync<F>(&self, fut: F) -> F::Output
+    fn run_sync<F>(&self, future: F) -> F::Output
         where F: Future
     {
-        self.rt.block_on(fut)
+        self.rt.block_on(future)
     }
 
     pub fn get_modules_all(&self) -> Result<Vec<Module>, sqlx::Error> {
 
-        Ok(self.run_sync(
-            sqlx::query_as!(Module, "SELECT * FROM modules")
-                .fetch_all(&self.conn))?)
+        let future =
+        sqlx::query_as!(Module, "SELECT * FROM modules")
+            .fetch_all(&self.conn);
+
+        Ok(self.run_sync(future)?)
 
     }
 
-    pub async fn get_module_by_id(
+    pub fn get_module_by_id(
         &self, id: i64
     ) -> Result<Module, sqlx::Error> {
 
-        Ok(sqlx::query_as!(Module, "SELECT * FROM modules WHERE id=?1", id)
-            .fetch_one(&self.conn)
-            .await?)
+        let future =
+        sqlx::query_as!(Module, "SELECT * FROM modules WHERE id=?1", id)
+            .fetch_one(&self.conn);
+
+        Ok(self.run_sync(future)?)
 
     }
 
-    pub async fn get_module_by_serial(
+    pub fn get_module_by_serial(
         &self, serial: &str
     ) -> Result<Module, sqlx::Error> {
 
-        Ok(sqlx::query_as!(Module, "SELECT * FROM modules WHERE serial=?1", serial)
-            .fetch_one(&self.conn)
-            .await?)
+        let future =
+        sqlx::query_as!(Module, "SELECT * FROM modules WHERE serial=?1", serial)
+            .fetch_one(&self.conn);
+
+        Ok(self.run_sync(future)?)
 
     }
 
-    pub async fn module_add(&self, module: Module) -> Result<(), sqlx::Error> {
+    pub fn module_add(&self, module: Module) -> Result<(), sqlx::Error> {
 
+        let future =
         sqlx::query!("INSERT INTO modules (id, name, serial) VALUES (?1, ?2, ?3)",
             module.id,
             module.name,
             module.serial)
-            .execute(&self.conn)
-            .await?;
+            .execute(&self.conn);
 
+        self.run_sync(future)?;
         Ok(())
 
     }
 
-    pub async fn module_delete_by_id(
-        &self, id: i64
+    pub fn module_update_by_id(
+        &self,
+        id: i64,
+        module: Module
     ) -> Result<(), sqlx::Error> {
 
-        sqlx::query!("DELETE FROM modules WHERE id=?1", id)
-            .execute(&self.conn)
-            .await?;
+        assert!(module.id == None);
 
+        let future =
+        sqlx::query!("UPDATE modules SET name=?1, serial=?2 WHERE id=?3;",
+            module.name,
+            module.serial,
+            id)
+            .execute(&self.conn);
+
+        self.run_sync(future)?;
+        Ok(())
+
+    }
+
+    pub fn module_delete_by_id(
+        &self,
+        id: i64
+    ) -> Result<(), sqlx::Error> {
+
+        let future =
+        sqlx::query!("DELETE FROM modules WHERE id=?1", id)
+            .execute(&self.conn);
+
+        self.run_sync(future)?;
         Ok(())
 
     }

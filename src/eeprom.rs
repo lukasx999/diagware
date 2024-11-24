@@ -1,13 +1,9 @@
-use rppal::{
-    gpio::Gpio,
-    i2c::{self, I2c},
-    pwm::{Channel, Pwm},
-    spi::{Bus, Mode, SlaveSelect, Spi},
-    uart::{Parity, Uart},
-};
+use rppal::i2c::{self, I2c};
 
 use std::time::Duration;
 use std::thread;
+
+use crate::AnyError;
 
 
 // Show I2C devices:
@@ -32,7 +28,6 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
-type AnyError<T> = Result<T, Box<dyn std::error::Error>>;
 
 // #[cfg(target_arch ="aarch64")]
 // #[cfg(target_arch = "x86_64")]

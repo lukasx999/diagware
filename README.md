@@ -4,20 +4,29 @@
 
 - **Serial**: how many bytes? including characters?
 - **Docs**: installation instructions?
+- **Manual DB Management in UI**: Still relevant when Sqlitestudio exists?
+- **State machine for diagnosis**
+- **Hardware checker**
+
+
+
 
 
 ## TODO
 
+- [ ] EGUI: Error Popup for error handling
+- [ ] Hardware checker page to see if all devices are connected and working
 - [ ] State machine for diagnosis
 - [ ] Cargo Script for uploading to rpi
 - [ ] Login
 - [ ] File path handling for SQLx and egui::include_image!
 - [ ] X11 config
+  - Isolated Environment (what about crashes?)
 - [ ] Multiple DB (stable/experimental)
 - [ ] LaTeX docs
-- [x] UI (probably last)
 - [ ] exercise/data sheets in DB
 - [ ] writing to USB
+- [x] UI (probably last)
 - [x] make use of async
 - [x] Testing Code on RPi4
 - [x] Writing serial to EEPROM
