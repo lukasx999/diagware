@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use eframe::egui::{
     self,
+    Color32,
     ViewportBuilder,
     ViewportId,
     PopupCloseBehavior,
@@ -14,6 +15,8 @@ use crate::db::{
     model::{Module, TargetValue}
 };
 
+use crate::diagnosis::{Diagnosis, DiagnosisState};
+
 
 
 
@@ -22,8 +25,10 @@ use crate::db::{
 // Modify here!
 const EXPERT_PASSWORD: &str = "foo";
 
-const WINDOW_WIDTH:  f32 = 1280.0;
-const WINDOW_HEIGHT: f32 = 720.0;
+// const WINDOW_WIDTH:  f32 = 1280.0;
+// const WINDOW_HEIGHT: f32 = 720.0;
+const WINDOW_WIDTH:  f32 = 2300.0;
+const WINDOW_HEIGHT: f32 = 1200.0;
 const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
 
@@ -35,6 +40,8 @@ const PAGE_DBMANAGEMENT: &str = "DB-Management";
 
 struct GuiState {
     db: DB,
+    diagnosis: Diagnosis,
+
     is_expert_mode:  bool,
     show_windowlist: bool,
 
@@ -46,13 +53,16 @@ struct GuiState {
 
 impl GuiState {
 
-    pub fn new(db: DB) -> Self {
+    pub fn new(db: DB, diagnosis: Diagnosis) -> Self {
         Self {
             db,
+            diagnosis,
+
+
             is_expert_mode:  false,
             show_windowlist: true,
 
-            show_diagnosis: false,
+            show_diagnosis: true,
             show_dbmanager: false,
         }
     }
@@ -117,7 +127,49 @@ impl GuiState {
     }
 
 
+
+
+
+
+    fn ui_paintstatemachine(&mut self, ui: &mut egui::Ui) {
+        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
+
+        let painter: Painter = ui.allocate_painter(
+            vec2(ui.available_width(), 100.0),
+            Sense::hover()
+        ).1;
+
+
+        let rect: Rect = ui.allocate_at_least(
+            vec2(0.0, 0.0),
+            Sense::hover()
+        ).0;
+
+
+        // painter.rect_filled(
+        //     Rect::from_center_size(origin, vec2(50.0, 50.0)),
+        //     Rounding::from(5.0),
+        //     Color32::RED
+        // );
+
+        painter.circle_filled(
+            // rect.center() + Vec2::splat(50.0),
+            rect.center(),
+            100.0,
+            Color32::BLUE
+        );
+
+    }
+
+
     fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
+
+        // TODO: ui.collapsing
+
+
+        egui::containers::Frame::canvas(ui.style()).show(ui, |ui| {
+            self.ui_paintstatemachine(ui);
+        });
 
         ui.heading("Diagnose");
 
@@ -243,11 +295,10 @@ fn setup_options() -> eframe::NativeOptions {
 }
 
 
-
-
-
-
-pub fn run_gui(db: DB) -> eframe::Result {
+pub fn run_gui(
+    db: DB,
+    diagnosis: Diagnosis
+) -> eframe::Result {
 
     let options: eframe::NativeOptions = setup_options();
 
@@ -264,7 +315,7 @@ pub fn run_gui(db: DB) -> eframe::Result {
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiState::new(db)))
+            Ok(Box::new(GuiState::new(db, diagnosis)))
 
         }),
     )
