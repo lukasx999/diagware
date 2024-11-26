@@ -3,9 +3,6 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use eframe::egui::{
     self,
     Color32,
-    ViewportBuilder,
-    ViewportId,
-    PopupCloseBehavior,
     containers::ComboBox,
     widget_text::WidgetText
 };
@@ -16,6 +13,9 @@ use crate::db::{
 };
 
 use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT};
+
+
+
 
 
 
@@ -34,6 +34,8 @@ const SCREEN_HEIGHT: f32 = 1080.0;
 
 const PAGE_DIAGNOSIS:    &str = "Diagnosis";
 const PAGE_DBMANAGEMENT: &str = "DB-Management";
+
+const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
 
 
 
@@ -57,7 +59,6 @@ impl GuiState {
         Self {
             db,
             diagnosis: Arc::new(Mutex::new(diagnosis)),
-
 
             is_expert_mode:  false,
             show_windowlist: true,
@@ -158,6 +159,7 @@ impl GuiState {
         use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke};
 
         // TODO: documentation!
+        // TODO: change background color of canvas to grey (match with background)
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
         let (painter, center): (Painter, Pos2) =
@@ -169,18 +171,51 @@ impl GuiState {
         let offset         = (radius * 2.0) + gap;             // distance to next circle center from current circle center
         let initial_offset = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
 
+        let mut font = egui::FontId::default();
+        font.size = 15.0;
+        // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
+
+
+        let state_active = 0;
+        // let state_active: usize = match self.diagnosis.lock().unwrap().state {
+        //     DiagnosisState::Start        => 0,
+        //     DiagnosisState::ReadSerial   => 1,
+        //     DiagnosisState::DBLookup     => 2,
+        //     DiagnosisState::Measurements => 3,
+        //     DiagnosisState::Evaluation   => 4,
+        //     DiagnosisState::End          => 5,
+        // };
+
+
         for i in 0..STATE_COUNT {
+
+            let color_circle = if i == state_active {
+                Color32::LIGHT_BLUE
+            }
+            else {
+                Color32::WHITE
+            };
 
             painter.circle_filled(
                 center
                 - vec2(initial_offset, 0.0)
                 + vec2(i as f32 * offset, 0.0),
                 radius,
-                Color32::DARK_BLUE
+                color_circle
+            );
+
+            painter.text(
+                center
+                - vec2(initial_offset, 0.0)
+                + vec2(i as f32 * offset, 0.0),
+                egui::Align2::CENTER_CENTER,
+                format!("{i}"),
+                font.clone(),
+                Color32::BLACK
             );
 
             // Dont render an arrow after the last state
-            if i == STATE_COUNT-1 {
+            if i == STATE_COUNT - 1 {
                 break;
             }
 
@@ -189,29 +224,12 @@ impl GuiState {
                 - vec2(initial_offset - radius, 0.0)
                 + vec2(i as f32 * offset, 0.0),
                 vec2(gap, 0.0),
-                Stroke::new(2.0, Color32::RED)
+                Stroke::new(2.0, Color32::GRAY)
             );
 
         }
 
 
-        // painter.circle_filled(
-        //     center,
-        //     30.0,
-        //     Color32::BLUE
-        // );
-
-
-        // let mut font = egui::FontId::default();
-        // font.size = 30.0;
-        //
-        // painter.text(
-        //     center,
-        //     egui::Align2::CENTER_CENTER,
-        //     "State",
-        //     font,
-        //     Color32::ORANGE
-        // );
 
 
 
@@ -222,8 +240,13 @@ impl GuiState {
 
         // TODO: ui.collapsing
 
-        egui::containers::Frame::canvas(ui.style()).show(ui, |ui| {
-            self.ui_statemachine(ui);
+        egui::containers::Frame::canvas(ui.style())
+            .rounding(30.0)
+            .outer_margin(10.0)
+            .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
+            .fill(COLOR_BACKGROUND)
+            .show(ui, |ui| {
+                self.ui_statemachine(ui);
         });
 
         ui.heading("Diagnose");
@@ -328,10 +351,22 @@ impl eframe::App for GuiState {
                 self.ui_dbmanager(ui);
             });
 
-        self.show_diagnosis =
-            Self::new_window(ctx, self.show_diagnosis, PAGE_DIAGNOSIS, |ui| {
+
+
+        // TODO: refactor this into a macro!
+        // TODO: min_width()
+        let mut active = self.show_diagnosis;
+
+        egui::Window::new(PAGE_DIAGNOSIS)
+            .fade_in(true)
+            .fade_out(true)
+            .open(&mut active)
+            .show(ctx, |ui| {
                 self.ui_diagnosis(ui);
             });
+
+        self.show_diagnosis = active;
+
 
 
 
@@ -348,7 +383,7 @@ impl eframe::App for GuiState {
 fn setup_options() -> eframe::NativeOptions {
 
     eframe::NativeOptions {
-        viewport: ViewportBuilder::default()
+        viewport: egui::ViewportBuilder::default()
             .with_title("Diagware")
             // .with_resizable(true)
             // .with_fullscreen(false)

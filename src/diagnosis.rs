@@ -1,3 +1,6 @@
+use std::thread;
+use std::time::Duration;
+
 use crate::EEPROM;
 use crate::{DB, Module};
 use crate::AnyError;
@@ -5,9 +8,10 @@ use crate::AnyError;
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
-#[derive(Debug)]
+// TODO: switch to enum numbers (=> incrementing in next_state())
+#[derive(Debug, Clone, Default)]
 pub enum DiagnosisState {
-    Start,
+    #[default] Start,
     ReadSerial,
     DBLookup,
     Measurements,
@@ -69,32 +73,44 @@ impl Diagnosis {
     }
 
 
+    fn do_stuff(&self) {
+        thread::sleep(Duration::from_millis(500));
+    }
+
+
+
     pub fn diagnosis(&mut self) -> AnyError<()> {
 
         loop {
-            std::thread::sleep(std::time::Duration::from_millis(500));
+
             match self.state {
                 DiagnosisState::Start        => {
+                    self.do_stuff();
                     println!("Start!");
                     self.next_state();
                 }
                 DiagnosisState::ReadSerial   => {
+                    self.do_stuff();
                     println!("Reading Serial...");
                     self.next_state();
                 }
                 DiagnosisState::DBLookup     => {
+                    self.do_stuff();
                     println!("Looking up Data...");
                     self.next_state();
                 }
                 DiagnosisState::Measurements => {
+                    self.do_stuff();
                     println!("Taking Measurements...");
                     self.next_state();
                 }
                 DiagnosisState::Evaluation   => {
+                    self.do_stuff();
                     println!("Evaluating...");
                     self.next_state();
                 }
                 DiagnosisState::End => {
+                    self.do_stuff();
                     println!("End!");
                     self.next_state();
                     break;
@@ -105,5 +121,7 @@ impl Diagnosis {
         Ok(())
 
     }
+
+
 
 }
