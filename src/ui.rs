@@ -155,18 +155,19 @@ impl GuiState {
 
 
     fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
-        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
+        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke};
 
+        // TODO: documentation!
         let width:  f32 = ui.available_width();
-        let height: f32 = 200.0;
+        let height: f32 = 150.0;
         let (painter, center): (Painter, Pos2) =
         Self::ui_painting_setup(ui, width, height);
 
-        let gap            = 10.0; // space between circles
-        let segment_size   = width / (STATE_COUNT as f32 + 1.0); // +1 for extra space at the sides
+        let gap            = 30.0;                         // space between circles
+        let segment_size   = width / (STATE_COUNT as f32); // +1 for extra space at the sides
         let radius         = (segment_size - gap) / 2.0;
-        let offset         = (radius * 2.0) + gap; // distance to next circle center from current circle center
-        let initial_offset = width/2.0 - segment_size; // offset at the very left for the starting circle
+        let offset         = (radius * 2.0) + gap;             // distance to next circle center from current circle center
+        let initial_offset = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
 
         for i in 0..STATE_COUNT {
 
@@ -176,6 +177,19 @@ impl GuiState {
                 + vec2(i as f32 * offset, 0.0),
                 radius,
                 Color32::DARK_BLUE
+            );
+
+            // Dont render an arrow after the last state
+            if i == STATE_COUNT-1 {
+                break;
+            }
+
+            painter.arrow(
+                center
+                - vec2(initial_offset - radius, 0.0)
+                + vec2(i as f32 * offset, 0.0),
+                vec2(gap, 0.0),
+                Stroke::new(2.0, Color32::RED)
             );
 
         }
