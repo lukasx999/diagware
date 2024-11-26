@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use eframe::egui::{
     self,
@@ -15,7 +15,7 @@ use crate::db::{
     model::{Module, TargetValue}
 };
 
-use crate::diagnosis::{Diagnosis, DiagnosisState};
+use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT};
 
 
 
@@ -131,11 +131,8 @@ impl GuiState {
 
 
 
-    fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
-        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
-
-        let height: f32 = 200.0;
-        let width:  f32 = ui.available_width();
+    fn ui_painting_setup(ui: &mut egui::Ui, width: f32, height: f32) -> (egui::Painter, egui::Pos2) {
+        use egui::{vec2, Sense, Painter, Rect, };
 
         let painter: Painter = ui.allocate_painter(
             vec2(width, height),
@@ -151,30 +148,56 @@ impl GuiState {
         - vec2(0.0, height/2.0)
         + vec2(width/2.0, 0.0);
 
+        (painter, center)
+
+    }
 
 
-        painter.rect_filled(
-            Rect::from_center_size(center, Vec2::splat(200.0)),
-            Rounding::from(5.0),
-            Color32::WHITE
-        );
 
-        painter.circle_filled(
-            center,
-            75.0,
-            Color32::BLUE
-        );
+    fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
+        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
 
-        let mut font = egui::FontId::default();
-        font.size = 30.0;
+        let width:  f32 = ui.available_width();
+        let height: f32 = 200.0;
+        let (painter, center): (Painter, Pos2) =
+        Self::ui_painting_setup(ui, width, height);
 
-        painter.text(
-            center,
-            egui::Align2::CENTER_CENTER,
-            "State",
-            font,
-            Color32::ORANGE
-        );
+        let gap            = 10.0; // space between circles
+        let segment_size   = width / (STATE_COUNT as f32 + 1.0); // +1 for extra space at the sides
+        let radius         = (segment_size - gap) / 2.0;
+        let offset         = (radius * 2.0) + gap; // distance to next circle center from current circle center
+        let initial_offset = width/2.0 - segment_size; // offset at the very left for the starting circle
+
+        for i in 0..STATE_COUNT {
+
+            painter.circle_filled(
+                center
+                - vec2(initial_offset, 0.0)
+                + vec2(i as f32 * offset, 0.0),
+                radius,
+                Color32::DARK_BLUE
+            );
+
+        }
+
+
+        // painter.circle_filled(
+        //     center,
+        //     30.0,
+        //     Color32::BLUE
+        // );
+
+
+        // let mut font = egui::FontId::default();
+        // font.size = 30.0;
+        //
+        // painter.text(
+        //     center,
+        //     egui::Align2::CENTER_CENTER,
+        //     "State",
+        //     font,
+        //     Color32::ORANGE
+        // );
 
 
 
@@ -193,11 +216,11 @@ impl GuiState {
 
         if ui.button("Start").clicked() {
 
-            let diag = self.diagnosis.clone();
+            let diag: Arc<_> = self.diagnosis.clone();
 
             std::thread::spawn(move || {
 
-                let mut diag = diag.lock().unwrap();
+                let mut diag: MutexGuard<Diagnosis> = diag.lock().unwrap();
 
                 let Ok(_) = diag.diagnosis() else {
                     todo!("Show error popup");

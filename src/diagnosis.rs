@@ -3,6 +3,7 @@ use crate::{DB, Module};
 use crate::AnyError;
 
 
+pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
 #[derive(Debug)]
 pub enum DiagnosisState {

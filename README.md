@@ -2,6 +2,7 @@
 
 ## Questions
 
+- Visio Drawing & Explanation for Drawing States
 - **Serial**: how many bytes? including characters?
 - **Docs**: installation instructions?
 - **Manual DB Management in UI**: Still relevant when Sqlitestudio exists?
@@ -14,6 +15,7 @@
 
 ## TODO
 
+- [ ] Visio Drawing & Explanation for Drawing States
 - [ ] EGUI: Error Popup for error handling
 - [ ] Hardware checker page to see if all devices are connected and working
 - [ ] State machine for diagnosis
