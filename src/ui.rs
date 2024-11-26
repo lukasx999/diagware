@@ -142,7 +142,6 @@ impl GuiState {
             Sense::hover()
         ).1;
 
-
         let rect: Rect = ui.allocate_at_least(
             vec2(0.0, 0.0),
             Sense::hover()
@@ -153,19 +152,31 @@ impl GuiState {
         + vec2(width/2.0, 0.0);
 
 
+
         painter.rect_filled(
-            Rect::from_center_size(center, vec2(100.0, 100.0)),
+            Rect::from_center_size(center, Vec2::splat(200.0)),
             Rounding::from(5.0),
-            Color32::RED
+            Color32::WHITE
         );
-
-
 
         painter.circle_filled(
             center,
-            30.0,
+            75.0,
             Color32::BLUE
         );
+
+        let mut font = egui::FontId::default();
+        font.size = 30.0;
+
+        painter.text(
+            center,
+            egui::Align2::CENTER_CENTER,
+            "State",
+            font,
+            Color32::ORANGE
+        );
+
+
 
     }
 
