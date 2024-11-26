@@ -16,7 +16,7 @@ pub enum DiagnosisState {
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    state: DiagnosisState,
+    pub state: DiagnosisState,
     // eeprom: EEPROM,
     // db: DB,
 }
@@ -61,7 +61,9 @@ impl Diagnosis {
             DiagnosisState::Evaluation   => {
                 self.state = DiagnosisState::End;
             }
-            DiagnosisState::End => {}
+            DiagnosisState::End          => {
+                self.state = DiagnosisState::Start;
+            }
         }
     }
 
@@ -93,6 +95,7 @@ impl Diagnosis {
                 }
                 DiagnosisState::End => {
                     println!("End!");
+                    self.next_state();
                     break;
                 }
             }

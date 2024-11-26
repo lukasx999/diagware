@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use eframe::egui::{
     self,
@@ -40,7 +40,7 @@ const PAGE_DBMANAGEMENT: &str = "DB-Management";
 
 struct GuiState {
     db: DB,
-    diagnosis: Diagnosis,
+    diagnosis: Arc<Mutex<Diagnosis>>,
 
     is_expert_mode:  bool,
     show_windowlist: bool,
@@ -56,7 +56,7 @@ impl GuiState {
     pub fn new(db: DB, diagnosis: Diagnosis) -> Self {
         Self {
             db,
-            diagnosis,
+            diagnosis: Arc::new(Mutex::new(diagnosis)),
 
 
             is_expert_mode:  false,
@@ -131,7 +131,7 @@ impl GuiState {
 
 
 
-    fn ui_paintstatemachine(&mut self, ui: &mut egui::Ui) {
+    fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
 
         let height: f32 = 200.0;
@@ -185,15 +185,25 @@ impl GuiState {
 
         // TODO: ui.collapsing
 
-
         egui::containers::Frame::canvas(ui.style()).show(ui, |ui| {
-            self.ui_paintstatemachine(ui);
+            self.ui_statemachine(ui);
         });
 
         ui.heading("Diagnose");
 
         if ui.button("Start").clicked() {
-            todo!("Diagnosis");
+
+            let diag = self.diagnosis.clone();
+
+            std::thread::spawn(move || {
+
+                let mut diag = diag.lock().unwrap();
+
+                let Ok(_) = diag.diagnosis() else {
+                    todo!("Show error popup");
+                };
+
+            });
         }
 
     }
