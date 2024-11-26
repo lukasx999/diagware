@@ -134,8 +134,11 @@ impl GuiState {
     fn ui_paintstatemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding};
 
+        let height: f32 = 200.0;
+        let width:  f32 = ui.available_width();
+
         let painter: Painter = ui.allocate_painter(
-            vec2(ui.available_width(), 100.0),
+            vec2(width, height),
             Sense::hover()
         ).1;
 
@@ -145,17 +148,22 @@ impl GuiState {
             Sense::hover()
         ).0;
 
+        let center = rect.center()
+        - vec2(0.0, height/2.0)
+        + vec2(width/2.0, 0.0);
 
-        // painter.rect_filled(
-        //     Rect::from_center_size(origin, vec2(50.0, 50.0)),
-        //     Rounding::from(5.0),
-        //     Color32::RED
-        // );
+
+        painter.rect_filled(
+            Rect::from_center_size(center, vec2(100.0, 100.0)),
+            Rounding::from(5.0),
+            Color32::RED
+        );
+
+
 
         painter.circle_filled(
-            // rect.center() + Vec2::splat(50.0),
-            rect.center(),
-            100.0,
+            center,
+            30.0,
             Color32::BLUE
         );
 
