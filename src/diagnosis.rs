@@ -1,11 +1,10 @@
 use std::thread;
-use std::sync::{Mutex, MutexGuard, mpsc};
+use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
 
 use crate::EEPROM;
 use crate::{DB, Module};
 use crate::AnyError;
-
 
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
@@ -51,9 +50,6 @@ impl Diagnosis {
     }
     */
 
-    fn send_state(&self, tx: &mpsc::Sender<DiagnosisState>) {
-        tx.send(self.state.clone()).unwrap();
-    }
 
     fn next_state(&mut self) {
         self.state = match self.state {
@@ -66,46 +62,46 @@ impl Diagnosis {
         }
     }
 
-    fn do_stuff(&self) {
-        println!("{:?}...", self.state);
+    fn next(mutex: &Mutex<Self>) {
+        let mut s = mutex.lock().unwrap();
+        println!("{:?}", s.state);
+        s.next_state();
+    }
+
+    fn do_stuff() {
         thread::sleep(Duration::from_millis(500));
     }
 
-    pub fn diagnosis(&mut self, tx: mpsc::Sender<DiagnosisState>) {
+    pub fn diagnosis(mutex: &Mutex<Self>) {
 
         loop {
 
-            match self.state {
+            let state: DiagnosisState = mutex.lock().unwrap().state.clone();
+
+            match state {
                 DiagnosisState::Start => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::ReadSerial => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::DBLookup => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::Measurements => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::Evaluation => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::End => {
-                    self.send_state(&tx);
-                    self.do_stuff();
-                    self.next_state();
-                    self.send_state(&tx);
+                    Self::do_stuff();
+                    Self::next(mutex);
                     break;
                 }
             }

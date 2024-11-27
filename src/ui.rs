@@ -43,10 +43,7 @@ const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
 struct GuiState {
     db: DB,
 
-    current_state: DiagnosisState,
     diagnosis: Arc<Mutex<Diagnosis>>,
-    state_sender:   mpsc::Sender<DiagnosisState>,
-    state_receiver: mpsc::Receiver<DiagnosisState>,
 
     is_expert_mode:  bool,
     show_windowlist: bool,
@@ -61,15 +58,10 @@ impl GuiState {
 
     pub fn new(db: DB, diagnosis: Diagnosis) -> Self {
 
-        let (state_sender, state_receiver) = mpsc::channel();
-
         Self {
             db,
 
-            current_state: DiagnosisState::default(),
             diagnosis: Arc::new(Mutex::new(diagnosis)),
-            state_sender,
-            state_receiver,
 
             is_expert_mode:  false,
             show_windowlist: true,
@@ -189,11 +181,8 @@ impl GuiState {
         // TODO: increase font step-wise
 
 
-        if let Ok(state) = self.state_receiver.try_recv() {
-            self.current_state = state;
-        }
 
-        let state_active: usize = match self.current_state {
+        let state_active: usize = match self.diagnosis.lock().unwrap().state.clone() {
             DiagnosisState::Start        => 0,
             DiagnosisState::ReadSerial   => 1,
             DiagnosisState::DBLookup     => 2,
@@ -263,17 +252,16 @@ impl GuiState {
             .fill(COLOR_BACKGROUND)
             .show(ui, |ui| {
                 self.ui_statemachine(ui);
-        });
+            });
 
         ui.heading("Diagnose");
 
         if ui.button("Start").clicked() {
 
             let diag = self.diagnosis.clone();
-            let tx   = self.state_sender.clone();
 
             std::thread::spawn(move || {
-                diag.lock().unwrap().diagnosis(tx);
+                Diagnosis::diagnosis(&diag);
             });
 
         }
