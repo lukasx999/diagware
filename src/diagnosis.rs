@@ -10,15 +10,17 @@ use crate::AnyError;
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
 // TODO: Error state
-// TODO: switch to enum numbers (=> incrementing in next_state())
+
+// NOTE: using numeric constants, because it makes rendering and incrementing state easier
+
 #[derive(Debug, Clone, Default)]
 pub enum DiagnosisState {
-    #[default] Start,
-    ReadSerial,
-    DBLookup,
-    Measurements,
-    Evaluation,
-    End,
+    #[default] Start = 0,
+    ReadSerial       = 1,
+    DBLookup         = 2,
+    Measurements     = 3,
+    Evaluation       = 4,
+    End              = 5,
 }
 
 #[derive(Debug)]

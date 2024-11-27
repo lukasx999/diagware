@@ -182,14 +182,7 @@ impl GuiState {
 
 
 
-        let state_active: usize = match self.diagnosis.lock().unwrap().state.clone() {
-            DiagnosisState::Start        => 0,
-            DiagnosisState::ReadSerial   => 1,
-            DiagnosisState::DBLookup     => 2,
-            DiagnosisState::Measurements => 3,
-            DiagnosisState::Evaluation   => 4,
-            DiagnosisState::End          => 5,
-        };
+        let state_active = self.diagnosis.lock().unwrap().state.clone() as usize;
 
 
         for i in 0..STATE_COUNT {
