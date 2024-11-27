@@ -176,21 +176,24 @@ impl GuiState {
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
 
 
-        let state_active = 0;
-        // let state_active: usize = match self.diagnosis.lock().unwrap().state {
-        //     DiagnosisState::Start        => 0,
-        //     DiagnosisState::ReadSerial   => 1,
-        //     DiagnosisState::DBLookup     => 2,
-        //     DiagnosisState::Measurements => 3,
-        //     DiagnosisState::Evaluation   => 4,
-        //     DiagnosisState::End          => 5,
-        // };
+        // let state_active = 0;
+        let state_active: usize = match self.diagnosis.lock().unwrap().state.clone() {
+            DiagnosisState::Start        => 0,
+            DiagnosisState::ReadSerial   => 1,
+            DiagnosisState::DBLookup     => 2,
+            DiagnosisState::Measurements => 3,
+            DiagnosisState::Evaluation   => 4,
+            DiagnosisState::End          => 5,
+        };
+
+        println!("{}", state_active);
+
 
 
         for i in 0..STATE_COUNT {
 
             let color_circle = if i == state_active {
-                Color32::LIGHT_BLUE
+                Color32::BLUE
             }
             else {
                 Color32::WHITE
@@ -252,17 +255,10 @@ impl GuiState {
         ui.heading("Diagnose");
 
         if ui.button("Start").clicked() {
-
             let diag: Arc<_> = self.diagnosis.clone();
 
             std::thread::spawn(move || {
-
-                let mut diag: MutexGuard<Diagnosis> = diag.lock().unwrap();
-
-                let Ok(_) = diag.diagnosis() else {
-                    todo!("Show error popup");
-                };
-
+                Diagnosis::diagnosis(&diag);
             });
         }
 
@@ -350,7 +346,6 @@ impl eframe::App for GuiState {
             Self::new_window(ctx, self.show_dbmanager, PAGE_DBMANAGEMENT, |ui| {
                 self.ui_dbmanager(ui);
             });
-
 
 
         // TODO: refactor this into a macro!

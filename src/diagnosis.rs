@@ -1,4 +1,5 @@
 use std::thread;
+use std::sync::{Mutex, MutexGuard};
 use std::time::Duration;
 
 use crate::EEPROM;
@@ -8,6 +9,7 @@ use crate::AnyError;
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
+// TODO: Error state
 // TODO: switch to enum numbers (=> incrementing in next_state())
 #[derive(Debug, Clone, Default)]
 pub enum DiagnosisState {
@@ -30,7 +32,7 @@ impl Diagnosis {
 
     pub fn new() -> Self {
         Self {
-            state: DiagnosisState::Start,
+            state: DiagnosisState::default(),
             // eeprom,
             // db,
         }
@@ -60,56 +62,51 @@ impl Diagnosis {
         }
     }
 
+    fn next(mutex: &Mutex<Self>) {
+        let mut s = mutex.lock().unwrap();
+        println!("{:?}", s.state);
+        s.next_state();
+    }
 
-    fn do_stuff(&self) {
+    fn do_stuff() {
         thread::sleep(Duration::from_millis(500));
     }
 
-
-
-    pub fn diagnosis(&mut self) -> AnyError<()> {
+    pub fn diagnosis(mutex: &Mutex<Self>) {
 
         loop {
 
-            match self.state {
+            let state: DiagnosisState = mutex.lock().unwrap().state.clone();
+
+            match state {
                 DiagnosisState::Start        => {
-                    self.do_stuff();
-                    println!("Start!");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::ReadSerial   => {
-                    self.do_stuff();
-                    println!("Reading Serial...");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::DBLookup     => {
-                    self.do_stuff();
-                    println!("Looking up Data...");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::Measurements => {
-                    self.do_stuff();
-                    println!("Taking Measurements...");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::Evaluation   => {
-                    self.do_stuff();
-                    println!("Evaluating...");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                 }
                 DiagnosisState::End => {
-                    self.do_stuff();
-                    println!("End!");
-                    self.next_state();
+                    Self::do_stuff();
+                    Self::next(mutex);
                     break;
                 }
             }
         }
 
-        Ok(())
-
     }
-
-
 
 }
