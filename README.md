@@ -36,6 +36,7 @@
 
 ## NOTES
 
+- Egui ONLY redraws ui when moving cursor => `ctx.request_repaint()`
 - Always (cargo) run from the project root
 - Ensure that `.cargo/config.toml` holds the correct url to the database
   - (needed for compile-time query checking by sqlx)

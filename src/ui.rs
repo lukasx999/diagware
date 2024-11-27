@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard, mpsc};
 
 use eframe::egui::{
     self,
@@ -42,7 +42,11 @@ const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
 
 struct GuiState {
     db: DB,
+
+    current_state: DiagnosisState,
     diagnosis: Arc<Mutex<Diagnosis>>,
+    state_sender:   mpsc::Sender<DiagnosisState>,
+    state_receiver: mpsc::Receiver<DiagnosisState>,
 
     is_expert_mode:  bool,
     show_windowlist: bool,
@@ -56,9 +60,16 @@ struct GuiState {
 impl GuiState {
 
     pub fn new(db: DB, diagnosis: Diagnosis) -> Self {
+
+        let (state_sender, state_receiver) = mpsc::channel();
+
         Self {
             db,
+
+            current_state: DiagnosisState::default(),
             diagnosis: Arc::new(Mutex::new(diagnosis)),
+            state_sender,
+            state_receiver,
 
             is_expert_mode:  false,
             show_windowlist: true,
@@ -66,6 +77,7 @@ impl GuiState {
             show_diagnosis: true,
             show_dbmanager: false,
         }
+
     }
 
     fn get_time() -> String {
@@ -174,10 +186,14 @@ impl GuiState {
         let mut font = egui::FontId::default();
         font.size = 15.0;
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
+        // TODO: increase font step-wise
 
 
-        // let state_active = 0;
-        let state_active: usize = match self.diagnosis.lock().unwrap().state.clone() {
+        if let Ok(state) = self.state_receiver.try_recv() {
+            self.current_state = state;
+        }
+
+        let state_active: usize = match self.current_state {
             DiagnosisState::Start        => 0,
             DiagnosisState::ReadSerial   => 1,
             DiagnosisState::DBLookup     => 2,
@@ -185,9 +201,6 @@ impl GuiState {
             DiagnosisState::Evaluation   => 4,
             DiagnosisState::End          => 5,
         };
-
-        println!("=> {}", state_active);
-
 
 
         for i in 0..STATE_COUNT {
@@ -255,11 +268,14 @@ impl GuiState {
         ui.heading("Diagnose");
 
         if ui.button("Start").clicked() {
-            let diag: Arc<_> = self.diagnosis.clone();
+
+            let diag = self.diagnosis.clone();
+            let tx   = self.state_sender.clone();
 
             std::thread::spawn(move || {
-                Diagnosis::diagnosis(&diag);
+                diag.lock().unwrap().diagnosis(tx);
             });
+
         }
 
     }
@@ -347,6 +363,10 @@ impl eframe::App for GuiState {
                 self.ui_dbmanager(ui);
             });
 
+
+        ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
+                               // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
+                               // every frame
 
         // TODO: refactor this into a macro!
         // TODO: min_width()
