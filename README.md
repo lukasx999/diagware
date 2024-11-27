@@ -34,6 +34,15 @@
 - [x] Writing serial to EEPROM
 
 
+## Docs
+- ImGui vs Retained-mode GUI
+- State Machine diagram + explaination
+- State Machine GUI rendering
+- R/W EEPROM
+- DB Management
+
+
+
 ## NOTES
 
 - Egui ONLY redraws ui when moving cursor => `ctx.request_repaint()`

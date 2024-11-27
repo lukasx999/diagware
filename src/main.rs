@@ -22,13 +22,9 @@ use error::AnyError;
 fn main() -> AnyError<()> {
 
     let db = DB::new()?;
-
+    let diagnosis = Diagnosis::new();
     // let eeprom = EEPROM::new()?;
 
-    let diagnosis = Diagnosis::new();
-    // diagnosis.diagnosis();
-
-    // TODO: set up state machine UI + Visio Diagram + Infrastructure
     ui::run_gui(db, diagnosis)?;
 
 

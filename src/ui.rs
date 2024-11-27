@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex, MutexGuard, mpsc};
+use std::sync::{Arc, Mutex};
 
 use eframe::egui::{
     self,
@@ -162,8 +162,6 @@ impl GuiState {
     fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke};
 
-        // TODO: documentation!
-        // TODO: change background color of canvas to grey (match with background)
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
         let (painter, center): (Painter, Pos2) =
