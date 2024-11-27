@@ -186,7 +186,7 @@ impl GuiState {
             DiagnosisState::End          => 5,
         };
 
-        println!("{}", state_active);
+        println!("=> {}", state_active);
 
 
 
