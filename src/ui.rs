@@ -178,6 +178,7 @@ impl GuiState {
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
         // TODO: increase font step-wise
 
+        // TODO: legend / hover popup for descriptions
 
 
         let state_active = self.diagnosis.lock().unwrap().state.clone() as usize;
@@ -224,10 +225,6 @@ impl GuiState {
             );
 
         }
-
-
-
-
 
     }
 
