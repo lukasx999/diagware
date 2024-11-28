@@ -54,13 +54,14 @@ impl Diagnosis {
 
 
     fn next_state(&mut self) {
+        use DiagnosisState as DS;
         self.state = match self.state {
-            DiagnosisState::Start        => DiagnosisState::ReadSerial,
-            DiagnosisState::ReadSerial   => DiagnosisState::DBLookup,
-            DiagnosisState::DBLookup     => DiagnosisState::Measurements,
-            DiagnosisState::Measurements => DiagnosisState::Evaluation,
-            DiagnosisState::Evaluation   => DiagnosisState::End,
-            DiagnosisState::End          => DiagnosisState::Start,
+            DS::Start        => DS::ReadSerial,
+            DS::ReadSerial   => DS::DBLookup,
+            DS::DBLookup     => DS::Measurements,
+            DS::Measurements => DS::Evaluation,
+            DS::Evaluation   => DS::End,
+            DS::End          => DS::Start,
         }
     }
 
