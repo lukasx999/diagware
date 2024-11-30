@@ -45,23 +45,25 @@ impl Diagnosis {
         }
     }
 
-    /*
-    fn read_serial(&mut self) -> AnyError<String> {
-        let serial: String = self.eeprom.get_serial()?;
+    // TODO: Diag error struct
+
+    fn read_serial(&mut self) -> Result<String, Box<dyn std::error::Error>> {
+        let eeprom = self.eeprom.lock().unwrap();
+        let serial: String = eeprom.get_serial()?;
         Ok(serial)
     }
 
-    fn db_lookup(&self, serial: &str) -> AnyError<Module> {
-        let module: Module = self.db.get_module_by_serial(serial)?;
+    fn db_lookup(&self, serial: &str) -> Result<Module, Box<dyn std::error::Error>> {
+        let db = self.db.lock().unwrap();
+        let module: Module = db.get_module_by_serial(serial)?;
         Ok(module)
     }
-    */
 
 
     fn next_state(&mut self) {
         use DiagnosisState as DS;
         self.state = match self.state {
-            DS::Idle        => DS::ReadSerial,
+            DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
             DS::DBLookup     => DS::Measurements,
             DS::Measurements => DS::Evaluation,
@@ -85,23 +87,26 @@ impl Diagnosis {
     }
 
     // TODO: switch to method syntax
-    pub fn diagnosis(mutex: &Mutex<Self>) -> std::io::Result<()> {
+    pub fn diagnosis(mutex: &Mutex<Self>) -> Result<(), Box<dyn std::error::Error>> {
+
+        let mut serial = String::from("");
 
         loop {
 
             let state: DiagnosisState = mutex.lock().unwrap().state.clone();
 
-            // TODO: implement first 2 states
             match state {
+
                 DiagnosisState::Idle => {
                     Self::next(mutex);
                 }
                 DiagnosisState::ReadSerial => {
-                    Self::do_stuff();
+                    serial = mutex.lock().unwrap().read_serial()?;
                     Self::next(mutex);
                 }
                 DiagnosisState::DBLookup => {
-                    Self::do_stuff();
+                    let module: Module = mutex.lock().unwrap().db_lookup(serial.as_str())?;
+                    dbg!(&module);
                     Self::next(mutex);
                 }
                 DiagnosisState::Measurements => {

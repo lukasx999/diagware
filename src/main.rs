@@ -27,9 +27,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let db     = Arc::new(Mutex::new(DB::new()?));
     let eeprom = Arc::new(Mutex::new(EEPROM::new()?));
 
-    let diagnosis = Diagnosis::new(eeprom.clone(), db.clone());
+    let diagnosis = Diagnosis::new(
+        eeprom.clone(),
+        db.clone()
+    );
 
     ui::run_gui(db, eeprom, diagnosis)?;
+
 
 
     Ok(())

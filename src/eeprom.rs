@@ -28,8 +28,6 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
-// #[cfg(target_arch ="aarch64")]
-// #[cfg(target_arch = "x86_64")]
 
 
 
@@ -51,6 +49,8 @@ impl EEPROM {
         thread::sleep(Duration::from_millis(EEPROM_I2C_DELAY_MS));
     }
 
+
+    #[cfg(target_arch ="aarch64")]
     pub fn get_serial(&self) -> Result<String, Box<dyn Error>> {
 
         let mut buf = [0_u8; EEPROM_COLUMNS];
@@ -64,6 +64,12 @@ impl EEPROM {
         Ok(s)
 
     }
+
+    #[cfg(target_arch = "x86_64")]
+    pub fn get_serial(&self) -> Result<String, Box<dyn Error>> {
+        Ok("123".to_owned())
+    }
+
 
     // Accepts Strings with max. `EEPROM_COLUMNS` (=16) characters
     pub fn write_serial(&self, serial: &str) -> i2c::Result<()> {

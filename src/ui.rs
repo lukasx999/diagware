@@ -303,11 +303,14 @@ impl GuiState {
 
         if btn_start.clicked() {
 
+            // TODO: struct field: "diagnosis_running" -> block off entire UI while diag is running
             let diag = self.diagnosis.clone();
 
-            std::thread::spawn(move || {
-                Diagnosis::diagnosis(&diag).unwrap();
-            });
+            std::thread::Builder::new()
+                .name("diagnosis".to_string())
+                .spawn(move || {
+                    Diagnosis::diagnosis(&diag).unwrap();
+                }).unwrap();
 
         }
 
@@ -327,6 +330,7 @@ impl GuiState {
 
         // TODO: Modal for adding users
 
+        // TODO: use try_lock() for making changes and show error popup
         // TODO: remove .unwrap() -> Error Popup
         let db = self.db.lock().unwrap();
         let modules: Vec<Module> = db.get_modules_all().unwrap();
