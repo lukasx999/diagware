@@ -13,14 +13,14 @@ pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
 // NOTE: using numeric constants, because it makes rendering and incrementing state easier
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub enum DiagnosisState {
-    #[default] Start = 0,
-    ReadSerial       = 1,
-    DBLookup         = 2,
-    Measurements     = 3,
-    Evaluation       = 4,
-    End              = 5,
+    #[default] Idle = 0, // Start
+    ReadSerial      = 1,
+    DBLookup        = 2,
+    Measurements    = 3,
+    Evaluation      = 4,
+    End             = 5,
 }
 
 #[derive(Debug)]
@@ -56,12 +56,12 @@ impl Diagnosis {
     fn next_state(&mut self) {
         use DiagnosisState as DS;
         self.state = match self.state {
-            DS::Start        => DS::ReadSerial,
+            DS::Idle        => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
             DS::DBLookup     => DS::Measurements,
             DS::Measurements => DS::Evaluation,
             DS::Evaluation   => DS::End,
-            DS::End          => DS::Start,
+            DS::End          => DS::Idle,
         }
     }
 
@@ -75,15 +75,20 @@ impl Diagnosis {
         thread::sleep(Duration::from_millis(500));
     }
 
-    pub fn diagnosis(mutex: &Mutex<Self>) {
+    pub fn is_running(&self) -> bool {
+        self.state != DiagnosisState::Idle
+    }
+
+    // TODO: switch to method syntax
+    pub fn diagnosis(mutex: &Mutex<Self>) -> AnyError<()> {
 
         loop {
 
             let state: DiagnosisState = mutex.lock().unwrap().state.clone();
 
+            // TODO: implement first 2 states
             match state {
-                DiagnosisState::Start => {
-                    Self::do_stuff();
+                DiagnosisState::Idle => {
                     Self::next(mutex);
                 }
                 DiagnosisState::ReadSerial => {
@@ -105,10 +110,11 @@ impl Diagnosis {
                 DiagnosisState::End => {
                     Self::do_stuff();
                     Self::next(mutex);
-                    break;
+                    break Ok(());
                 }
             }
         }
+
 
     }
 

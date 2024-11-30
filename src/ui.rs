@@ -36,8 +36,8 @@ const PAGE_DIAGNOSIS:    &str = "Diagnosis";
 const PAGE_DBMANAGEMENT: &str = "DB-Management";
 
 const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
-
-
+const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41, 110, 214);
+const COLOR_STATE: Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
@@ -50,6 +50,8 @@ struct GuiState {
 
     show_diagnosis: bool,
     show_dbmanager: bool,
+
+
 }
 
 
@@ -68,6 +70,7 @@ impl GuiState {
 
             show_diagnosis: true,
             show_dbmanager: false,
+
         }
 
     }
@@ -111,7 +114,27 @@ impl GuiState {
     }
 
 
-    fn ui_topbar(&mut self, ui: &mut egui::Ui) {
+    fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+
+
+        let modal = egui_modal::Modal::new(ctx, "Login");
+
+        modal.show(|ui| {
+
+            modal.title(ui, "Login");
+
+            modal.frame(ui, |ui| {
+                modal.body(ui, "Passworteingabe");
+                // TODO: this
+            });
+
+            modal.buttons(ui, |ui| {
+                if modal.button(ui, "Abbruch").clicked() {}
+                if modal.button(ui, "Ok").clicked() {}
+            });
+
+        });
+
 
         ui.horizontal(|ui| {
 
@@ -126,6 +149,10 @@ impl GuiState {
             let username = whoami::username();
             let ip = local_ip_address::local_ip().unwrap();
             ui.label(format!("{}@{}", username, ip));
+
+            if ui.button("Login").clicked() {
+                modal.open();
+            }
 
         });
 
@@ -176,6 +203,8 @@ impl GuiState {
         let mut font = egui::FontId::default();
         font.size = 15.0;
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
+
+
         // TODO: increase font step-wise
 
         // TODO: legend / hover popup for descriptions
@@ -187,10 +216,10 @@ impl GuiState {
         for i in 0..STATE_COUNT {
 
             let color_circle = if i == state_active {
-                Color32::BLUE
+                COLOR_ACTIVESTATE
             }
             else {
-                Color32::WHITE
+                COLOR_STATE
             };
 
             painter.circle_filled(
@@ -229,27 +258,41 @@ impl GuiState {
     }
 
 
-    fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
+    fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
-        // TODO: ui.collapsing
+        ui.heading("Diagnose");
 
         egui::containers::Frame::canvas(ui.style())
-            .rounding(30.0)
+            .rounding(20.0)
             .outer_margin(10.0)
-            .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
+            // .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
             .fill(COLOR_BACKGROUND)
             .show(ui, |ui| {
                 self.ui_statemachine(ui);
             });
 
-        ui.heading("Diagnose");
 
-        if ui.button("Start").clicked() {
+
+
+
+
+        let is_running: bool = self.diagnosis
+            .clone()
+            .lock()
+            .unwrap()
+            .is_running();
+
+        let btn_start: egui::Response = ui.add_enabled(
+            !is_running,
+            egui::Button::new("Start")
+        );
+
+        if btn_start.clicked() {
 
             let diag = self.diagnosis.clone();
 
             std::thread::spawn(move || {
-                Diagnosis::diagnosis(&diag);
+                Diagnosis::diagnosis(&diag).unwrap();
             });
 
         }
@@ -268,7 +311,7 @@ impl GuiState {
 
         ui.separator();
 
-
+        // TODO: Modal for adding users
 
         // TODO: remove .unwrap() -> Error Popup
         let modules: Vec<Module> = self.db.get_modules_all().unwrap();
@@ -323,8 +366,10 @@ impl eframe::App for GuiState {
         Self::ui_config(ctx);
 
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
-            self.ui_topbar(ui);
+            self.ui_topbar(&ctx, ui);
         });
+
+
 
 
         egui::SidePanel::left("WindowList")
@@ -353,11 +398,10 @@ impl eframe::App for GuiState {
             .fade_out(true)
             .open(&mut active)
             .show(ctx, |ui| {
-                self.ui_diagnosis(ui);
+                self.ui_diagnosis(&ctx, ui);
             });
 
         self.show_diagnosis = active;
-
 
 
 
