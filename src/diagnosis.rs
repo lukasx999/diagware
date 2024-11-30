@@ -28,6 +28,11 @@ pub enum DiagnosisState {
     End             = 5,
 }
 
+
+pub struct DiagnosisError;
+
+
+
 #[derive(Debug)]
 pub struct Diagnosis {
     pub state: DiagnosisState,

@@ -30,20 +30,16 @@ use crate::eeprom::EEPROM;
 // Modify here!
 const EXPERT_PASSWORD: &str = "foo";
 
-// const WINDOW_WIDTH:  f32 = 1280.0;
-// const WINDOW_HEIGHT: f32 = 720.0;
 const WINDOW_WIDTH:  f32 = 2300.0;
 const WINDOW_HEIGHT: f32 = 1200.0;
-const SCREEN_WIDTH:  f32 = 1920.0;
-const SCREEN_HEIGHT: f32 = 1080.0;
 
 const PAGE_DIAGNOSIS:     &str = "Diagnosis";
 const PAGE_DBMANAGEMENT:  &str = "DB-Management";
 const PAGE_SERIALMANAGER: &str = "Serial Management";
 
-const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
-const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41, 110, 214);
-const COLOR_STATE: Color32 = Color32::from_rgb(178, 183, 191);
+const COLOR_BACKGROUND:  Color32 = Color32::from_rgb(27,  27 , 27 );
+const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41,  110, 214);
+const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
@@ -160,10 +156,11 @@ impl GuiState {
 
             if ui.button(egui_phosphor::regular::POWER).clicked() {
                 if cfg!(target_arch ="aarch64") {
-                    std::process::Command::new("cmd")
-                        .args(["poweroff"])
-                        .output()
-                        .unwrap();
+                    // TODO: shutdown requires sudo
+                    // std::process::Command::new("systemctl")
+                    //     .args(["poweroff"])
+                    //     .spawn()
+                    //     .unwrap();
                 }
                 else {
                     panic!("Shutdown");
