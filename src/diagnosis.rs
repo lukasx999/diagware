@@ -1,10 +1,15 @@
-use std::thread;
-use std::sync::{Mutex, MutexGuard};
-use std::time::Duration;
+use std::{
+    thread,
+    time::Duration,
+    sync::{Arc, Mutex, MutexGuard},
+    rc::Rc,
+};
 
-use crate::EEPROM;
-use crate::{DB, Module};
-use crate::AnyError;
+use crate::{
+    EEPROM,
+    DB,
+    Module,
+};
 
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
@@ -26,17 +31,17 @@ pub enum DiagnosisState {
 #[derive(Debug)]
 pub struct Diagnosis {
     pub state: DiagnosisState,
-    // eeprom: EEPROM,
-    // db: DB,
+    eeprom: Arc<Mutex<EEPROM>>,
+    db: Arc<Mutex<DB>>,
 }
 
 impl Diagnosis {
 
-    pub fn new() -> Self {
+    pub fn new(eeprom: Arc<Mutex<EEPROM>>, db: Arc<Mutex<DB>>) -> Self {
         Self {
             state: DiagnosisState::default(),
-            // eeprom,
-            // db,
+            eeprom,
+            db,
         }
     }
 
@@ -80,7 +85,7 @@ impl Diagnosis {
     }
 
     // TODO: switch to method syntax
-    pub fn diagnosis(mutex: &Mutex<Self>) -> AnyError<()> {
+    pub fn diagnosis(mutex: &Mutex<Self>) -> std::io::Result<()> {
 
         loop {
 

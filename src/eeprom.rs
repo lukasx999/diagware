@@ -2,8 +2,7 @@ use rppal::i2c::{self, I2c};
 
 use std::time::Duration;
 use std::thread;
-
-use crate::AnyError;
+use std::error::Error;
 
 
 // Show I2C devices:
@@ -52,7 +51,7 @@ impl EEPROM {
         thread::sleep(Duration::from_millis(EEPROM_I2C_DELAY_MS));
     }
 
-    pub fn get_serial(&self) -> AnyError<String> {
+    pub fn get_serial(&self) -> Result<String, Box<dyn Error>> {
 
         let mut buf = [0_u8; EEPROM_COLUMNS];
         self.i2c.block_read(0x0, &mut buf)?;

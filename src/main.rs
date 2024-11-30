@@ -1,3 +1,9 @@
+use std::{
+    rc::Rc,
+    sync::{Arc, Mutex},
+    error::Error,
+};
+
 mod ui;
 
 mod eeprom;
@@ -12,20 +18,18 @@ use db::{
 mod diagnosis;
 use diagnosis::Diagnosis;
 
-mod error;
-use error::AnyError;
 
 
 
 
+fn main() -> Result<(), Box<dyn Error>> {
 
-fn main() -> AnyError<()> {
+    let db     = Arc::new(Mutex::new(DB::new()?));
+    let eeprom = Arc::new(Mutex::new(EEPROM::new()?));
 
-    let db = DB::new()?;
-    let diagnosis = Diagnosis::new();
-    // let eeprom = EEPROM::new()?;
+    let diagnosis = Diagnosis::new(eeprom.clone(), db.clone());
 
-    ui::run_gui(db, diagnosis)?;
+    ui::run_gui(db, eeprom, diagnosis)?;
 
 
     Ok(())

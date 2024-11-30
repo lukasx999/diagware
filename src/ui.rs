@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    sync::{Arc, Mutex},
+    rc::Rc,
+};
 
 use eframe::egui::{
     self,
@@ -9,10 +12,12 @@ use eframe::egui::{
 
 use crate::db::{
     DB,
-    model::{Module, TargetValue}
+    model::{Module, TargetValue},
 };
 
 use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT};
+
+use crate::eeprom::EEPROM;
 
 
 
@@ -32,8 +37,9 @@ const WINDOW_HEIGHT: f32 = 1200.0;
 const SCREEN_WIDTH:  f32 = 1920.0;
 const SCREEN_HEIGHT: f32 = 1080.0;
 
-const PAGE_DIAGNOSIS:    &str = "Diagnosis";
-const PAGE_DBMANAGEMENT: &str = "DB-Management";
+const PAGE_DIAGNOSIS:     &str = "Diagnosis";
+const PAGE_DBMANAGEMENT:  &str = "DB-Management";
+const PAGE_SERIALMANAGER: &str = "Serial Management";
 
 const COLOR_BACKGROUND: Color32 = Color32::from_rgb(27, 27, 27);
 const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41, 110, 214);
@@ -41,7 +47,8 @@ const COLOR_STATE: Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
-    db: DB,
+    db:     Arc<Mutex<DB>>,
+    eeprom: Arc<Mutex<EEPROM>>,
 
     diagnosis: Arc<Mutex<Diagnosis>>,
 
@@ -50,6 +57,7 @@ struct GuiState {
 
     show_diagnosis: bool,
     show_dbmanager: bool,
+    show_serialmanager: bool,
 
 
 }
@@ -58,18 +66,24 @@ struct GuiState {
 
 impl GuiState {
 
-    pub fn new(db: DB, diagnosis: Diagnosis) -> Self {
+    pub fn new(
+        db:        Arc<Mutex<DB>>,
+        eeprom:    Arc<Mutex<EEPROM>>,
+        diagnosis: Diagnosis
+    ) -> Self {
 
         Self {
             db,
+            eeprom,
 
             diagnosis: Arc::new(Mutex::new(diagnosis)),
 
             is_expert_mode:  false,
             show_windowlist: true,
 
-            show_diagnosis: true,
-            show_dbmanager: false,
+            show_diagnosis:     true,
+            show_dbmanager:     false,
+            show_serialmanager: false,
 
         }
 
@@ -138,7 +152,7 @@ impl GuiState {
 
         ui.horizontal(|ui| {
 
-            ui.toggle_value(&mut self.show_windowlist, "ToggleWindowList");
+            ui.toggle_value(&mut self.show_windowlist, "Windows");
 
             if ui.button(egui_phosphor::regular::POWER).clicked() {
                 todo!("Poweroff");
@@ -314,7 +328,8 @@ impl GuiState {
         // TODO: Modal for adding users
 
         // TODO: remove .unwrap() -> Error Popup
-        let modules: Vec<Module> = self.db.get_modules_all().unwrap();
+        let db = self.db.lock().unwrap();
+        let modules: Vec<Module> = db.get_modules_all().unwrap();
 
         egui_extras::TableBuilder::new(ui)
             .column(egui_extras::Column::auto().resizable(true))
@@ -354,7 +369,20 @@ impl GuiState {
 
 
 
+    fn ui_serialmanager(&mut self, ui: &mut egui::Ui) {
+
+        ui.heading("Serial");
+        let mut text: &str = "123";
+        ui.text_edit_singleline(&mut text);
+        ui.button("Seriennummer Beschreiben");
+
+    }
+
+
+
+
 }
+
 
 
 
@@ -370,12 +398,11 @@ impl eframe::App for GuiState {
         });
 
 
-
-
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager, PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis, PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_dbmanager,     PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis,     PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_serialmanager, PAGE_SERIALMANAGER);
             });
 
 
@@ -383,6 +410,13 @@ impl eframe::App for GuiState {
             Self::new_window(ctx, self.show_dbmanager, PAGE_DBMANAGEMENT, |ui| {
                 self.ui_dbmanager(ui);
             });
+
+
+        self.show_serialmanager =
+            Self::new_window(ctx, self.show_serialmanager, PAGE_SERIALMANAGER, |ui| {
+                self.ui_serialmanager(ui);
+            });
+
 
 
         ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
@@ -397,6 +431,7 @@ impl eframe::App for GuiState {
             .fade_in(true)
             .fade_out(true)
             .open(&mut active)
+            .enabled(true)
             .show(ctx, |ui| {
                 self.ui_diagnosis(&ctx, ui);
             });
@@ -432,7 +467,8 @@ fn setup_options() -> eframe::NativeOptions {
 
 
 pub fn run_gui(
-    db: DB,
+    db:        Arc<Mutex<DB>>,
+    eeprom:    Arc<Mutex<EEPROM>>,
     diagnosis: Diagnosis
 ) -> eframe::Result {
 
@@ -451,7 +487,7 @@ pub fn run_gui(
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiState::new(db, diagnosis)))
+            Ok(Box::new(GuiState::new(db, eeprom, diagnosis)))
 
         }),
     )
