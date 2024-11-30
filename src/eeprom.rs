@@ -34,15 +34,22 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 #[derive(Debug)]
 pub struct EEPROM {
+    #[cfg(target_arch ="aarch64")]
     i2c: I2c,
 }
 
 impl EEPROM {
 
+    #[cfg(target_arch ="aarch64")]
     pub fn new() -> i2c::Result<Self> {
         let mut i2c = I2c::with_bus(EEPROM_I2C_BUS)?;
         i2c.set_slave_address(EEPROM_ADDRESS)?;
         Ok(Self { i2c })
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    pub fn new() -> i2c::Result<Self> {
+        Ok(Self {})
     }
 
     fn delay() {
@@ -72,6 +79,7 @@ impl EEPROM {
 
 
     // Accepts Strings with max. `EEPROM_COLUMNS` (=16) characters
+    #[cfg(target_arch ="aarch64")]
     pub fn write_serial(&self, serial: &str) -> i2c::Result<()> {
         // TODO: return eeprom error
         assert!(serial.len() <= EEPROM_COLUMNS);
@@ -85,6 +93,7 @@ impl EEPROM {
         Ok(())
     }
 
+    #[cfg(target_arch ="aarch64")]
     pub fn clear(&self) -> i2c::Result<()> {
         let bytes = [EEPROM_CLEAR_BYTE; EEPROM_COLUMNS];
 

@@ -154,8 +154,21 @@ impl GuiState {
 
             ui.toggle_value(&mut self.show_windowlist, "Windows");
 
+            if ui.button("Login").clicked() {
+                modal.open();
+            }
+
             if ui.button(egui_phosphor::regular::POWER).clicked() {
-                todo!("Poweroff");
+                if cfg!(target_arch ="aarch64") {
+                    std::process::Command::new("cmd")
+                        .args(["poweroff"])
+                        .output()
+                        .unwrap();
+                }
+                else {
+                    panic!("Shutdown");
+                }
+
             }
 
             ui.label(Self::get_time());
@@ -163,10 +176,6 @@ impl GuiState {
             let username = whoami::username();
             let ip = local_ip_address::local_ip().unwrap();
             ui.label(format!("{}@{}", username, ip));
-
-            if ui.button("Login").clicked() {
-                modal.open();
-            }
 
         });
 
@@ -285,11 +294,6 @@ impl GuiState {
                 self.ui_statemachine(ui);
             });
 
-
-
-
-
-
         let is_running: bool = self.diagnosis
             .clone()
             .lock()
@@ -378,7 +382,8 @@ impl GuiState {
         ui.heading("Serial");
         let mut text: &str = "123";
         ui.text_edit_singleline(&mut text);
-        ui.button("Seriennummer Beschreiben");
+        ui.label("Jetzige Seriennummber: 45");
+        ui.button("Seriennummer Schreiben");
 
     }
 

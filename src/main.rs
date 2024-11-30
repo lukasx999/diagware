@@ -9,6 +9,9 @@ mod ui;
 mod eeprom;
 use eeprom::EEPROM;
 
+mod dds;
+use dds::DDS;
+
 mod db;
 use db::{
     DB,
