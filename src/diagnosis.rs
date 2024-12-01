@@ -92,6 +92,11 @@ impl Diagnosis {
     }
 
     // TODO: switch to method syntax
+    // instead of spawning a new thread for the whole loop,
+    // spawn a new thread for each task (thread spawning overhead?)
+
+    // TODO: manual step through measurements
+    // next() method: executes current state in new thread
     pub fn diagnosis(mutex: &Mutex<Self>) -> Result<(), Box<dyn std::error::Error>> {
 
         let mut serial = String::from("");
