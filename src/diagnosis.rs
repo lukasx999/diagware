@@ -121,6 +121,8 @@ impl Diagnosis {
                 }
 
                 DiagnosisState::ReadSerial => {
+                    // NOTE: we're probably doing_stuff() WITH the mutex
+                    // TODO: access eeprom without holding mutex for &mut self
                     Self::do_stuff();
                     serial = mutex
                         .lock()

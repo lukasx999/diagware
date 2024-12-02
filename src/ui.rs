@@ -58,9 +58,8 @@ const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
-    db:     Arc<Mutex<DB>>,
-    eeprom: Arc<Mutex<EEPROM>>,
-
+    db:        Arc<Mutex<DB>>,
+    eeprom:    Arc<Mutex<EEPROM>>,
     diagnosis: Arc<Mutex<Diagnosis>>,
 
     is_expert_mode:  bool,
@@ -69,12 +68,11 @@ struct GuiState {
     show_diagnosis: bool,
     show_dbmanager: bool,
     show_serialmanager: bool,
-
-
 }
 
 
 
+/* UTILITY */
 impl GuiState {
 
     pub fn new(
@@ -100,10 +98,19 @@ impl GuiState {
 
     }
 
+
     fn get_time() -> String {
         chrono::Local::now()
             .time()
             .format("%H:%M:%S")
+            .to_string()
+    }
+
+
+    fn get_date() -> String {
+        chrono::Local::now()
+            .date_naive()
+            .format("%d.%m.%Y")
             .to_string()
     }
 
@@ -131,16 +138,43 @@ impl GuiState {
 
     }
 
+    fn ui_painting_setup(
+        ui: &mut egui::Ui,
+        width: f32,
+        height: f32
+    ) -> (egui::Painter, egui::Pos2) {
 
+        use egui::{vec2, Sense, Painter, Rect, };
 
-    fn ui_config(ctx: &egui::Context) {
-        ctx.set_pixels_per_point(2.0);
-        ctx.set_theme(egui::Theme::Dark);
+        let painter: Painter = ui.allocate_painter(
+            vec2(width, height),
+            Sense::hover()
+        ).1;
+
+        let rect: Rect = ui.allocate_at_least(
+            vec2(0.0, 0.0),
+            Sense::hover()
+        ).0;
+
+        let center = rect.center()
+        - vec2(0.0, height/2.0)
+        + vec2(width/2.0, 0.0);
+
+        (painter, center)
+
     }
 
 
-    fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
+
+}
+
+
+
+/* UI */
+impl GuiState {
+
+    fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
         let modal = egui_modal::Modal::new(ctx, "Login");
 
@@ -184,6 +218,7 @@ impl GuiState {
             }
 
             ui.label(Self::get_time());
+            ui.label(Self::get_date());
 
             let username = whoami::username();
             let ip = local_ip_address::local_ip().unwrap();
@@ -198,26 +233,6 @@ impl GuiState {
 
 
 
-    fn ui_painting_setup(ui: &mut egui::Ui, width: f32, height: f32) -> (egui::Painter, egui::Pos2) {
-        use egui::{vec2, Sense, Painter, Rect, };
-
-        let painter: Painter = ui.allocate_painter(
-            vec2(width, height),
-            Sense::hover()
-        ).1;
-
-        let rect: Rect = ui.allocate_at_least(
-            vec2(0.0, 0.0),
-            Sense::hover()
-        ).0;
-
-        let center = rect.center()
-        - vec2(0.0, height/2.0)
-        + vec2(width/2.0, 0.0);
-
-        (painter, center)
-
-    }
 
 
 
@@ -245,15 +260,20 @@ impl GuiState {
         // TODO: legend / hover popup for descriptions
 
 
-        let state_active = self.diagnosis.lock().unwrap().state.clone() as usize;
+        // TODO: change lock() to try_lock()
+        // if lock fails, show some kind of error message or whatever
+        let state_active = self.diagnosis
+            .lock()
+            .unwrap()
+            .state
+            .clone() as usize;
 
 
         for i in 0..STATE_COUNT {
 
             let color_circle = if i == state_active {
                 COLOR_ACTIVESTATE
-            }
-            else {
+            } else {
                 COLOR_STATE
             };
 
@@ -298,23 +318,30 @@ impl GuiState {
         ui.heading("Diagnose");
 
         ui.collapsing("Legende", |ui| {
-
             ui.horizontal_wrapped(|ui| {
 
+                // TODO: a better way to handle this
+                let current_state = self.diagnosis
+                    .lock()
+                    .unwrap()
+                    .state
+                    .clone() as usize;
 
                 for i in 0..STATE_COUNT {
 
-                    ui.colored_label(COLOR_ACTIVESTATE, format!("{i}"));
+                    let color = if i == current_state {
+                        COLOR_ACTIVESTATE
+                    } else {
+                        Color32::GRAY
+                    };
+
+                    ui.colored_label(color, format!("{i}"));
                     ui.colored_label(Color32::DARK_GRAY, "...");
-                    ui.label(STATE_LABELS[i]);
+                    ui.colored_label(color, STATE_LABELS[i]);
                     ui.end_row();
-
                 }
-
             });
-
         });
-
 
         egui::containers::Frame::canvas(ui.style())
             .rounding(20.0)
@@ -325,11 +352,23 @@ impl GuiState {
                 self.ui_statemachine(ui);
             });
 
+
+
+        // TODO: think about this
         let is_running: bool = self.diagnosis
             .clone()
             .lock()
             .unwrap()
             .is_running();
+        let state = self.diagnosis
+            .clone()
+            .lock()
+            .unwrap()
+            .state
+            .clone() as usize;
+        let state_repr: &'static str = STATE_LABELS[state];
+        ui.label(format!("Status: ({}) {}", state, state_repr));
+
 
         let btn_start: egui::Response = ui.add_enabled(
             !is_running,
@@ -414,7 +453,14 @@ impl GuiState {
         let mut text: &str = "123";
         ui.text_edit_singleline(&mut text);
         ui.label("Jetzige Seriennummber: 45");
-        ui.button("Seriennummer Schreiben");
+        ui.button("Seriennummer Beschreiben");
+
+        if ui.button("Seriennummer Lesen").clicked() {
+            let s = self.eeprom.lock().unwrap().get_serial().unwrap();
+            println!("{}", s);
+        }
+
+
 
     }
 
@@ -431,7 +477,14 @@ impl GuiState {
 impl eframe::App for GuiState {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
-        Self::ui_config(ctx);
+        // Config
+        ctx.set_pixels_per_point(2.0);
+        ctx.set_theme(egui::Theme::Dark);
+
+        ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
+                               // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
+                               // every frame
+
 
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             self.ui_topbar(&ctx, ui);
@@ -459,9 +512,6 @@ impl eframe::App for GuiState {
 
 
 
-        ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
-                               // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
-                               // every frame
 
         // TODO: refactor this into a macro!
         // TODO: min_width()
