@@ -12,7 +12,7 @@ use crate::{
 };
 
 
-pub const STATE_COUNT: usize = 6; // needed for rendering state machine
+pub const STATE_COUNT: usize = 5; // needed for rendering state machine
 
 // TODO: Error state
 
@@ -25,8 +25,17 @@ pub enum DiagnosisState {
     DBLookup        = 2,
     Measurements    = 3,
     Evaluation      = 4,
-    End             = 5,
 }
+
+
+pub const STATE_LABELS: [&str; 5] = [
+    "Leerlauf",
+    "Auslesen Seriennummer (via EEPROM)",
+    "DB Lookup",
+    "Messung",
+    "Auswertung",
+];
+
 
 
 pub struct DiagnosisError;
@@ -72,8 +81,7 @@ impl Diagnosis {
             DS::ReadSerial   => DS::DBLookup,
             DS::DBLookup     => DS::Measurements,
             DS::Measurements => DS::Evaluation,
-            DS::Evaluation   => DS::End,
-            DS::End          => DS::Idle,
+            DS::Evaluation   => DS::Idle,
         }
     }
 
@@ -109,29 +117,39 @@ impl Diagnosis {
 
                 DiagnosisState::Idle => {
                     Self::next(mutex);
+
                 }
+
                 DiagnosisState::ReadSerial => {
-                    serial = mutex.lock().unwrap().read_serial()?;
+                    Self::do_stuff();
+                    serial = mutex
+                        .lock()
+                        .unwrap()
+                        .read_serial()?;
                     Self::next(mutex);
                 }
+
                 DiagnosisState::DBLookup => {
-                    let module: Module = mutex.lock().unwrap().db_lookup(serial.as_str())?;
+                    Self::do_stuff();
+                    let module: Module = mutex
+                        .lock()
+                        .unwrap()
+                        .db_lookup(serial.as_str())?;
                     dbg!(&module);
                     Self::next(mutex);
                 }
+
                 DiagnosisState::Measurements => {
                     Self::do_stuff();
                     Self::next(mutex);
                 }
+
                 DiagnosisState::Evaluation => {
-                    Self::do_stuff();
-                    Self::next(mutex);
-                }
-                DiagnosisState::End => {
                     Self::do_stuff();
                     Self::next(mutex);
                     break Ok(());
                 }
+
             }
         }
 

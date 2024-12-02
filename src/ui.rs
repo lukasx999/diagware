@@ -6,6 +6,7 @@ use std::{
 use eframe::egui::{
     self,
     Color32,
+    RichText,
     containers::ComboBox,
     widget_text::WidgetText
 };
@@ -14,10 +15,24 @@ use crate::db::{
     DB,
     model::{Module, TargetValue},
 };
-
-use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT};
-
+use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT, STATE_LABELS};
 use crate::eeprom::EEPROM;
+
+
+
+
+macro_rules! label {
+    ( $ui:ident, $( $color:expr, $text:expr ),*) => {
+        {
+
+        $(
+        $ui.label(RichText::new($text).strong().color($color));
+        )*
+
+        $ui.end_row();
+        }
+    };
+}
 
 
 
@@ -281,6 +296,25 @@ impl GuiState {
     fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
         ui.heading("Diagnose");
+
+        ui.collapsing("Legende", |ui| {
+
+            ui.horizontal_wrapped(|ui| {
+
+
+                for i in 0..STATE_COUNT {
+
+                    ui.colored_label(COLOR_ACTIVESTATE, format!("{i}"));
+                    ui.colored_label(Color32::DARK_GRAY, "...");
+                    ui.label(STATE_LABELS[i]);
+                    ui.end_row();
+
+                }
+
+            });
+
+        });
+
 
         egui::containers::Frame::canvas(ui.style())
             .rounding(20.0)
