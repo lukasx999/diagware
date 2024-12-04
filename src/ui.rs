@@ -58,9 +58,9 @@ const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
-    db:        Arc<Mutex<DB>>,
-    eeprom:    Arc<Mutex<EEPROM>>,
+    // All HW/SW interfaces are owned by the diagnosis
     diagnosis: Arc<Mutex<Diagnosis>>,
+    // TODO: add channel for sending messages between diagnosis thread and ui renderer
 
     is_expert_mode:  bool,
     show_windowlist: bool,
@@ -76,15 +76,10 @@ struct GuiState {
 impl GuiState {
 
     pub fn new(
-        db:        Arc<Mutex<DB>>,
-        eeprom:    Arc<Mutex<EEPROM>>,
         diagnosis: Diagnosis
     ) -> Self {
 
         Self {
-            db,
-            eeprom,
-
             diagnosis: Arc::new(Mutex::new(diagnosis)),
 
             is_expert_mode:  false,
@@ -262,11 +257,12 @@ impl GuiState {
 
         // TODO: change lock() to try_lock()
         // if lock fails, show some kind of error message or whatever
-        let state_active = self.diagnosis
-            .lock()
-            .unwrap()
-            .state
-            .clone() as usize;
+        let state_active = 0;
+        // let state_active = self.diagnosis
+        //     .lock()
+        //     .unwrap()
+        //     .state
+        //     .clone() as usize;
 
 
         for i in 0..STATE_COUNT {
@@ -321,6 +317,7 @@ impl GuiState {
             ui.horizontal_wrapped(|ui| {
 
                 // TODO: a better way to handle this
+
                 let current_state = self.diagnosis
                     .lock()
                     .unwrap()
@@ -355,19 +352,20 @@ impl GuiState {
 
 
         // TODO: think about this
-        let is_running: bool = self.diagnosis
-            .clone()
-            .lock()
-            .unwrap()
-            .is_running();
-        let state = self.diagnosis
-            .clone()
-            .lock()
-            .unwrap()
-            .state
-            .clone() as usize;
-        let state_repr: &'static str = STATE_LABELS[state];
-        ui.label(format!("Status: ({}) {}", state, state_repr));
+        // let is_running: bool = self.diagnosis
+        //     .clone()
+        //     .lock()
+        //     .unwrap()
+        //     .is_running();
+        // let state = self.diagnosis
+        //     .clone()
+        //     .lock()
+        //     .unwrap()
+        //     .state
+        //     .clone() as usize;
+        // let state_repr: &'static str = STATE_LABELS[state];
+        // ui.label(format!("Status: ({}) {}", state, state_repr));
+        let is_running = false;
 
 
         let btn_start: egui::Response = ui.add_enabled(
@@ -378,12 +376,17 @@ impl GuiState {
         if btn_start.clicked() {
 
             // TODO: struct field: "diagnosis_running" -> block off entire UI while diag is running
+
+
             let diag = self.diagnosis.clone();
 
             std::thread::Builder::new()
                 .name("diagnosis".to_string())
                 .spawn(move || {
-                    Diagnosis::diagnosis(&diag).unwrap();
+                    diag.lock()
+                        .unwrap()
+                        .diagnosis()
+                        .unwrap();
                 }).unwrap();
 
         }
@@ -406,6 +409,8 @@ impl GuiState {
 
         // TODO: use try_lock() for making changes and show error popup
         // TODO: remove .unwrap() -> Error Popup
+
+        /*
         let db = self.db.lock().unwrap();
         let modules: Vec<Module> = db.get_modules_all().unwrap();
 
@@ -442,6 +447,7 @@ impl GuiState {
                 }
 
             });
+        */
 
     }
 
@@ -455,10 +461,12 @@ impl GuiState {
         ui.label("Jetzige Seriennummber: 45");
         ui.button("Seriennummer Beschreiben");
 
+        /*
         if ui.button("Seriennummer Lesen").clicked() {
             let s = self.eeprom.lock().unwrap().get_serial().unwrap();
             println!("{}", s);
         }
+        */
 
 
 
@@ -557,8 +565,6 @@ fn setup_options() -> eframe::NativeOptions {
 
 
 pub fn run_gui(
-    db:        Arc<Mutex<DB>>,
-    eeprom:    Arc<Mutex<EEPROM>>,
     diagnosis: Diagnosis
 ) -> eframe::Result {
 
@@ -577,7 +583,7 @@ pub fn run_gui(
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiState::new(db, eeprom, diagnosis)))
+            Ok(Box::new(GuiState::new(diagnosis)))
 
         }),
     )

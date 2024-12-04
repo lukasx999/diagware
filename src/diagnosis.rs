@@ -8,11 +8,10 @@ use std::{
 use crate::{
     EEPROM,
     DB,
-    Module,
 };
 
 
-pub const STATE_COUNT: usize = 5; // needed for rendering state machine
+pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
 // TODO: Error state
 
@@ -23,15 +22,17 @@ pub enum DiagnosisState {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
     DBLookup        = 2,
-    Measurements    = 3,
-    Evaluation      = 4,
+    SelfTest        = 3,
+    Measurements    = 4,
+    Evaluation      = 5,
 }
 
 
-pub const STATE_LABELS: [&str; 5] = [
+pub const STATE_LABELS: [&str; 6] = [
     "Leerlauf",
     "Auslesen Seriennummer (via EEPROM)",
     "DB Lookup",
+    "Selbsttest",
     "Messung",
     "Auswertung",
 ];
@@ -45,13 +46,13 @@ pub struct DiagnosisError;
 #[derive(Debug)]
 pub struct Diagnosis {
     pub state: DiagnosisState,
-    eeprom: Arc<Mutex<EEPROM>>,
-    db: Arc<Mutex<DB>>,
+    pub eeprom:    EEPROM,
+    pub db:        DB,
 }
 
 impl Diagnosis {
 
-    pub fn new(eeprom: Arc<Mutex<EEPROM>>, db: Arc<Mutex<DB>>) -> Self {
+    pub fn new(eeprom: EEPROM, db: DB) -> Self {
         Self {
             state: DiagnosisState::default(),
             eeprom,
@@ -61,34 +62,30 @@ impl Diagnosis {
 
     // TODO: Diag error struct
 
-    fn read_serial(&mut self) -> Result<String, Box<dyn std::error::Error>> {
-        let eeprom = self.eeprom.lock().unwrap();
-        let serial: String = eeprom.get_serial()?;
-        Ok(serial)
+    fn read_serial(&self) -> Result<String, Box<dyn std::error::Error>> {
+        Self::do_stuff();
+        Ok(self.eeprom.get_serial()?)
     }
 
-    fn db_lookup(&self, serial: &str) -> Result<Module, Box<dyn std::error::Error>> {
-        let db = self.db.lock().unwrap();
-        let module: Module = db.get_module_by_serial(serial)?;
-        Ok(module)
-    }
-
+    // fn db_lookup(&self, serial: &str) -> Result<Module, Box<dyn std::error::Error>> {
+    //     Self::do_stuff();
+    //     let module: Module = self.db.get_module_by_serial(serial)?;
+    //     Ok(module)
+    // }
 
     fn next_state(&mut self) {
         use DiagnosisState as DS;
+
+        println!("{}", STATE_LABELS[self.state.clone() as usize]);
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
-            DS::DBLookup     => DS::Measurements,
+            DS::DBLookup     => DS::SelfTest,
+            DS::SelfTest     => DS::Measurements,
             DS::Measurements => DS::Evaluation,
             DS::Evaluation   => DS::Idle,
         }
-    }
 
-    fn next(mutex: &Mutex<Self>) {
-        let mut s = mutex.lock().unwrap();
-        println!("{:?}", s.state);
-        s.next_state();
     }
 
     fn do_stuff() {
@@ -105,50 +102,40 @@ impl Diagnosis {
 
     // TODO: manual step through measurements
     // next() method: executes current state in new thread
-    pub fn diagnosis(mutex: &Mutex<Self>) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn diagnosis(&mut self) -> Result<(), Box<dyn std::error::Error>> {
 
         let mut serial = String::from("");
 
         loop {
 
-            let state: DiagnosisState = mutex.lock().unwrap().state.clone();
-
-            match state {
+            match self.state {
 
                 DiagnosisState::Idle => {
-                    Self::next(mutex);
-
+                    self.next_state();
                 }
 
                 DiagnosisState::ReadSerial => {
-                    // NOTE: we're probably doing_stuff() WITH the mutex
-                    // TODO: access eeprom without holding mutex for &mut self
-                    Self::do_stuff();
-                    serial = mutex
-                        .lock()
-                        .unwrap()
-                        .read_serial()?;
-                    Self::next(mutex);
+                    self.read_serial()?;
+                    self.next_state();
                 }
 
                 DiagnosisState::DBLookup => {
+                    self.next_state();
+                }
+
+                DiagnosisState::SelfTest => {
                     Self::do_stuff();
-                    let module: Module = mutex
-                        .lock()
-                        .unwrap()
-                        .db_lookup(serial.as_str())?;
-                    dbg!(&module);
-                    Self::next(mutex);
+                    self.next_state();
                 }
 
                 DiagnosisState::Measurements => {
                     Self::do_stuff();
-                    Self::next(mutex);
+                    self.next_state();
                 }
 
                 DiagnosisState::Evaluation => {
                     Self::do_stuff();
-                    Self::next(mutex);
+                    self.next_state();
                     break Ok(());
                 }
 

@@ -32,7 +32,7 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EEPROM {
     #[cfg(target_arch ="aarch64")]
     i2c: I2c,

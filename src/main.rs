@@ -1,8 +1,4 @@
-use std::{
-    rc::Rc,
-    sync::{Arc, Mutex},
-    error::Error,
-};
+use std::error::Error;
 
 mod ui;
 
@@ -13,10 +9,7 @@ mod dds;
 use dds::DDS;
 
 mod db;
-use db::{
-    DB,
-    model::{Module, TargetValue}
-};
+use db::DB;
 
 mod diagnosis;
 use diagnosis::Diagnosis;
@@ -27,15 +20,15 @@ use diagnosis::Diagnosis;
 
 fn main() -> Result<(), Box<dyn Error>> {
 
-    let db     = Arc::new(Mutex::new(DB::new()?));
-    let eeprom = Arc::new(Mutex::new(EEPROM::new()?));
+    let db     = DB::new()?;
+    let eeprom = EEPROM::new()?;
 
     let diagnosis = Diagnosis::new(
-        eeprom.clone(),
-        db.clone()
+        eeprom,
+        db,
     );
 
-    ui::run_gui(db, eeprom, diagnosis)?;
+    ui::run_gui(diagnosis)?;
 
 
 
