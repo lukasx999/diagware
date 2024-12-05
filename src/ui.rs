@@ -1,5 +1,5 @@
 use std::{
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, mpsc},
     rc::Rc,
 };
 
@@ -17,24 +17,6 @@ use crate::db::{
 };
 use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT, STATE_LABELS};
 use crate::eeprom::EEPROM;
-
-
-
-
-macro_rules! label {
-    ( $ui:ident, $( $color:expr, $text:expr ),*) => {
-        {
-
-        $(
-        $ui.label(RichText::new($text).strong().color($color));
-        )*
-
-        $ui.end_row();
-        }
-    };
-}
-
-
 
 
 
@@ -59,14 +41,16 @@ const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
 
 struct GuiState {
     // All HW/SW interfaces are owned by the diagnosis
-    diagnosis: Arc<Mutex<Diagnosis>>,
-    // TODO: add channel for sending messages between diagnosis thread and ui renderer
+    diagnosis:     Arc<Mutex<Diagnosis>>,
+    diag_sender:   mpsc::Sender<DiagnosisState>,
+    diag_receiver: mpsc::Receiver<DiagnosisState>,
+    diag_state:    DiagnosisState,
 
     is_expert_mode:  bool,
-    show_windowlist: bool,
 
-    show_diagnosis: bool,
-    show_dbmanager: bool,
+    show_windowlist: bool,
+    show_diagnosis:  bool,
+    show_dbmanager:  bool,
     show_serialmanager: bool,
 }
 
@@ -79,8 +63,13 @@ impl GuiState {
         diagnosis: Diagnosis
     ) -> Self {
 
+        let (tx, rx) = mpsc::channel();
+
         Self {
-            diagnosis: Arc::new(Mutex::new(diagnosis)),
+            diagnosis:     Arc::new(Mutex::new(diagnosis)),
+            diag_sender:   tx,
+            diag_receiver: rx,
+            diag_state:    DiagnosisState::default(),
 
             is_expert_mode:  false,
             show_windowlist: true,
@@ -159,9 +148,6 @@ impl GuiState {
 
     }
 
-
-
-
 }
 
 
@@ -224,13 +210,6 @@ impl GuiState {
     }
 
 
-
-
-
-
-
-
-
     fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke};
 
@@ -251,23 +230,18 @@ impl GuiState {
 
 
         // TODO: increase font step-wise
-
         // TODO: legend / hover popup for descriptions
 
+        // Receive new state from running diagnosis
+        if let Ok(state) = self.diag_receiver.try_recv() {
+            self.diag_state = state.clone();
+        }
 
-        // TODO: change lock() to try_lock()
-        // if lock fails, show some kind of error message or whatever
-        let state_active = 0;
-        // let state_active = self.diagnosis
-        //     .lock()
-        //     .unwrap()
-        //     .state
-        //     .clone() as usize;
-
+        let state = self.diag_state.clone() as usize;
 
         for i in 0..STATE_COUNT {
 
-            let color_circle = if i == state_active {
+            let color_circle = if i == state {
                 COLOR_ACTIVESTATE
             } else {
                 COLOR_STATE
@@ -291,7 +265,7 @@ impl GuiState {
                 Color32::BLACK
             );
 
-            // Dont render an arrow after the last state
+            // Dont render arrow after the last state
             if i == STATE_COUNT - 1 {
                 break;
             }
@@ -316,17 +290,11 @@ impl GuiState {
         ui.collapsing("Legende", |ui| {
             ui.horizontal_wrapped(|ui| {
 
-                // TODO: a better way to handle this
-
-                let current_state = self.diagnosis
-                    .lock()
-                    .unwrap()
-                    .state
-                    .clone() as usize;
+                let state = self.diag_state.clone() as usize;
 
                 for i in 0..STATE_COUNT {
 
-                    let color = if i == current_state {
+                    let color = if i == state {
                         COLOR_ACTIVESTATE
                     } else {
                         Color32::GRAY
@@ -337,6 +305,7 @@ impl GuiState {
                     ui.colored_label(color, STATE_LABELS[i]);
                     ui.end_row();
                 }
+
             });
         });
 
@@ -379,13 +348,14 @@ impl GuiState {
 
 
             let diag = self.diagnosis.clone();
+            let sender = self.diag_sender.clone();
 
             std::thread::Builder::new()
                 .name("diagnosis".to_string())
                 .spawn(move || {
                     diag.lock()
                         .unwrap()
-                        .diagnosis()
+                        .diagnosis(sender)
                         .unwrap();
                 }).unwrap();
 

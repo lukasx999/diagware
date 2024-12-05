@@ -1,7 +1,7 @@
 use std::{
     thread,
     time::Duration,
-    sync::{Arc, Mutex, MutexGuard},
+    sync::{Arc, Mutex, MutexGuard, mpsc},
     rc::Rc,
 };
 
@@ -45,7 +45,7 @@ pub struct DiagnosisError;
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    pub state: DiagnosisState,
+    pub state:     DiagnosisState,
     pub eeprom:    EEPROM,
     pub db:        DB,
 }
@@ -102,7 +102,8 @@ impl Diagnosis {
 
     // TODO: manual step through measurements
     // next() method: executes current state in new thread
-    pub fn diagnosis(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn diagnosis(&mut self, sender: mpsc::Sender<DiagnosisState>) -> Result<(), Box<dyn std::error::Error>> {
+        // NOTE: `sender` for informing UI about the change of state
 
         let mut serial = String::from("");
 
@@ -111,31 +112,39 @@ impl Diagnosis {
             match self.state {
 
                 DiagnosisState::Idle => {
+                    sender.send(self.state.clone()).unwrap();
                     self.next_state();
                 }
 
                 DiagnosisState::ReadSerial => {
+                    sender.send(self.state.clone()).unwrap();
                     self.read_serial()?;
                     self.next_state();
                 }
 
                 DiagnosisState::DBLookup => {
+                    sender.send(self.state.clone()).unwrap();
+                    Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::SelfTest => {
+                    sender.send(self.state.clone()).unwrap();
                     Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::Measurements => {
+                    sender.send(self.state.clone()).unwrap();
                     Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::Evaluation => {
+                    sender.send(self.state.clone()).unwrap();
                     Self::do_stuff();
                     self.next_state();
+                    sender.send(self.state.clone()).unwrap();
                     break Ok(());
                 }
 
