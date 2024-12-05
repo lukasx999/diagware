@@ -25,16 +25,18 @@ pub enum DiagnosisState {
     SelfTest        = 3,
     Measurements    = 4,
     Evaluation      = 5,
+    End             = 6,
 }
 
 
-pub const STATE_LABELS: [&str; 6] = [
+pub const STATE_LABELS: [&str; 7] = [
     "Leerlauf",
     "Auslesen Seriennummer (via EEPROM)",
     "DB Lookup",
     "Selbsttest",
     "Messung",
     "Auswertung",
+    "End",
 ];
 
 
@@ -83,9 +85,15 @@ impl Diagnosis {
             DS::DBLookup     => DS::SelfTest,
             DS::SelfTest     => DS::Measurements,
             DS::Measurements => DS::Evaluation,
-            DS::Evaluation   => DS::Idle,
+            DS::Evaluation   => DS::End,
+            DS::End          => DS::Idle,
         }
 
+
+    }
+
+    fn send_state(&self, sender: &mpsc::Sender<DiagnosisState>) {
+        sender.send(self.state.clone()).unwrap();
     }
 
     fn do_stuff() {
@@ -96,13 +104,17 @@ impl Diagnosis {
         self.state != DiagnosisState::Idle
     }
 
-    // TODO: switch to method syntax
-    // instead of spawning a new thread for the whole loop,
-    // spawn a new thread for each task (thread spawning overhead?)
+    pub fn next(&mut self) {
+        todo!();
+    }
 
-    // TODO: manual step through measurements
-    // next() method: executes current state in new thread
-    pub fn diagnosis(&mut self, sender: mpsc::Sender<DiagnosisState>) -> Result<(), Box<dyn std::error::Error>> {
+    // TODO: step manually through measurements via next() + selector in ui
+    // + access fields of diagnosis like db, eeprom in ui
+    pub fn diagnosis(
+        &mut self,
+        sender: mpsc::Sender<DiagnosisState>
+    ) -> Result<(), Box<dyn std::error::Error>> {
+
         // NOTE: `sender` for informing UI about the change of state
 
         let mut serial = String::from("");
@@ -112,39 +124,43 @@ impl Diagnosis {
             match self.state {
 
                 DiagnosisState::Idle => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     self.next_state();
                 }
 
                 DiagnosisState::ReadSerial => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     self.read_serial()?;
                     self.next_state();
                 }
 
                 DiagnosisState::DBLookup => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::SelfTest => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::Measurements => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
                 DiagnosisState::Evaluation => {
-                    sender.send(self.state.clone()).unwrap();
+                    self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
-                    sender.send(self.state.clone()).unwrap();
+                }
+
+                DiagnosisState::End => {
+                    self.next_state();
+                    self.send_state(&sender);
                     break Ok(());
                 }
 
