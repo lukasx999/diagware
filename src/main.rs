@@ -31,7 +31,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     ui::run_gui(diagnosis)?;
 
 
-
     Ok(())
 
 }

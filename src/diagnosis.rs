@@ -1,14 +1,28 @@
 use std::{
     thread,
     time::Duration,
-    sync::{Arc, Mutex, MutexGuard, mpsc},
-    rc::Rc,
+    sync::mpsc,
 };
 
 use crate::{
     EEPROM,
     DB,
 };
+
+
+/* CONFIG */
+
+pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
+    "Leerlauf",
+    "Auslesen Seriennummer (via EEPROM)",
+    "DB Lookup",
+    "Selbsttest",
+    "Messung",
+    "Auswertung",
+    "End"
+];
+
+
 
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
@@ -25,20 +39,16 @@ pub enum DiagnosisState {
     SelfTest        = 3,
     Measurements    = 4,
     Evaluation      = 5,
-    End             = 6,
+    End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
 
-pub const STATE_LABELS: [&str; 7] = [
-    "Leerlauf",
-    "Auslesen Seriennummer (via EEPROM)",
-    "DB Lookup",
-    "Selbsttest",
-    "Messung",
-    "Auswertung",
-    "End",
-];
 
+impl DiagnosisState {
+    pub fn repr(&self) -> &'static str {
+        DIAGNOSIS_STATE_REPRS[self.clone() as usize]
+    }
+}
 
 
 
@@ -85,7 +95,7 @@ impl Diagnosis {
     fn next_state(&mut self) {
         use DiagnosisState as DS;
 
-        println!("{}", STATE_LABELS[self.state.clone() as usize]);
+        println!("{}", self.state.repr());
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
