@@ -10,8 +10,13 @@ use crate::{
 };
 
 
+
+
+
+
 /* CONFIG */
 
+// NOTE: Array, so that rendering states as a list is possible
 pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
     "Leerlauf",
     "Auslesen Seriennummer (via EEPROM)",
@@ -27,8 +32,6 @@ pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
-// TODO: Error state
-
 // NOTE: using numeric constants, because it makes rendering and incrementing state easier
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -42,6 +45,14 @@ pub enum DiagnosisState {
     End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
+// TODO: Error state
+/*
+In case of error: switch to error state
+show popup if user wants to restart diagnosis or continue
+OR:
+In case of error: Return diagnosis result error and show error information as popup
+*/
+
 
 
 impl DiagnosisState {
@@ -52,12 +63,24 @@ impl DiagnosisState {
 
 
 
+// TODO: this
+/*
 #[derive(Debug)]
 pub enum DiagnosisError {
 }
 
-// impl std::error::Error for DiagnosisError {
-// }
+impl std::fmt::Display for DiagnosisError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "error")
+    }
+}
+
+impl std::error::Error for DiagnosisError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
+    }
+}
+*/
 
 
 
@@ -126,6 +149,8 @@ impl Diagnosis {
 
     // TODO: step manually through measurements via next() + selector in ui
     // + access fields of diagnosis like db, eeprom in ui
+    // + return diagnosiserror in case of error -> show error popup
+
     pub fn diagnosis(
         &mut self,
         sender: mpsc::Sender<DiagnosisState>
@@ -137,44 +162,46 @@ impl Diagnosis {
 
         loop {
 
+            use DiagnosisState as State;
+
             match self.state {
 
-                DiagnosisState::Idle => {
+                State::Idle => {
                     self.send_state(&sender);
                     self.next_state();
                 }
 
-                DiagnosisState::ReadSerial => {
+                State::ReadSerial => {
                     self.send_state(&sender);
                     self.read_serial()?;
                     self.next_state();
                 }
 
-                DiagnosisState::DBLookup => {
+                State::DBLookup => {
                     self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
-                DiagnosisState::SelfTest => {
+                State::SelfTest => {
                     self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
-                DiagnosisState::Measurements => {
+                State::Measurements => {
                     self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
-                DiagnosisState::Evaluation => {
+                State::Evaluation => {
                     self.send_state(&sender);
                     Self::do_stuff();
                     self.next_state();
                 }
 
-                DiagnosisState::End => {
+                State::End => {
                     self.next_state();
                     self.send_state(&sender);
                     break Ok(());

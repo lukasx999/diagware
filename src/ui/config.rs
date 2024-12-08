@@ -14,3 +14,6 @@ pub const PAGE_SERIALMANAGER: &str = "Serial Management";
 pub const COLOR_BACKGROUND:  Color32 = Color32::from_rgb(27,  27 , 27 );
 pub const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41,  110, 214);
 pub const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
+
+// TODO: this
+// pub const CANVAS_ROUNDING: f32 = ...;

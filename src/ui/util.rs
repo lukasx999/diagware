@@ -43,29 +43,29 @@ pub fn new_window(
 
 }
 
-pub fn ui_painting_setup(
+pub fn setup_canvas(
     ui: &mut egui::Ui,
     width: f32,
     height: f32
-) -> (egui::Painter, egui::Pos2) {
+) -> (egui::Response, egui::Painter, egui::Pos2) {
 
-    use egui::{vec2, Sense, Painter, Rect, };
+    use egui::{vec2, Sense, Painter, Rect, Response};
 
-    let painter: Painter = ui.allocate_painter(
+    let (response, painter): (Response, Painter) = ui.allocate_painter(
         vec2(width, height),
-        Sense::hover()
-    ).1;
+        Sense::click_and_drag()
+    );
 
     let rect: Rect = ui.allocate_at_least(
         vec2(0.0, 0.0),
-        Sense::hover()
+        Sense::click()
     ).0;
 
     let center = rect.center()
     - vec2(0.0, height/2.0)
     + vec2(width/2.0, 0.0);
 
-    (painter, center)
+    (response, painter, center)
 
 }
 
@@ -74,22 +74,20 @@ pub fn ui_painting_setup(
 
 
 
-impl GuiState {
+pub fn start_diagnosis(
+    diagnosis: Arc<Mutex<Diagnosis>>,
+    sender: mpsc::Sender<DiagnosisState>
+    // TODO: this
+// ) -> std::io::Result<std::thread::JoinHandle<()>> {
+) {
 
-    pub fn start_diagnosis(&self) {
-
-        let diag = self.diagnosis.clone();
-        let sender = self.diag_sender.clone();
-
-        std::thread::Builder::new()
-            .name("diagnosis".to_string())
-            .spawn(move || {
-                diag.lock()
-                    .unwrap()
-                    .diagnosis(sender)
-                    .unwrap();
-            }).unwrap();
-
-    }
+    std::thread::Builder::new()
+        .name("diagnosis".to_owned())
+        .spawn(move || {
+            diagnosis.lock()
+                .unwrap()
+                .diagnosis(sender)
+                .unwrap();
+        }).unwrap();
 
 }

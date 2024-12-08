@@ -32,6 +32,7 @@ struct GuiState {
     show_diagnosis:     bool,
     show_dbmanager:     bool,
     show_serialmanager: bool,
+    show_pineditor:     bool,
 
 }
 
@@ -57,6 +58,7 @@ impl GuiState {
             show_diagnosis:     true,
             show_dbmanager:     false,
             show_serialmanager: false,
+            show_pineditor:     false,
 
         }
 
@@ -93,9 +95,10 @@ impl eframe::App for GuiState {
 
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager, PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis, PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_dbmanager,     PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis,     PAGE_DIAGNOSIS);
                 ui.toggle_value(&mut self.show_serialmanager, PAGE_SERIALMANAGER);
+                ui.toggle_value(&mut self.show_pineditor,     "Pin Editor");
             });
 
 
@@ -108,6 +111,11 @@ impl eframe::App for GuiState {
         self.show_serialmanager =
             util::new_window(ctx, self.show_serialmanager, PAGE_SERIALMANAGER, |ui| {
                 self.ui_serialmanager(ui);
+            });
+
+        self.show_pineditor =
+            util::new_window(ctx, self.show_pineditor, "Pin Editor", |ui| {
+                self.ui_pineditor(&ctx, ui);
             });
 
 

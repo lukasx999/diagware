@@ -74,19 +74,20 @@ impl GuiState {
 
 
 
-    pub fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
-        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke};
+    // TODO: refactor to helper function _(state, ui) {}
+    fn canvas_statemachine(&mut self, ui: &mut egui::Ui) {
+        use egui::{vec2, Vec2, Pos2, pos2, Painter, Rect, Stroke, Response};
 
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
-        let (painter, center): (Painter, Pos2) =
-        util::ui_painting_setup(ui, width, height);
+        let (response, painter, center): (Response, Painter, Pos2) = util::setup_canvas(ui, width, height);
 
         let gap            = 30.0;                         // space between circles
         let segment_size   = width / (STATE_COUNT as f32); // +1 for extra space at the sides
         let radius         = (segment_size - gap) / 2.0;
-        let offset         = (radius * 2.0) + gap;               // distance to next circle center from current circle center
+        let offset         = radius * 2.0 + gap;               // distance to next circle center from current circle center
         let offset_to_origin = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
+        let outline_thickness = 1.5;
 
         let mut font = egui::FontId::default();
         font.size = 15.0;
@@ -100,24 +101,34 @@ impl GuiState {
 
         for i in 0..STATE_COUNT {
 
-            let color_circle = if i == state {
+            let mut color_circle = if i == state {
                 COLOR_ACTIVESTATE
             } else {
                 COLOR_STATE
             };
 
+
+
+            let new_center = center
+            - vec2(offset_to_origin, 0.0)
+            + vec2(i as f32 * offset, 0.0);
+
+
+            if let Some(pos) = response.hover_pos() {
+                if pos.distance(new_center) < radius {
+                    color_circle = color_circle.gamma_multiply(0.75);
+                }
+            }
+
+
             painter.circle_filled(
-                center
-                - vec2(offset_to_origin, 0.0)
-                + vec2(i as f32 * offset, 0.0),
-                radius + 1.5,
+                new_center,
+                radius + outline_thickness,
                 Color32::BLACK
             );
 
             painter.circle_filled(
-                center
-                - vec2(offset_to_origin, 0.0)
-                + vec2(i as f32 * offset, 0.0),
+                new_center,
                 radius,
                 color_circle
             );
@@ -178,12 +189,12 @@ impl GuiState {
         });
 
         egui::containers::Frame::canvas(ui.style())
-            .rounding(20.0)
+            .rounding(10.0)
             .outer_margin(10.0)
             // .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
             .fill(COLOR_BACKGROUND)
             .show(ui, |ui| {
-                self.ui_statemachine(ui);
+                self.canvas_statemachine(ui);
             });
 
         // let state_repr: &'static str = STATE_LABELS[state];
@@ -197,7 +208,7 @@ impl GuiState {
         );
 
         if btn_start.clicked() {
-            self.start_diagnosis();
+            util::start_diagnosis(self.diagnosis.clone(), self.diag_sender.clone());
         }
 
     }
@@ -278,9 +289,72 @@ impl GuiState {
         }
         */
 
+    }
 
+
+
+
+
+
+    fn canvas_pineditor(&mut self, ui: &mut egui::Ui) {
+        use egui::{vec2, Vec2, Pos2, pos2, Sense, Painter, Rect, Rounding, Stroke, Response};
+
+        const PIN_COUNT: u32 = 4; // TODO: refactor to config.rs
+
+        let width:  f32 = ui.available_width();
+        let height: f32 = 150.0;
+        let (response, painter, center): (Response, Painter, Pos2) = util::setup_canvas(ui, width, height);
+
+
+        let radius        = 10.0;
+        let gap           = 5.0;
+        let offset        = radius * 2.0 + gap;
+        let offset_origin = ((offset * PIN_COUNT as f32) / 2.0) - radius;
+
+
+
+        for x in 0..PIN_COUNT {
+            for y in 0..PIN_COUNT {
+
+                let circle_pos = center
+                - Vec2::splat(offset_origin)
+                + vec2(x as f32 * offset, y as f32 * offset);
+
+                // TODO: this
+                // if let Some(pos) = response.hover_pos() {
+                //     if pos.distance(center) < radius {
+                //         dbg!(pos);
+                //     }
+                // }
+
+                painter.circle_filled(
+                    circle_pos,
+                    radius,
+                    Color32::WHITE
+                );
+
+            }
+        }
 
     }
+
+
+
+    pub fn ui_pineditor(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+
+        ui.heading("Pin Editor");
+
+        egui::containers::Frame::canvas(ui.style())
+            .rounding(10.0)
+            .outer_margin(10.0)
+            // .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
+            .fill(COLOR_BACKGROUND)
+            .show(ui, |ui| {
+                self.canvas_pineditor(ui);
+            });
+
+    }
+
 
 
 

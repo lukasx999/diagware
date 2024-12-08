@@ -15,7 +15,7 @@
 - [ ] Hardware checker page to see if all devices are connected and working
 - [x] State machine for diagnosis
 - [ ] Cargo Script for uploading to rpi
-- [ ] File path handling for SQLx and egui::include_image!
+- [ ] File path handling for SQLx and egui::include\_image!
 - [ ] X11 config
   - Isolated Environment (what about crashes?)
 - [ ] LaTeX docs
