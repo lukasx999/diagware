@@ -4,9 +4,11 @@ use crate::ui::{
     util,
 };
 
-use crate::diagnosis::{Diagnosis, DiagnosisState, STATE_COUNT, DIAGNOSIS_STATE_REPRS};
+use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisMode, STATE_COUNT, DIAGNOSIS_STATE_REPRS};
 
 use eframe::egui::{self, Color32};
+
+
 
 
 
@@ -15,9 +17,9 @@ use eframe::egui::{self, Color32};
 
 impl GuiState {
 
-    pub fn ui_error(&self, ctx: &egui::Context, message: &str) -> egui_modal::Modal {
+    pub fn ui_error(ctx: &egui::Context, message: &str) -> egui_modal::Modal {
 
-        let modal = egui_modal::Modal::new(ctx, "Error");
+        let modal = egui_modal::Modal::new(ctx, message);
 
         modal.show(|ui| {
 
@@ -42,36 +44,33 @@ impl GuiState {
 
     pub fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
-        let modal = self.ui_error(ctx, "Datenbank Verbindung fehlgeschlagen");
-
+        let modal = Self::ui_error(ctx, "Datenbank Verbindung fehlgeschlagen");
         if ui.button("ERROR").clicked() {
             modal.open();
         }
 
+        let modal = egui_modal::Modal::new(ctx, "Login");
 
+        // TODO: create another egui window for textedit
 
-        // let modal = egui_modal::Modal::new(ctx, "Login");
-        //
-        // // TODO: create another egui window for textedit
-        //
-        // modal.show(|ui| {
-        //
-        //     modal.title(ui, "Login");
-        //
-        //     modal.frame(ui, |ui| {
-        //         modal.body(ui, "Passworteingabe");
-        //         // TODO: this
-        //
-        //     });
-        //
-        //     modal.buttons(ui, |ui| {
-        //         if modal.button(ui, "Abbruch").clicked() {}
-        //         if modal.button(ui, "Ok").clicked() {
-        //             self.is_expert_mode = true;
-        //         }
-        //     });
-        //
-        // });
+        modal.show(|ui| {
+
+            modal.title(ui, "Login");
+
+            modal.frame(ui, |ui| {
+                modal.body(ui, "Passworteingabe");
+                // TODO: this
+
+            });
+
+            modal.buttons(ui, |ui| {
+                if modal.button(ui, "Abbruch").clicked() {}
+                if modal.button(ui, "Ok").clicked() {
+                    self.is_expert_mode = true;
+                }
+            });
+
+        });
 
 
 
@@ -88,7 +87,7 @@ impl GuiState {
             } else {
 
                 if ui.button("Login").clicked() {
-                    // modal.open();
+                    modal.open();
                 }
 
             }
@@ -130,11 +129,11 @@ impl GuiState {
         let height: f32 = 150.0;
         let (response, painter, center): (Response, Painter, Pos2) = util::setup_canvas(ui, width, height);
 
-        let gap            = 30.0;                         // space between circles
-        let segment_size   = width / (STATE_COUNT as f32); // +1 for extra space at the sides
-        let radius         = (segment_size - gap) / 2.0;
-        let offset         = radius * 2.0 + gap;               // distance to next circle center from current circle center
-        let offset_to_origin = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
+        let gap               = 30.0;                         // space between circles
+        let segment_size      = width / (STATE_COUNT as f32); // +1 for extra space at the sides
+        let radius            = (segment_size - gap) / 2.0;
+        let offset            = radius * 2.0 + gap;               // distance to next circle center from current circle center
+        let offset_to_origin  = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
         let outline_thickness = 1.5;
 
         let mut font = egui::FontId::default();
@@ -144,8 +143,7 @@ impl GuiState {
         // TODO: increase font step-wise
         // TODO: hover popup for descriptions
 
-
-        let state = self.diag_state.clone() as usize;
+        let state = self.diag_state as usize;
 
         for i in 0..STATE_COUNT {
 
@@ -244,6 +242,18 @@ impl GuiState {
 
         // let state_repr: &'static str = STATE_LABELS[state];
         // ui.label(format!("Status: ({}) {}", state, state_repr));
+
+        let selected = &mut self.diagnosis.lock().unwrap().mode;
+
+        egui::ComboBox::from_label("Modus")
+            .selected_text(format!("{:?}", selected))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(selected, DiagnosisMode::Automatic, "Automatisch");
+                ui.selectable_value(selected, DiagnosisMode::Manual,    "Manuell");
+            });
+
+
+
 
         let is_running = self.diag_state != DiagnosisState::Idle;
 

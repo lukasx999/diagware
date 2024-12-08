@@ -19,6 +19,9 @@ use config::{
 
 
 
+
+
+
 struct GuiState {
     diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis
     diag_sender:   mpsc::Sender<DiagnosisState>,
@@ -84,7 +87,7 @@ impl eframe::App for GuiState {
 
         // Receive new state from running diagnosis
         if let Ok(state) = self.diag_receiver.try_recv() {
-            self.diag_state = state.clone();
+            self.diag_state = state;
         }
 
 

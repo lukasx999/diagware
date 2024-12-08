@@ -29,7 +29,7 @@ pub const STATE_COUNT: usize = 6; // needed for rendering state machine
 
 // NOTE: using numeric constants, because it makes rendering and incrementing state easier
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum DiagnosisState {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
@@ -82,9 +82,21 @@ impl std::error::Error for DiagnosisError {
 
 
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum DiagnosisMode {
+    Manual,
+    Automatic,
+}
+
+
+
+
+
 #[derive(Debug)]
 pub struct Diagnosis {
     pub state:  DiagnosisState,
+    pub mode:   DiagnosisMode,
+
     pub eeprom: EEPROM,
     pub db:     DB,
 }
@@ -94,6 +106,7 @@ impl Diagnosis {
     pub fn new(eeprom: EEPROM, db: DB) -> Self {
         Self {
             state: DiagnosisState::default(),
+            mode:  DiagnosisMode::Automatic,
             eeprom,
             db,
         }
@@ -134,10 +147,6 @@ impl Diagnosis {
 
     fn do_stuff() {
         thread::sleep(Duration::from_millis(500));
-    }
-
-    pub fn is_running(&self) -> bool {
-        self.state != DiagnosisState::Idle
     }
 
     pub fn next(&mut self) {
