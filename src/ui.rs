@@ -6,19 +6,6 @@ mod gui;
 mod util;
 
 mod config;
-use config::{
-    WINDOW_WIDTH,
-    WINDOW_HEIGHT,
-    PAGE_DIAGNOSIS,
-    PAGE_DBMANAGEMENT,
-    PAGE_SERIALMANAGER,
-    COLOR_BACKGROUND,
-    COLOR_ACTIVESTATE,
-    COLOR_STATE,
-};
-
-
-
 
 
 
@@ -56,6 +43,7 @@ impl GuiState {
             diag_state:    DiagnosisState::default(),
 
             is_expert_mode:  false,
+
             show_windowlist: true,
 
             show_diagnosis:     true,
@@ -98,25 +86,25 @@ impl eframe::App for GuiState {
 
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager,     PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis,     PAGE_DIAGNOSIS);
-                ui.toggle_value(&mut self.show_serialmanager, PAGE_SERIALMANAGER);
-                ui.toggle_value(&mut self.show_pineditor,     "Pin Editor");
+                ui.toggle_value(&mut self.show_dbmanager,     config::PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis,     config::PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_serialmanager, config::PAGE_SERIALMANAGER);
+                ui.toggle_value(&mut self.show_pineditor,     config::PAGE_PINEDITOR);
             });
 
 
         self.show_dbmanager =
-            util::new_window(ctx, self.show_dbmanager, PAGE_DBMANAGEMENT, |ui| {
+            util::new_window(ctx, self.show_dbmanager, config::PAGE_DBMANAGEMENT, |ui| {
                 self.ui_dbmanager(ui);
             });
 
         self.show_serialmanager =
-            util::new_window(ctx, self.show_serialmanager, PAGE_SERIALMANAGER, |ui| {
+            util::new_window(ctx, self.show_serialmanager, config::PAGE_SERIALMANAGER, |ui| {
                 self.ui_serialmanager(ctx, ui);
             });
 
         self.show_pineditor =
-            util::new_window(ctx, self.show_pineditor, "Pin Editor", |ui| {
+            util::new_window(ctx, self.show_pineditor, config::PAGE_PINEDITOR, |ui| {
                 self.ui_pineditor(&ctx, ui);
             });
 
@@ -125,7 +113,7 @@ impl eframe::App for GuiState {
         // TODO: min_width()
         let mut active = self.show_diagnosis;
 
-        egui::Window::new(PAGE_DIAGNOSIS)
+        egui::Window::new(config::PAGE_DIAGNOSIS)
             .fade_in(true)
             .fade_out(true)
             .open(&mut active)
@@ -154,7 +142,7 @@ fn frame_setup() -> eframe::NativeOptions {
             // .with_resizable(true)
             // .with_fullscreen(false)
             // .with_maximized(true)
-            .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]),
+            .with_inner_size([config::WINDOW_WIDTH, config::WINDOW_HEIGHT]),
         centered: true,
         ..Default::default()
     }

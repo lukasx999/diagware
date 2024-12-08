@@ -7,9 +7,11 @@ pub const EXPERT_PASSWORD: &str = "foo";
 pub const WINDOW_WIDTH:  f32 = 2300.0;
 pub const WINDOW_HEIGHT: f32 = 1200.0;
 
+// page titles and ids (must be unique)
 pub const PAGE_DIAGNOSIS:     &str = "Diagnosis";
 pub const PAGE_DBMANAGEMENT:  &str = "DB-Management";
 pub const PAGE_SERIALMANAGER: &str = "Serial Management";
+pub const PAGE_PINEDITOR:     &str = "Pin Editor";
 
 pub const COLOR_BACKGROUND:  Color32 = Color32::from_rgb(27,  27 , 27 );
 pub const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41,  110, 214);

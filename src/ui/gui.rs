@@ -1,6 +1,6 @@
 use crate::ui::{
     GuiState,
-    COLOR_STATE, COLOR_BACKGROUND, COLOR_ACTIVESTATE,
+    config,
     util,
 };
 
@@ -151,9 +151,9 @@ impl GuiState {
         for i in 0..STATE_COUNT {
 
             let mut color_circle = if i == state {
-                COLOR_ACTIVESTATE
+                config::COLOR_ACTIVESTATE
             } else {
-                COLOR_STATE
+                config::COLOR_STATE
             };
 
 
@@ -220,7 +220,7 @@ impl GuiState {
                 for i in 0..STATE_COUNT {
 
                     let color = if i == state {
-                        COLOR_ACTIVESTATE
+                        config::COLOR_ACTIVESTATE
                     } else {
                         Color32::GRAY
                     };
@@ -387,7 +387,7 @@ impl GuiState {
         for x in 0..PIN_COUNT {
             for y in 0..PIN_COUNT {
 
-                let mut pin_color = COLOR_STATE; // TODO: config.rs
+                let mut pin_color = config::COLOR_STATE; // TODO: config.rs
 
                 let circle_center = center
                 - Vec2::splat(offset_origin)
