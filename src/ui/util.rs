@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex, mpsc};
 
 use crate::ui::GuiState;
 use crate::diagnosis::{Diagnosis, DiagnosisState};
+use crate::ui::config::COLOR_BACKGROUND;
 
 
 
@@ -43,7 +44,7 @@ pub fn new_window(
 
 }
 
-pub fn setup_canvas(
+pub fn canvas_setup(
     ui: &mut egui::Ui,
     width: f32,
     height: f32
@@ -69,8 +70,13 @@ pub fn setup_canvas(
 
 }
 
-
-
+pub fn canvas_new(ui: &egui::Ui) -> egui::containers::Frame {
+    egui::containers::Frame::canvas(ui.style())
+        .rounding(10.0)
+        .outer_margin(10.0)
+        .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
+        .fill(COLOR_BACKGROUND)
+}
 
 
 

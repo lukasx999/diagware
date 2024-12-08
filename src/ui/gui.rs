@@ -17,6 +17,7 @@ use eframe::egui::{self, Color32};
 
 impl GuiState {
 
+    // TODO: move to util.rs
     pub fn ui_error(ctx: &egui::Context, message: &str) -> egui_modal::Modal {
 
         let modal = egui_modal::Modal::new(ctx, message);
@@ -128,7 +129,7 @@ impl GuiState {
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
         let (response, painter, center): (_, _, Pos2) =
-            util::setup_canvas(ui, width, height);
+            util::canvas_setup(ui, width, height);
 
         let gap               = 30.0;                         // space between circles
         let segment_size      = width / (STATE_COUNT as f32); // +1 for extra space at the sides
@@ -214,7 +215,7 @@ impl GuiState {
         ui.collapsing("Legende", |ui| {
             ui.horizontal_wrapped(|ui| {
 
-                let state = self.diag_state.clone() as usize;
+                let state = self.diag_state as usize;
 
                 for i in 0..STATE_COUNT {
 
@@ -225,7 +226,7 @@ impl GuiState {
                     };
 
                     ui.colored_label(color, format!("{i}"));
-                    ui.colored_label(Color32::DARK_GRAY, "...");
+                    ui.colored_label(Color32::DARK_GRAY, "->");
                     ui.colored_label(color, DIAGNOSIS_STATE_REPRS[i]);
                     ui.end_row();
                 }
@@ -233,18 +234,14 @@ impl GuiState {
             });
         });
 
-        egui::containers::Frame::canvas(ui.style())
-            .rounding(10.0)
-            .outer_margin(10.0)
-            // .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
-            .fill(COLOR_BACKGROUND)
-            .show(ui, |ui| {
-                self.canvas_statemachine(ui);
-            });
+        util::canvas_new(ui).show(ui, |ui| {
+            self.canvas_statemachine(ui);
+        });
 
-        // let state_repr: &'static str = STATE_LABELS[state];
-        // ui.label(format!("Status: ({}) {}", state, state_repr));
+        ui.label(format!("Status: {}", self.diag_state));
 
+        // TODO: this
+        /*
         let selected = &mut self.diagnosis.lock().unwrap().mode;
 
         egui::ComboBox::from_label("Modus")
@@ -253,9 +250,7 @@ impl GuiState {
                 ui.selectable_value(selected, DiagnosisMode::Automatic, "Automatisch");
                 ui.selectable_value(selected, DiagnosisMode::Manual,    "Manuell");
             });
-
-
-
+        */
 
         let is_running = self.diag_state != DiagnosisState::Idle;
 
@@ -331,20 +326,37 @@ impl GuiState {
 
 
 
-    pub fn ui_serialmanager(&mut self, ui: &mut egui::Ui) {
+    pub fn ui_serialmanager(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
-        ui.heading("Serial");
-        let mut text: &str = "123";
-        ui.text_edit_singleline(&mut text);
-        ui.label("Jetzige Seriennummber: 45");
-        ui.button("Seriennummer Beschreiben");
+        // TODO: this
+        // text edit for writing serial to eeprom of module
+        ui.heading("Verwaltung - Seriennummer");
+        // ui.button("Seriennummer Beschreiben");
 
-        /*
+        let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
+            diag.eeprom.get_serial().unwrap()
+        } else {
+            "Not Available".to_owned()
+        };
+
+        ui.label(format!("Serial: {}", serial));
+
+
+        let modal = Self::ui_error(ctx, "Cannot access EEPROM while diagnosis is active");
+
+
         if ui.button("Seriennummer Lesen").clicked() {
-            let s = self.eeprom.lock().unwrap().get_serial().unwrap();
-            println!("{}", s);
+
+            let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
+                diag.eeprom.get_serial().unwrap()
+            } else {
+                modal.open();
+                "Not Available".to_owned()
+            };
+
+            println!("{}", serial);
+
         }
-        */
 
     }
 
@@ -360,7 +372,7 @@ impl GuiState {
 
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
-        let (response, painter, center): (Response, Painter, Pos2) = util::setup_canvas(ui, width, height);
+        let (response, painter, center): (Response, Painter, Pos2) = util::canvas_setup(ui, width, height);
 
 
         let radius        = 10.0;
@@ -406,14 +418,9 @@ impl GuiState {
 
         ui.heading("Pin Editor");
 
-        egui::containers::Frame::canvas(ui.style())
-            .rounding(10.0)
-            .outer_margin(10.0)
-            // .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
-            .fill(COLOR_BACKGROUND)
-            .show(ui, |ui| {
-                self.canvas_pineditor(ui);
-            });
+        util::canvas_new(ui).show(ui, |ui| {
+            self.canvas_pineditor(ui);
+        });
 
     }
 

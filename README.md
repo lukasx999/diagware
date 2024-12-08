@@ -4,6 +4,7 @@
 
 - Manual step through?
 - Do we really need an error state? (continue/restart)
+- UI language english/german?
 
 
 

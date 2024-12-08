@@ -112,7 +112,7 @@ impl eframe::App for GuiState {
 
         self.show_serialmanager =
             util::new_window(ctx, self.show_serialmanager, PAGE_SERIALMANAGER, |ui| {
-                self.ui_serialmanager(ui);
+                self.ui_serialmanager(ctx, ui);
             });
 
         self.show_pineditor =

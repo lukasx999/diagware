@@ -41,8 +41,18 @@ pub enum DiagnosisState {
 }
 
 
+
+// TODO: repr trait vs Display trait
+
+impl std::fmt::Display for DiagnosisState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let repr = DIAGNOSIS_STATE_REPRS[self.clone() as usize];
+        write!(f, "{}", repr)
+    }
+}
+
 impl DiagnosisState {
-    pub fn repr(&self) -> &'static str {
+    pub fn repr(&self) -> &str {
         DIAGNOSIS_STATE_REPRS[self.clone() as usize]
     }
 }
@@ -87,6 +97,28 @@ pub enum DiagnosisMode {
     Manual,
     Automatic,
 }
+
+
+
+
+
+// TODO: this
+
+/*
+pub trait Repr {
+    fn repr(&self) -> &str;
+}
+
+impl DiagnosisMode {
+    fn repr(&self) -> &str {
+        use DiagnosisMode as Mode;
+        match self {
+            Mode::Manual    => "Manuell",
+            Mode::Automatic => "Automatisch",
+        }
+    }
+}
+*/
 
 
 
