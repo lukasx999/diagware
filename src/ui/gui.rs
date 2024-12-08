@@ -127,7 +127,8 @@ impl GuiState {
 
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
-        let (response, painter, center): (Response, Painter, Pos2) = util::setup_canvas(ui, width, height);
+        let (response, painter, center): (_, _, Pos2) =
+            util::setup_canvas(ui, width, height);
 
         let gap               = 30.0;                         // space between circles
         let segment_size      = width / (STATE_COUNT as f32); // +1 for extra space at the sides
@@ -140,6 +141,7 @@ impl GuiState {
         font.size = 15.0;
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
 
+        // TODO: dont show anything of available_width is smaller than min size
         // TODO: increase font step-wise
         // TODO: hover popup for descriptions
 
@@ -205,7 +207,7 @@ impl GuiState {
 
 
 
-    pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+    pub fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
 
         ui.heading("Diagnose");
 

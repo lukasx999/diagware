@@ -131,7 +131,7 @@ impl eframe::App for GuiState {
             .open(&mut active)
             .enabled(true)
             .show(ctx, |ui| {
-                self.ui_diagnosis(&ctx, ui);
+                self.ui_diagnosis(ui);
             });
 
         self.show_diagnosis = active;
