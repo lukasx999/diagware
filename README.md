@@ -2,6 +2,9 @@
 
 ## Questions
 
+- Manual step through?
+- Do we really need an error state? (continue/restart)
+
 
 
 

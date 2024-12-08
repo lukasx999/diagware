@@ -15,32 +15,63 @@ use eframe::egui::{self, Color32};
 
 impl GuiState {
 
+    pub fn ui_error(&self, ctx: &egui::Context, message: &str) -> egui_modal::Modal {
 
-
-    pub fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
-
-        let modal = egui_modal::Modal::new(ctx, "Login");
-
-        // TODO: create another egui window for textedit
+        let modal = egui_modal::Modal::new(ctx, "Error");
 
         modal.show(|ui| {
 
-            modal.title(ui, "Login");
+            modal.title(ui, "Error");
 
             modal.frame(ui, |ui| {
-                modal.body(ui, "Passworteingabe");
-                // TODO: this
-
+                modal.body(ui, "Ein Fehler ist aufgetreten");
+                modal.body(ui, format!("Fehler: {}", message));
             });
 
             modal.buttons(ui, |ui| {
                 if modal.button(ui, "Abbruch").clicked() {}
-                if modal.button(ui, "Ok").clicked() {
-                    self.is_expert_mode = true;
-                }
+                if modal.button(ui, "Ok").clicked() {}
             });
 
         });
+
+        modal
+
+    }
+
+
+    pub fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+
+        let modal = self.ui_error(ctx, "Datenbank Verbindung fehlgeschlagen");
+
+        if ui.button("ERROR").clicked() {
+            modal.open();
+        }
+
+
+
+        // let modal = egui_modal::Modal::new(ctx, "Login");
+        //
+        // // TODO: create another egui window for textedit
+        //
+        // modal.show(|ui| {
+        //
+        //     modal.title(ui, "Login");
+        //
+        //     modal.frame(ui, |ui| {
+        //         modal.body(ui, "Passworteingabe");
+        //         // TODO: this
+        //
+        //     });
+        //
+        //     modal.buttons(ui, |ui| {
+        //         if modal.button(ui, "Abbruch").clicked() {}
+        //         if modal.button(ui, "Ok").clicked() {
+        //             self.is_expert_mode = true;
+        //         }
+        //     });
+        //
+        // });
 
 
 
@@ -57,7 +88,7 @@ impl GuiState {
             } else {
 
                 if ui.button("Login").clicked() {
-                    modal.open();
+                    // modal.open();
                 }
 
             }

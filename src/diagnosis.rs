@@ -11,9 +11,6 @@ use crate::{
 
 
 
-
-
-
 /* CONFIG */
 
 // NOTE: Array, so that rendering states as a list is possible
@@ -26,8 +23,6 @@ pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
     "Auswertung",
     "End"
 ];
-
-
 
 
 pub const STATE_COUNT: usize = 6; // needed for rendering state machine
@@ -45,6 +40,15 @@ pub enum DiagnosisState {
     End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
+
+impl DiagnosisState {
+    pub fn repr(&self) -> &'static str {
+        DIAGNOSIS_STATE_REPRS[self.clone() as usize]
+    }
+}
+
+
+
 // TODO: Error state
 /*
 In case of error: switch to error state
@@ -55,16 +59,9 @@ In case of error: Return diagnosis result error and show error information as po
 
 
 
-impl DiagnosisState {
-    pub fn repr(&self) -> &'static str {
-        DIAGNOSIS_STATE_REPRS[self.clone() as usize]
-    }
-}
-
-
+/*
 
 // TODO: this
-/*
 #[derive(Debug)]
 pub enum DiagnosisError {
 }
@@ -80,8 +77,8 @@ impl std::error::Error for DiagnosisError {
         None
     }
 }
-*/
 
+*/
 
 
 

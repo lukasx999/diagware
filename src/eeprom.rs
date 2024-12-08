@@ -27,12 +27,21 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
+// TODO: implement this error type
+
+pub enum EepromError {
+    I2cError(i2c::Error),
+    Utf8Error(std::str::Utf8Error),
+}
+
+pub type EepromResult<T> = std::result::Result<T, EepromError>;
 
 
 
 
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug)]
 pub struct EEPROM {
     #[cfg(target_arch ="aarch64")]
     i2c: I2c,
