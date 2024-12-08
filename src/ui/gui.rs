@@ -21,6 +21,8 @@ impl GuiState {
 
         let modal = egui_modal::Modal::new(ctx, "Login");
 
+        // TODO: create another egui window for textedit
+
         modal.show(|ui| {
 
             modal.title(ui, "Login");
@@ -28,11 +30,14 @@ impl GuiState {
             modal.frame(ui, |ui| {
                 modal.body(ui, "Passworteingabe");
                 // TODO: this
+
             });
 
             modal.buttons(ui, |ui| {
                 if modal.button(ui, "Abbruch").clicked() {}
-                if modal.button(ui, "Ok").clicked() {}
+                if modal.button(ui, "Ok").clicked() {
+                    self.is_expert_mode = true;
+                }
             });
 
         });
@@ -43,9 +48,21 @@ impl GuiState {
 
             ui.toggle_value(&mut self.show_windowlist, "Windows");
 
-            if ui.button("Login").clicked() {
-                modal.open();
+            if self.is_expert_mode {
+
+                if ui.button("Logout").clicked() {
+                    self.is_expert_mode = false;
+                }
+
+            } else {
+
+                if ui.button("Login").clicked() {
+                    modal.open();
+                }
+
             }
+
+
 
             if ui.button(egui_phosphor::regular::POWER).clicked() {
                 if cfg!(target_arch ="aarch64") {
@@ -108,35 +125,32 @@ impl GuiState {
             };
 
 
-
-            let new_center = center
+            let circle_center = center
             - vec2(offset_to_origin, 0.0)
             + vec2(i as f32 * offset, 0.0);
 
 
             if let Some(pos) = response.hover_pos() {
-                if pos.distance(new_center) < radius {
+                if pos.distance(circle_center) < radius {
                     color_circle = color_circle.gamma_multiply(0.75);
                 }
             }
 
 
             painter.circle_filled(
-                new_center,
+                circle_center,
                 radius + outline_thickness,
                 Color32::BLACK
             );
 
             painter.circle_filled(
-                new_center,
+                circle_center,
                 radius,
                 color_circle
             );
 
             painter.text(
-                center
-                - vec2(offset_to_origin, 0.0)
-                + vec2(i as f32 * offset, 0.0),
+                circle_center,
                 egui::Align2::CENTER_CENTER,
                 format!("{i}"),
                 font.clone(),
@@ -311,26 +325,31 @@ impl GuiState {
         let offset        = radius * 2.0 + gap;
         let offset_origin = ((offset * PIN_COUNT as f32) / 2.0) - radius;
 
+        // TODO: scaling
+        // TODO: keep track of selected pins, toggle selection with click
 
 
         for x in 0..PIN_COUNT {
             for y in 0..PIN_COUNT {
 
-                let circle_pos = center
+                let mut pin_color = COLOR_STATE; // TODO: config.rs
+
+                let circle_center = center
                 - Vec2::splat(offset_origin)
                 + vec2(x as f32 * offset, y as f32 * offset);
 
-                // TODO: this
-                // if let Some(pos) = response.hover_pos() {
-                //     if pos.distance(center) < radius {
-                //         dbg!(pos);
-                //     }
-                // }
+
+                if let Some(pos) = response.hover_pos() {
+                    if pos.distance(circle_center) < radius {
+                        // TODO: refactor multiply factor to config.rs
+                        pin_color = pin_color.gamma_multiply(0.75);
+                    }
+                }
 
                 painter.circle_filled(
-                    circle_pos,
+                    circle_center,
                     radius,
-                    Color32::WHITE
+                    pin_color
                 );
 
             }

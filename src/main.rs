@@ -16,6 +16,7 @@ use diagnosis::Diagnosis;
 
 
 
+// TODO: diagnosis logger in UI
 
 
 fn main() -> Result<(), Box<dyn Error>> {

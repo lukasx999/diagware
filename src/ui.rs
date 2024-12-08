@@ -107,7 +107,6 @@ impl eframe::App for GuiState {
                 self.ui_dbmanager(ui);
             });
 
-
         self.show_serialmanager =
             util::new_window(ctx, self.show_serialmanager, PAGE_SERIALMANAGER, |ui| {
                 self.ui_serialmanager(ui);
@@ -117,8 +116,6 @@ impl eframe::App for GuiState {
             util::new_window(ctx, self.show_pineditor, "Pin Editor", |ui| {
                 self.ui_pineditor(&ctx, ui);
             });
-
-
 
 
         // TODO: refactor this into a macro!
