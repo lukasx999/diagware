@@ -41,15 +41,22 @@ pub const STATE_LABELS: [&str; 7] = [
 
 
 
-pub struct DiagnosisError;
+
+#[derive(Debug)]
+pub enum DiagnosisError {
+}
+
+// impl std::error::Error for DiagnosisError {
+// }
+
 
 
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    pub state:     DiagnosisState,
-    pub eeprom:    EEPROM,
-    pub db:        DB,
+    pub state:  DiagnosisState,
+    pub eeprom: EEPROM,
+    pub db:     DB,
 }
 
 impl Diagnosis {
@@ -88,7 +95,6 @@ impl Diagnosis {
             DS::Evaluation   => DS::End,
             DS::End          => DS::Idle,
         }
-
 
     }
 

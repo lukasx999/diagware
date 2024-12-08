@@ -40,11 +40,11 @@ const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
 
 
 struct GuiState {
-    // All HW/SW interfaces are owned by the diagnosis
-    diagnosis:     Arc<Mutex<Diagnosis>>,
+    diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis
     diag_sender:   mpsc::Sender<DiagnosisState>,
     diag_receiver: mpsc::Receiver<DiagnosisState>,
-    diag_state:    DiagnosisState,
+    diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
+                                   // the state in state machine diagram and 2. block off other ui elements
 
     is_expert_mode:  bool,
 
@@ -52,6 +52,9 @@ struct GuiState {
     show_diagnosis:  bool,
     show_dbmanager:  bool,
     show_serialmanager: bool,
+
+    show_foo: bool,
+
 }
 
 
@@ -77,6 +80,8 @@ impl GuiState {
             show_diagnosis:     true,
             show_dbmanager:     false,
             show_serialmanager: false,
+
+            show_foo: false,
 
         }
 
@@ -147,6 +152,25 @@ impl GuiState {
         (painter, center)
 
     }
+
+
+    fn start_diagnosis(&self) {
+
+        let diag = self.diagnosis.clone();
+        let sender = self.diag_sender.clone();
+
+        std::thread::Builder::new()
+            .name("diagnosis".to_string())
+            .spawn(move || {
+                diag.lock()
+                    .unwrap()
+                    .diagnosis(sender)
+                    .unwrap();
+            }).unwrap();
+
+    }
+
+
 
 }
 
@@ -221,21 +245,16 @@ impl GuiState {
         let gap            = 30.0;                         // space between circles
         let segment_size   = width / (STATE_COUNT as f32); // +1 for extra space at the sides
         let radius         = (segment_size - gap) / 2.0;
-        let offset         = (radius * 2.0) + gap;             // distance to next circle center from current circle center
-        let initial_offset = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
+        let offset         = (radius * 2.0) + gap;               // distance to next circle center from current circle center
+        let offset_to_origin = width / 2.0 - segment_size / 2.0; // offset at the very left for the starting circle
 
         let mut font = egui::FontId::default();
         font.size = 15.0;
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
 
-
         // TODO: increase font step-wise
-        // TODO: legend / hover popup for descriptions
+        // TODO: hover popup for descriptions
 
-        // Receive new state from running diagnosis
-        if let Ok(state) = self.diag_receiver.try_recv() {
-            self.diag_state = state.clone();
-        }
 
         let state = self.diag_state.clone() as usize;
 
@@ -249,7 +268,15 @@ impl GuiState {
 
             painter.circle_filled(
                 center
-                - vec2(initial_offset, 0.0)
+                - vec2(offset_to_origin, 0.0)
+                + vec2(i as f32 * offset, 0.0),
+                radius + 1.5,
+                Color32::BLACK
+            );
+
+            painter.circle_filled(
+                center
+                - vec2(offset_to_origin, 0.0)
                 + vec2(i as f32 * offset, 0.0),
                 radius,
                 color_circle
@@ -257,7 +284,7 @@ impl GuiState {
 
             painter.text(
                 center
-                - vec2(initial_offset, 0.0)
+                - vec2(offset_to_origin, 0.0)
                 + vec2(i as f32 * offset, 0.0),
                 egui::Align2::CENTER_CENTER,
                 format!("{i}"),
@@ -272,7 +299,7 @@ impl GuiState {
 
             painter.arrow(
                 center
-                - vec2(initial_offset - radius, 0.0)
+                - vec2(offset_to_origin - radius, 0.0)
                 + vec2(i as f32 * offset, 0.0),
                 vec2(gap, 0.0),
                 Stroke::new(2.0, Color32::GRAY)
@@ -318,24 +345,10 @@ impl GuiState {
                 self.ui_statemachine(ui);
             });
 
-
-
-        // TODO: think about this
-        // let is_running: bool = self.diagnosis
-        //     .clone()
-        //     .lock()
-        //     .unwrap()
-        //     .is_running();
-        // let state = self.diagnosis
-        //     .clone()
-        //     .lock()
-        //     .unwrap()
-        //     .state
-        //     .clone() as usize;
         // let state_repr: &'static str = STATE_LABELS[state];
         // ui.label(format!("Status: ({}) {}", state, state_repr));
-        let is_running = false;
 
+        let is_running = self.diag_state != DiagnosisState::Idle;
 
         let btn_start: egui::Response = ui.add_enabled(
             !is_running,
@@ -343,22 +356,7 @@ impl GuiState {
         );
 
         if btn_start.clicked() {
-
-            // TODO: struct field: "diagnosis_running" -> block off entire UI while diag is running
-
-
-            let diag = self.diagnosis.clone();
-            let sender = self.diag_sender.clone();
-
-            std::thread::Builder::new()
-                .name("diagnosis".to_string())
-                .spawn(move || {
-                    diag.lock()
-                        .unwrap()
-                        .diagnosis(sender)
-                        .unwrap();
-                }).unwrap();
-
+            self.start_diagnosis();
         }
 
     }
@@ -463,6 +461,11 @@ impl eframe::App for GuiState {
                                // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
                                // every frame
 
+        // Receive new state from running diagnosis
+        if let Ok(state) = self.diag_receiver.try_recv() {
+            self.diag_state = state.clone();
+        }
+
 
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             self.ui_topbar(&ctx, ui);
@@ -471,8 +474,8 @@ impl eframe::App for GuiState {
 
         egui::SidePanel::left("WindowList")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager,     PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis,     PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_dbmanager, PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis, PAGE_DIAGNOSIS);
                 ui.toggle_value(&mut self.show_serialmanager, PAGE_SERIALMANAGER);
             });
 
@@ -506,8 +509,6 @@ impl eframe::App for GuiState {
 
         self.show_diagnosis = active;
 
-
-
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::containers::Frame::default().show(ui, |_ui| ());
         });
@@ -518,7 +519,7 @@ impl eframe::App for GuiState {
 
 
 
-fn setup_options() -> eframe::NativeOptions {
+fn frame_setup() -> eframe::NativeOptions {
 
     eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
@@ -538,7 +539,7 @@ pub fn run_gui(
     diagnosis: Diagnosis
 ) -> eframe::Result {
 
-    let options: eframe::NativeOptions = setup_options();
+    let options: eframe::NativeOptions = frame_setup();
 
     eframe::run_native(
         "Diagware",
