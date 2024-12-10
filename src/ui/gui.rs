@@ -260,7 +260,7 @@ impl GuiState {
         );
 
         if btn_start.clicked() {
-            util::start_diagnosis(self.diagnosis.clone(), self.diag_sender.clone());
+            util::start_diagnosis(self.diagnosis.clone());
         }
 
     }

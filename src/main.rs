@@ -24,12 +24,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     let db     = DB::new()?;
     let eeprom = EEPROM::new()?;
 
+    let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
+
     let diagnosis = Diagnosis::new(
         eeprom,
         db,
+        tx
     );
 
-    ui::run_gui(diagnosis)?;
+    ui::run_gui(diagnosis, rx)?;
 
 
     Ok(())

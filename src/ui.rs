@@ -11,7 +11,6 @@ mod config;
 
 struct GuiState {
     diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis
-    diag_sender:   mpsc::Sender<DiagnosisState>,
     diag_receiver: mpsc::Receiver<DiagnosisState>,
     diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
                                    // the state in state machine diagram and 2. block off other ui elements
@@ -31,15 +30,14 @@ struct GuiState {
 impl GuiState {
 
     pub fn new(
-        diagnosis: Diagnosis
+        diagnosis: Diagnosis,
+        receiver: mpsc::Receiver<DiagnosisState>
     ) -> Self {
 
-        let (tx, rx) = mpsc::channel();
 
         Self {
             diagnosis:     Arc::new(Mutex::new(diagnosis)),
-            diag_sender:   tx,
-            diag_receiver: rx,
+            diag_receiver: receiver,
             diag_state:    DiagnosisState::default(),
 
             is_expert_mode:  false,
@@ -151,7 +149,8 @@ fn frame_setup() -> eframe::NativeOptions {
 
 
 pub fn run_gui(
-    diagnosis: Diagnosis
+    diagnosis: Diagnosis,
+    receiver:  mpsc::Receiver<DiagnosisState>
 ) -> eframe::Result {
 
     let options: eframe::NativeOptions = frame_setup();
@@ -169,7 +168,7 @@ pub fn run_gui(
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiState::new(diagnosis)))
+            Ok(Box::new(GuiState::new(diagnosis, receiver)))
 
         }),
     )

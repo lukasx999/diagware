@@ -82,7 +82,6 @@ pub fn canvas_new(ui: &egui::Ui) -> egui::containers::Frame {
 
 pub fn start_diagnosis(
     diagnosis: Arc<Mutex<Diagnosis>>,
-    sender: mpsc::Sender<DiagnosisState>
     // TODO: this
 // ) -> std::io::Result<std::thread::JoinHandle<()>> {
 ) {
@@ -90,10 +89,7 @@ pub fn start_diagnosis(
     std::thread::Builder::new()
         .name("diagnosis".to_owned())
         .spawn(move || {
-            diagnosis.lock()
-                .unwrap()
-                .diagnosis(sender)
-                .unwrap();
+            diagnosis.lock().unwrap().run_to_end().unwrap()
         }).unwrap();
 
 }
