@@ -24,13 +24,14 @@ CREATE TABLE documents (
     FOREIGN KEY(module_id) REFERENCES modules(id)
 );
 
-
-    -- MATRIX = Table("matrix", {
-    --     "gnd":     SQLTypes.INT,  # Not-Connected value MUST always be first! - index 0
-    --     "v_plus":  SQLTypes.INT,
-    --     "v_minus": SQLTypes.INT,
-    --     "sig_ch1": SQLTypes.INT,
-    --     "sig_ch2": SQLTypes.INT,
-    --     "sig_ch3": SQLTypes.INT,
-    --     "adc_ch1": SQLTypes.INT,
-    -- })
+-- Schaltmatrix
+CREATE TABLE matrix (
+    id       INTEGER PRIMARY KEY,
+    gnd      INTEGER NOT NULL,
+    v_plus   INTEGER NOT NULL,
+    v_minus  INTEGER NOT NULL,
+    dds1_out INTEGER NOT NULL,
+    dds2_out INTEGER NOT NULL,
+    dds3_out INTEGER NOT NULL,
+    adc_in   INTEGER NOT NULL
+);

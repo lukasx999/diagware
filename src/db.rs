@@ -18,7 +18,7 @@ pub struct DB {
 
 impl DB {
 
-    pub fn new() -> Result<Self, sqlx::Error> {
+    pub fn new() -> sqlx::Result<Self> {
         let rt = TokioRuntime::new()?;
         Ok(Self {
             conn: rt.block_on(SqlitePool::connect(DB_FILENAME))?,
@@ -32,7 +32,7 @@ impl DB {
         self.rt.block_on(future)
     }
 
-    pub fn get_modules_all(&self) -> Result<Vec<Module>, sqlx::Error> {
+    pub fn get_modules_all(&self) -> sqlx::Result<Vec<Module>> {
 
         let future =
         sqlx::query_as!(Module, "SELECT * FROM modules")
@@ -42,9 +42,7 @@ impl DB {
 
     }
 
-    pub fn get_module_by_id(
-        &self, id: i64
-    ) -> Result<Module, sqlx::Error> {
+    pub fn get_module_by_id(&self, id: i64) -> sqlx::Result<Module> {
 
         let future =
         sqlx::query_as!(Module, "SELECT * FROM modules WHERE id=?1", id)
@@ -54,9 +52,7 @@ impl DB {
 
     }
 
-    pub fn get_module_by_serial(
-        &self, serial: &str
-    ) -> Result<Module, sqlx::Error> {
+    pub fn get_module_by_serial(&self, serial: &str) -> sqlx::Result<Module> {
 
         let future =
         sqlx::query_as!(Module, "SELECT * FROM modules WHERE serial=?1", serial)
@@ -66,7 +62,7 @@ impl DB {
 
     }
 
-    pub fn module_add(&self, module: Module) -> Result<(), sqlx::Error> {
+    pub fn module_add(&self, module: Module) -> sqlx::Result<()> {
 
         let future =
         sqlx::query!("INSERT INTO modules (id, name, serial) VALUES (?1, ?2, ?3)",
@@ -84,7 +80,7 @@ impl DB {
         &self,
         id: i64,
         module: Module
-    ) -> Result<(), sqlx::Error> {
+    ) -> sqlx::Result<()> {
 
         assert!(module.id == None);
 
@@ -100,10 +96,7 @@ impl DB {
 
     }
 
-    pub fn module_delete_by_id(
-        &self,
-        id: i64
-    ) -> Result<(), sqlx::Error> {
+    pub fn module_delete_by_id(&self, id: i64) -> sqlx::Result<()> {
 
         let future =
         sqlx::query!("DELETE FROM modules WHERE id=?1", id)
@@ -114,13 +107,23 @@ impl DB {
 
     }
 
-    pub async fn get_targetvalues_all(
-        &self
-    ) -> Result<Vec<TargetValue>, sqlx::Error> {
+    pub fn get_targetvalues_all(&self) -> sqlx::Result<Vec<TargetValue>> {
 
-        Ok(sqlx::query_as!(TargetValue, "SELECT * FROM targetvalues")
-            .fetch_all(&self.conn)
-            .await?)
+        let future =
+        sqlx::query_as!(TargetValue, "SELECT * FROM targetvalues")
+            .fetch_all(&self.conn);
+
+        Ok(self.run_sync(future)?)
+
+    }
+
+    pub fn get_targetvalue_by_id(&self, id: i64) -> sqlx::Result<Vec<TargetValue>> {
+
+        let future =
+        sqlx::query_as!(TargetValue, "SELECT * FROM targetvalues WHERE module_id=?1", id)
+            .fetch_all(&self.conn);
+
+        Ok(self.run_sync(future)?)
 
     }
 

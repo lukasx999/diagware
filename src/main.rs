@@ -25,6 +25,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let db     = DB::new()?;
     let eeprom = EEPROM::new()?;
 
+    let t = db.get_targetvalues_all()?;
+    dbg!(t);
+
+
     let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
 
     let diagnosis = Diagnosis::new(

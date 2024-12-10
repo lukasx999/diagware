@@ -14,7 +14,7 @@ impl Module {
 
         Self {
             id,
-            name: name.to_owned(),
+            name:   name.to_owned(),
             serial: serial.to_owned()
         }
 

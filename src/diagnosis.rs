@@ -275,7 +275,16 @@ impl Diagnosis {
             }
 
             State::Evaluation => {
+                use crate::db::model::TargetValue;
+
                 Self::do_stuff();
+
+                // TODO: deal with unwrap()
+                // let id = self.temp_module.clone().unwrap().id.unwrap();
+                let id = self.temp_module.as_ref().unwrap().id.unwrap();
+                let targetvalues: Vec<TargetValue> = self.db.get_targetvalue_by_id(id)?;
+                // TODO: compare measured values with targetvalues
+
                 self.next_state()?;
             }
 
