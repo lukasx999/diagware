@@ -5,10 +5,10 @@ use std::{
     thread,
     time::Duration,
     sync::mpsc,
-    error::Error,
 };
 
 use crate::{
+    eeprom,
     EEPROM,
     DB,
     db::model::Module,
@@ -75,36 +75,49 @@ In case of error: Return diagnosis result error and show error information as po
 
 
 
-// TODO: replace with actual error type
-pub type DiagnosisError = Box<dyn Error>;
+
+// TODO: use thiserror
+
 
 
 #[derive(Debug)]
-pub enum ActualDiagnosisError {
+pub enum DiagnosisError {
     SendError(mpsc::SendError<DiagnosisState>),
     DatabaseError(sqlx::Error),
+    EepromError(eeprom::EepromError),
 }
 
-impl From<mpsc::SendError<DiagnosisState>> for ActualDiagnosisError {
+impl From<mpsc::SendError<DiagnosisState>> for DiagnosisError {
     fn from(value: mpsc::SendError<DiagnosisState>) -> Self {
         Self::SendError(value)
     }
 }
 
-impl From<sqlx::Error> for ActualDiagnosisError {
+impl From<sqlx::Error> for DiagnosisError {
     fn from(value: sqlx::Error) -> Self {
         Self::DatabaseError(value)
     }
 }
 
-impl std::fmt::Display for ActualDiagnosisError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "error")
+impl From<eeprom::EepromError> for DiagnosisError {
+    fn from(value: eeprom::EepromError) -> Self {
+        Self::EepromError(value)
     }
 }
 
-impl Error for ActualDiagnosisError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
+impl std::fmt::Display for DiagnosisError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let message = match self {
+            Self::SendError(_)     => "Failed to send state to UI",
+            Self::DatabaseError(_) => "Database operation failed",
+            Self::EepromError(_)   => "EEPROM operation failed",
+        };
+        write!(f, "{}", message)
+    }
+}
+
+impl std::error::Error for DiagnosisError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         Some(self)
     }
 }
@@ -112,6 +125,8 @@ impl Error for ActualDiagnosisError {
 
 
 
+// TODO:
+/* this holds the results of a successful diagnosis */
 #[derive(Debug, Clone, Copy)]
 pub struct DiagnosisResult {
 }
