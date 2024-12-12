@@ -79,19 +79,12 @@ In case of error: Return diagnosis result error and show error information as po
 // TODO: use thiserror
 
 
-#[derive(thiserror::Error, Debug)]
-pub enum DiagnosisErrorInternal {
-}
 
-
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug)]
 pub enum DiagnosisError {
-    #[error("Failed to transmit current state")]
-    SendError(#[from] mpsc::SendError<DiagnosisState>),
-    #[error("Database operation failed")]
-    DatabaseError(#[from] sqlx::Error),
-    #[error("EEPROM operation failed")]
-    EepromError(#[from] eeprom::EepromError),
+    SendError(mpsc::SendError<DiagnosisState>),
+    DatabaseError(sqlx::Error),
+    EepromError(eeprom::EepromError),
 
     // The current DUT is holding a serial number which was not found within the database
     // UnknownModule {
@@ -99,6 +92,40 @@ pub enum DiagnosisError {
     // },
 }
 
+impl From<mpsc::SendError<DiagnosisState>> for DiagnosisError {
+    fn from(value: mpsc::SendError<DiagnosisState>) -> Self {
+        Self::SendError(value)
+    }
+}
+
+impl From<sqlx::Error> for DiagnosisError {
+    fn from(value: sqlx::Error) -> Self {
+        Self::DatabaseError(value)
+    }
+}
+
+impl From<eeprom::EepromError> for DiagnosisError {
+    fn from(value: eeprom::EepromError) -> Self {
+        Self::EepromError(value)
+    }
+}
+
+impl std::fmt::Display for DiagnosisError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let message = match self {
+            Self::SendError(_)     => "Failed to send state to UI",
+            Self::DatabaseError(_) => "Database operation failed",
+            Self::EepromError(_)   => "EEPROM operation failed",
+        };
+        write!(f, "{}", message)
+    }
+}
+
+impl std::error::Error for DiagnosisError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(self)
+    }
+}
 
 
 
@@ -229,9 +256,19 @@ impl Diagnosis {
             State::DBLookup => {
                 Self::do_stuff();
 
-                // let serial = self.temp_serial.clone().unwrap();
-                // let module: Module = self.db.get_module_by_serial(&serial)?;
-                // dbg!(&module);
+                // assert!(self.temp_serial != None);
+                // let serial = match &self.temp_serial {
+                //     Some(value) => value,
+                //     None => panic!(), // In this case its okay to panic, because this error should
+                //                       // not occur in a functional program
+                // };
+                //
+
+                let serial = self.temp_serial.clone().unwrap();
+                let module: Module = self.db.get_module_by_serial(serial.as_str())?;
+                // match module {
+                // }
+                dbg!(module);
                 // self.temp_module = Some(module);
 
                 self.next_state()?;

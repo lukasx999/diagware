@@ -77,19 +77,3 @@ pub fn canvas_new(ui: &egui::Ui) -> egui::containers::Frame {
         .stroke(egui::Stroke::new(1.0, COLOR_BACKGROUND))
         .fill(COLOR_BACKGROUND)
 }
-
-
-
-pub fn start_diagnosis(
-    diagnosis: Arc<Mutex<Diagnosis>>,
-    // TODO: this
-// ) -> std::io::Result<std::thread::JoinHandle<()>> {
-) {
-
-    std::thread::Builder::new()
-        .name("diagnosis".to_owned())
-        .spawn(move || {
-            diagnosis.lock().unwrap().run_to_end().unwrap()
-        }).unwrap();
-
-}

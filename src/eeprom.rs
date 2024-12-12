@@ -28,39 +28,14 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 // TODO: consider using the `thiserror` crate
 
-#[derive(Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum EepromError {
-    I2cError(i2c::Error),
-    Utf8Error(std::str::Utf8Error),
+    #[error("I2C operation failed")]
+    I2cError(#[from] i2c::Error),
+    #[error("UTF8 operation failed")]
+    Utf8Error(#[from] std::str::Utf8Error),
 }
 
-impl std::fmt::Display for EepromError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let message = match self {
-            Self::I2cError(_) => "I2C operation failed",
-            Self::Utf8Error(_) => "UTF8 operation failed",
-        };
-        write!(f, "{}", message)
-    }
-}
-
-impl std::error::Error for EepromError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        Some(self)
-    }
-}
-
-impl From<i2c::Error> for EepromError {
-    fn from(value: i2c::Error) -> Self {
-        Self::I2cError(value)
-    }
-}
-
-impl From<std::str::Utf8Error> for EepromError {
-    fn from(value: std::str::Utf8Error) -> Self {
-        Self::Utf8Error(value)
-    }
-}
 
 pub type EepromResult<T> = std::result::Result<T, EepromError>;
 
@@ -110,6 +85,7 @@ impl EEPROM {
 
     #[cfg(target_arch = "x86_64")]
     pub fn get_serial(&self) -> EepromResult<String> {
+        // Ok("214232".to_owned())
         Ok("123".to_owned())
     }
 

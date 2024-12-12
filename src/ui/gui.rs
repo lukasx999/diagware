@@ -208,7 +208,7 @@ impl GuiState {
 
 
 
-    pub fn ui_diagnosis(&mut self, ui: &mut egui::Ui) {
+    pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
         ui.heading("Diagnose");
 
@@ -245,11 +245,11 @@ impl GuiState {
         let selected = &mut self.diagnosis.lock().unwrap().mode;
 
         egui::ComboBox::from_label("Modus")
-            .selected_text(format!("{:?}", selected))
-            .show_ui(ui, |ui| {
-                ui.selectable_value(selected, DiagnosisMode::Automatic, "Automatisch");
-                ui.selectable_value(selected, DiagnosisMode::Manual,    "Manuell");
-            });
+        .selected_text(format!("{:?}", selected))
+        .show_ui(ui, |ui| {
+        ui.selectable_value(selected, DiagnosisMode::Automatic, "Automatisch");
+        ui.selectable_value(selected, DiagnosisMode::Manual,    "Manuell");
+        });
         */
 
         let is_running = self.diag_state != DiagnosisState::Idle;
@@ -259,9 +259,47 @@ impl GuiState {
             egui::Button::new("Start")
         );
 
+
+        let modal_error = Self::ui_error(ctx, "ERROR");
+        let modal_success = Self::ui_error(ctx, "SUCCESS");
+
+        use crate::diagnosis::{DiagnosisResult, DiagnosisError};
+        use std::thread::JoinHandle;
+
         if btn_start.clicked() {
-            util::start_diagnosis(self.diagnosis.clone());
+            let diag = self.diagnosis.clone();
+
+            self.diag_thread_handle = Some(Box::new(std::thread::Builder::new()
+                .name("diagnosis".to_owned())
+                .spawn(move || {
+                    diag.lock().unwrap().run_to_end()
+                }).unwrap()));
+
         }
+
+        // TODO: this
+
+        // if let Some(h) = self.diag_thread_handle.as_ref() {
+        //     // self.diag_thread_handle = None;
+        //
+        //     if h.is_finished() {
+        //         let result = h.join().unwrap();
+        //         match result {
+        //             Ok(value) => {
+        //                 println!("Diagnosis was successful!");
+        //                 modal_success.open();
+        //             }
+        //             Err(error) => {
+        //                 println!("Diagnosis failed!");
+        //                 modal_error.open();
+        //             }
+        //         }
+        //     }
+        //
+        // }
+
+
+
 
     }
 

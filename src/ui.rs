@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex, mpsc};
+use std::thread::JoinHandle;
 
-use crate::diagnosis::{Diagnosis, DiagnosisState};
+use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisResult, DiagnosisError};
 
 mod gui;
 mod util;
@@ -14,6 +15,9 @@ struct GuiState {
     diag_receiver: mpsc::Receiver<DiagnosisState>,
     diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
                                    // the state in state machine diagram and 2. block off other ui elements
+
+    diag_thread_handle: Option<Box<JoinHandle<Result<DiagnosisResult, DiagnosisError>>>>,
+
 
     is_expert_mode:     bool,
 
@@ -39,6 +43,8 @@ impl GuiState {
             diagnosis:     Arc::new(Mutex::new(diagnosis)),
             diag_receiver: receiver,
             diag_state:    DiagnosisState::default(),
+
+            diag_thread_handle: None,
 
             is_expert_mode:  false,
 
@@ -117,7 +123,7 @@ impl eframe::App for GuiState {
             .open(&mut active)
             .enabled(true)
             .show(ctx, |ui| {
-                self.ui_diagnosis(ui);
+                self.ui_diagnosis(ctx, ui);
             });
 
         self.show_diagnosis = active;
