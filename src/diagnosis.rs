@@ -229,10 +229,11 @@ impl Diagnosis {
             State::DBLookup => {
                 Self::do_stuff();
 
-                // let serial = self.temp_serial.clone().unwrap();
-                // let module: Module = self.db.get_module_by_serial(&serial)?;
-                // dbg!(&module);
-                // self.temp_module = Some(module);
+                // TODO: consider Option::take
+                let serial = self.temp_serial.clone().unwrap();
+                let module: Module = self.db.get_module_by_serial(&serial)?;
+                dbg!(&module);
+                self.temp_module = Some(module);
 
                 self.next_state()?;
             }
@@ -281,11 +282,23 @@ impl Diagnosis {
         Ok(())
     }
 
+    // TODO: implement manual stepping
     pub fn run_to_end(&mut self) -> Result<DiagnosisResult, DiagnosisError> {
         loop {
-            if let Some(result) = self.run_state()? {
-                break Ok(result);
+
+            match self.run_state() {
+                Ok(result) => {
+                    if let Some(result) = result {
+                        break Ok(result);
+                    }
+                }
+                Err(e) => {
+                    self.reset()?;
+                    return Err(e);
+                }
+
             }
+
         }
     }
 

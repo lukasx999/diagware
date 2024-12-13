@@ -85,8 +85,8 @@ impl EEPROM {
 
     #[cfg(target_arch = "x86_64")]
     pub fn get_serial(&self) -> EepromResult<String> {
-        // Ok("214232".to_owned())
-        Ok("123".to_owned())
+        Ok("214232".to_owned())
+        // Ok("123".to_owned())
     }
 
 

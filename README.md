@@ -2,6 +2,7 @@
 
 ## Questions
 
+- **Error popups VS logging window?**
 - Manual step through?
 - Do we really need an error state? (continue/restart)
 - UI language english/german?
@@ -35,8 +36,9 @@
 - ImGui vs Retained-mode GUI
 - State Machine diagram + explaination
 - State Machine GUI rendering
+- State and Ownership diagram (channels, arcs, mutexes, ...)
 - R/W EEPROM
-- DB Management
+- DB Management (table & column layout)
 
 
 

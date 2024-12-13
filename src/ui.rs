@@ -16,7 +16,9 @@ struct GuiState {
     diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
                                    // the state in state machine diagram and 2. block off other ui elements
 
-    diag_thread_handle: Option<Box<JoinHandle<Result<DiagnosisResult, DiagnosisError>>>>,
+    // Handle to the diagnosis thread
+    // None if diagnosis is not active
+    diag_thread_handle: Option<JoinHandle<Result<DiagnosisResult, DiagnosisError>>>,
 
 
     is_expert_mode:     bool,

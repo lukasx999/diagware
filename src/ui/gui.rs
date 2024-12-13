@@ -209,6 +209,7 @@ impl GuiState {
 
 
     pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+        use crate::diagnosis::{DiagnosisResult, DiagnosisError};
 
         ui.heading("Diagnose");
 
@@ -252,7 +253,7 @@ impl GuiState {
         });
         */
 
-        let is_running = self.diag_state != DiagnosisState::Idle;
+        let is_running = self.diag_thread_handle.is_some();
 
         let btn_start: egui::Response = ui.add_enabled(
             !is_running,
@@ -260,44 +261,47 @@ impl GuiState {
         );
 
 
-        let modal_error = Self::ui_error(ctx, "ERROR");
-        let modal_success = Self::ui_error(ctx, "SUCCESS");
-
-        use crate::diagnosis::{DiagnosisResult, DiagnosisError};
-        use std::thread::JoinHandle;
 
         if btn_start.clicked() {
+            // TODO: fail, if a diagnosis is already running, by checking that the diag_handle is None
+
             let diag = self.diagnosis.clone();
 
-            self.diag_thread_handle = Some(Box::new(std::thread::Builder::new()
+            let handle = std::thread::Builder::new()
                 .name("diagnosis".to_owned())
                 .spawn(move || {
                     diag.lock().unwrap().run_to_end()
-                }).unwrap()));
+                }).unwrap();
+
+            self.diag_thread_handle = Some(handle);
+
 
         }
 
-        // TODO: this
+        let modal_error = Self::ui_error(ctx, "ERROR");
+        let modal_success = Self::ui_error(ctx, "SUCCESS");
 
-        // if let Some(h) = self.diag_thread_handle.as_ref() {
-        //     // self.diag_thread_handle = None;
-        //
-        //     if h.is_finished() {
-        //         let result = h.join().unwrap();
-        //         match result {
-        //             Ok(value) => {
-        //                 println!("Diagnosis was successful!");
-        //                 modal_success.open();
-        //             }
-        //             Err(error) => {
-        //                 println!("Diagnosis failed!");
-        //                 modal_error.open();
-        //             }
-        //         }
-        //     }
-        //
-        // }
 
+        if let Some(h) = &self.diag_thread_handle {
+
+            if h.is_finished() {
+                let handle = Option::take(&mut self.diag_thread_handle).unwrap();
+                let result = handle.join().unwrap();
+
+                match result {
+                    Ok(value) => {
+                        println!("Diagnosis was successful!");
+                        modal_success.open();
+                    }
+                    Err(error) => {
+                        println!("Diagnosis failed!");
+                        modal_error.open();
+                    }
+                }
+
+            }
+
+        }
 
 
 
