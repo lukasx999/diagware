@@ -15,8 +15,6 @@ mod diagnosis;
 use diagnosis::Diagnosis;
 
 
-// 20:27
-
 // TODO: change rust-analyzer target arch
 // TODO: diagnosis logger in UI
 
