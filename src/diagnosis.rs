@@ -64,19 +64,6 @@ impl DiagnosisState {
 
 
 
-// TODO: Error state
-/*
-In case of error: switch to error state
-show popup if user wants to restart diagnosis or continue
-OR:
-In case of error: Return diagnosis result error and show error information as popup
-*/
-
-
-
-
-
-// TODO: use thiserror
 
 
 #[derive(thiserror::Error, Debug)]
@@ -101,19 +88,19 @@ pub enum DiagnosisError {
 
 
 
-
-
 // TODO:
 /* this holds the results of a successful diagnosis */
 #[derive(Debug, Clone, Copy)]
-pub struct DiagnosisResult {
+pub struct DiagnosisReport {
 }
 
-impl DiagnosisResult {
+impl DiagnosisReport {
     pub fn new() -> Self {
         Self {}
     }
 }
+
+pub type DiagnosisResult = Result<DiagnosisReport, DiagnosisError>;
 
 
 
@@ -210,7 +197,7 @@ impl Diagnosis {
     /* Executes the current state, and transitions to the next state          */
     /* Returns Ok(None) if state execution was successful, else returns error */
     /* Returns a DiagnosisResult if the last state was executed successfully  */
-    pub fn run_state(&mut self) -> Result<Option<DiagnosisResult>, DiagnosisError> {
+    pub fn run_state(&mut self) -> Result<Option<DiagnosisReport>, DiagnosisError> {
 
         use DiagnosisState as State;
         match self.state {
@@ -265,7 +252,7 @@ impl Diagnosis {
             State::End => {
                 Self::do_stuff();
                 self.reset()?;
-                return Ok(Some(DiagnosisResult::new()));
+                return Ok(Some(DiagnosisReport::new()));
             }
 
         }
@@ -283,7 +270,7 @@ impl Diagnosis {
     }
 
     // TODO: implement manual stepping
-    pub fn run_to_end(&mut self) -> Result<DiagnosisResult, DiagnosisError> {
+    pub fn run_to_end(&mut self) -> DiagnosisResult {
         loop {
 
             match self.run_state() {

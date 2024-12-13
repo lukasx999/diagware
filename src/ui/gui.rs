@@ -1,5 +1,6 @@
 use crate::ui::{
     GuiState,
+    logger,
     config,
     util,
 };
@@ -209,7 +210,7 @@ impl GuiState {
 
 
     pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
-        use crate::diagnosis::{DiagnosisResult, DiagnosisError};
+        use crate::diagnosis::DiagnosisResult;
 
         ui.heading("Diagnose");
 
@@ -263,7 +264,7 @@ impl GuiState {
 
 
         if btn_start.clicked() {
-            // TODO: fail, if a diagnosis is already running, by checking that the diag_handle is None
+            assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
 
             let diag = self.diagnosis.clone();
 
@@ -275,10 +276,10 @@ impl GuiState {
 
             self.diag_thread_handle = Some(handle);
 
-
         }
 
-        let modal_error = Self::ui_error(ctx, "ERROR");
+        // TODO: maybe switch to logging window
+        let modal_error   = Self::ui_error(ctx, "ERROR");
         let modal_success = Self::ui_error(ctx, "SUCCESS");
 
 
@@ -286,7 +287,7 @@ impl GuiState {
 
             if h.is_finished() {
                 let handle = Option::take(&mut self.diag_thread_handle).unwrap();
-                let result = handle.join().unwrap();
+                let result: DiagnosisResult = handle.join().unwrap();
 
                 match result {
                     Ok(value) => {
@@ -463,6 +464,45 @@ impl GuiState {
         util::canvas_new(ui).show(ui, |ui| {
             self.canvas_pineditor(ui);
         });
+
+    }
+
+    pub fn ui_logging(&mut self, ui: &mut egui::Ui) {
+        use logger::{LogMessage, LogLevel, Logger};
+
+        ui.heading("Logging");
+
+        // TODO: optionally write log to file
+
+        if ui.button("Leeren").clicked() {
+            self.logger.clear();
+        }
+
+
+        for msg in &self.logger.log {
+
+            use LogLevel as L;
+            let color = match msg.level {
+                L::Info    => config::COLOR_LOG_INFO,
+                L::Warning => config::COLOR_LOG_WARNING,
+                L::Error   => config::COLOR_LOG_ERROR,
+            };
+
+            ui.horizontal(|ui| {
+                ui.colored_label(Color32::DARK_GRAY, msg.timestamp.clone());
+
+                ui.label(
+                    egui::RichText::new(msg.level.to_string())
+                        .background_color(color)
+                        .strong()
+                );
+
+                ui.label(msg.message.clone());
+                ui.end_row();
+            });
+
+        }
+
 
     }
 

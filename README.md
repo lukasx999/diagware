@@ -12,6 +12,7 @@
 
 ## TODO
 
+- [ ] egui: slider and preview for DDS waveform
 - [ ] **EGUI: Error Popup for error handling**
 - [ ] Login
 - [ ] Multiple DB (stable/experimental)
