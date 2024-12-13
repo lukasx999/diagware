@@ -296,6 +296,7 @@ impl GuiState {
                     }
                     Err(error) => {
                         println!("Diagnosis failed!");
+                        self.logger.append(logger::LogMessage::new(logger::LogLevel::Error, "Diagnosis failed"));
                         modal_error.open();
                     }
                 }
@@ -472,11 +473,15 @@ impl GuiState {
 
         ui.heading("Logging");
 
+        ui.separator();
+
         // TODO: optionally write log to file
 
         if ui.button("Leeren").clicked() {
             self.logger.clear();
         }
+
+        ui.separator();
 
 
         for msg in &self.logger.log {

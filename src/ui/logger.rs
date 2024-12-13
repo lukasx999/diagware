@@ -55,24 +55,12 @@ pub struct Logger {
 impl Logger {
 
     pub fn new() -> Self {
-        let mut s = Self {
+        Self {
             log: Vec::new(),
-        };
-
-        for _ in 0..25 {
-
-            let msg = LogMessage::new(LogLevel::Info, "foofjldksjfkldsjflkdsjfkldsjfklsdjflksdjflsdkjfsdkljfksdljfsdkljfdslkjfdlksjfsdkljfsdkljfsdlkflkjsfkldsjlksdjfldksjfldksjlkfsdjlfkdsjflksdjfldskj");
-            s.append(msg);
-            let msg = LogMessage::new(LogLevel::Warning, "bar");
-            s.append(msg);
-            let msg = LogMessage::new(LogLevel::Error, "baz");
-            s.append(msg);
         }
-
-
-        s
     }
 
+    // TODO: simplify this function
     pub fn append(&mut self, message: LogMessage) {
         self.log.push(message);
     }
