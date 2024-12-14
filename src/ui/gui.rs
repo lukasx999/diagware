@@ -492,7 +492,7 @@ impl GuiState {
             };
 
             ui.horizontal(|ui| {
-                ui.colored_label(Color32::DARK_GRAY, msg.timestamp.clone());
+                ui.colored_label(Color32::DARK_GRAY, msg.timestamp.as_str());
 
                 ui.label(
                     egui::RichText::new(msg.level.to_string())
@@ -500,7 +500,7 @@ impl GuiState {
                         .strong()
                 );
 
-                ui.label(msg.message.clone());
+                ui.label(msg.message.as_str());
                 ui.end_row();
             });
 

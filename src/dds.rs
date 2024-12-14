@@ -9,16 +9,17 @@ pub struct DDS {
 
 impl DDS {
 
-    #[cfg(target_arch ="aarch64")]
+    #[cfg(target_arch = "aarch64")]
     pub fn new() -> spi::Result<Self> {
-        Ok(Self {
-            spi: Spi::new(
-                Bus::Spi0,
-                SlaveSelect::Ss0,
-                10e6,
-                Mode::Mode0,
-            ),
-        })
+
+        let spi = Spi::new(
+            Bus::Spi0,
+            SlaveSelect::Ss0,
+            10e6 as u32,
+            Mode::Mode0,
+        )?;
+
+        Ok(Self { spi })
     }
 
     #[cfg(target_arch = "x86_64")]

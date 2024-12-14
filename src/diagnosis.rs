@@ -23,26 +23,31 @@ pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
     "Leerlauf",
     "Auslesen Seriennummer",
     "DB Lookup",
-    "Selbsttest",
+    "Schaltmatrix",
+    "Anlegen der Signale",
     "Messung",
     "Auswertung",
     "End"
 ];
 
 
-pub const STATE_COUNT: usize = 6; // needed for rendering state machine
+
+
+pub const STATE_COUNT: usize = 7; // needed for rendering state machine
 
 // NOTE: using numeric constants, because it makes rendering and incrementing state easier
+// TODO: potential self test
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum DiagnosisState {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
     DBLookup        = 2,
-    SelfTest        = 3,
-    Measurements    = 4,
-    Evaluation      = 5,
-    End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
+    SwitchMatrix    = 3,
+    ApplySignals    = 4,
+    Measurements    = 5,
+    Evaluation      = 6,
+    End             = 7, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
 
@@ -170,12 +175,13 @@ impl Diagnosis {
 
         self.sender.send(self.state)?;
 
-        println!("{}", self.state.repr());
+        println!("current state: {}", self.state.repr());
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
-            DS::DBLookup     => DS::SelfTest,
-            DS::SelfTest     => DS::Measurements,
+            DS::DBLookup     => DS::SwitchMatrix,
+            DS::SwitchMatrix => DS::ApplySignals,
+            DS::ApplySignals => DS::Measurements,
             DS::Measurements => DS::Evaluation,
             DS::Evaluation   => DS::End,
             DS::End          => DS::Idle,
@@ -217,7 +223,7 @@ impl Diagnosis {
                 Self::do_stuff();
 
                 // TODO: consider Option::take
-                let serial = self.temp_serial.clone().unwrap();
+                let serial = self.temp_serial.as_ref().unwrap();
                 let module: Module = self.db.get_module_by_serial(&serial)?;
                 dbg!(&module);
                 self.temp_module = Some(module);
@@ -225,7 +231,17 @@ impl Diagnosis {
                 self.next_state()?;
             }
 
-            State::SelfTest => {
+            State::SwitchMatrix => {
+                Self::do_stuff();
+
+                let id = self.temp_module.as_ref().unwrap().id;
+                // TODO: this
+                // self.db.get_matrix_by_id(id);
+
+                self.next_state()?;
+            }
+
+            State::ApplySignals => {
                 Self::do_stuff();
                 self.next_state()?;
             }

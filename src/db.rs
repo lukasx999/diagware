@@ -127,6 +127,8 @@ impl DB {
 
     }
 
+    // TODO: varchar vs int
+
     // pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
     //
     //     let future =
