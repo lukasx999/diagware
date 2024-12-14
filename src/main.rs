@@ -15,9 +15,6 @@ mod diagnosis;
 use diagnosis::Diagnosis;
 
 
-// TODO: change rust-analyzer target arch
-// TODO: diagnosis logger in UI
-
 
 fn main() -> Result<(), Box<dyn Error>> {
 

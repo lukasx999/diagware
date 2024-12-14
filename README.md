@@ -53,6 +53,9 @@
 - Software
   - Sqlitestudio
   - `bacon clippy`
+- Add rustup target for ARM architecutre
+  - config in `.cargo/config.toml`
+  - `rustup target add aarch64-unknown-linux-gnu`
 
 
 

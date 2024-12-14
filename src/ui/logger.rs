@@ -24,27 +24,12 @@ impl std::fmt::Display for LogLevel {
 }
 
 
-
-
 #[derive(Debug, Clone)]
 pub struct LogMessage {
     pub level:     LogLevel,
     pub message:   String,
     pub timestamp: String,
 }
-
-impl LogMessage {
-    pub fn new(level: LogLevel, message: impl std::borrow::Borrow<str>) -> Self {
-        let time = util::get_time();
-
-        Self {
-            level,
-            message:   message.borrow().to_owned(),
-            timestamp: time,
-        }
-    }
-}
-
 
 
 #[derive(Debug, Clone)]
@@ -60,9 +45,13 @@ impl Logger {
         }
     }
 
-    // TODO: simplify this function
-    pub fn append(&mut self, message: LogMessage) {
-        self.log.push(message);
+    pub fn append(&mut self, level: LogLevel, message: impl std::borrow::Borrow<str>) {
+        let msg = LogMessage {
+            level,
+            message: message.borrow().to_owned(),
+            timestamp: util::get_time()
+        };
+        self.log.push(msg);
     }
 
     pub fn clear(&mut self) {

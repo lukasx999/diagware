@@ -91,7 +91,6 @@ impl eframe::App for GuiState {
             self.diag_state = state;
         }
 
-
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             self.ui_topbar(&ctx, ui);
         });

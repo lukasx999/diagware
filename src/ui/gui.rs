@@ -61,8 +61,6 @@ impl GuiState {
 
             modal.frame(ui, |ui| {
                 modal.body(ui, "Passworteingabe");
-                // TODO: this
-
             });
 
             modal.buttons(ui, |ui| {
@@ -97,7 +95,7 @@ impl GuiState {
 
 
             if ui.button(egui_phosphor::regular::POWER).clicked() {
-                if cfg!(target_arch ="aarch64") {
+                if cfg!(target_arch = "aarch64") {
                     // TODO: shutdown requires sudo
                     // std::process::Command::new("systemctl")
                     //     .args(["poweroff"])
@@ -129,8 +127,7 @@ impl GuiState {
 
         let width:  f32 = ui.available_width();
         let height: f32 = 150.0;
-        let (response, painter, center): (_, _, Pos2) =
-            util::canvas_setup(ui, width, height);
+        let (response, painter, center) = util::canvas_setup(ui, width, height);
 
         let gap               = 30.0;                         // space between circles
         let segment_size      = width / (STATE_COUNT as f32); // +1 for extra space at the sides
@@ -152,9 +149,9 @@ impl GuiState {
         for i in 0..STATE_COUNT {
 
             let mut color_circle = if i == state {
-                config::COLOR_ACTIVESTATE
+                config::COLOR_ACCENT
             } else {
-                config::COLOR_STATE
+                config::COLOR_CIRCLE
             };
 
 
@@ -222,7 +219,7 @@ impl GuiState {
                 for i in 0..STATE_COUNT {
 
                     let color = if i == state {
-                        config::COLOR_ACTIVESTATE
+                        config::COLOR_ACCENT
                     } else {
                         Color32::GRAY
                     };
@@ -292,12 +289,13 @@ impl GuiState {
                 match result {
                     Ok(value) => {
                         println!("Diagnosis was successful!");
-                        modal_success.open();
+                        self.logger.append(logger::LogLevel::Info, "Diagnosis successful");
+                        // modal_success.open();
                     }
                     Err(error) => {
                         println!("Diagnosis failed!");
-                        self.logger.append(logger::LogMessage::new(logger::LogLevel::Error, "Diagnosis failed"));
-                        modal_error.open();
+                        self.logger.append(logger::LogLevel::Error, "Diagnosis failed");
+                        // modal_error.open();
                     }
                 }
 
@@ -431,7 +429,7 @@ impl GuiState {
         for x in 0..PIN_COUNT {
             for y in 0..PIN_COUNT {
 
-                let mut pin_color = config::COLOR_STATE; // TODO: config.rs
+                let mut pin_color = config::COLOR_CIRCLE; // TODO: config.rs
 
                 let circle_center = center
                 - Vec2::splat(offset_origin)

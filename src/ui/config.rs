@@ -14,15 +14,12 @@ pub const PAGE_SERIALMANAGER: &str = "Serial Management";
 pub const PAGE_PINEDITOR:     &str = "Pin Editor";
 pub const PAGE_LOGGING:       &str = "Logging";
 
-pub const COLOR_BACKGROUND:  Color32 = Color32::from_rgb(27,  27 , 27 );
-pub const COLOR_ACTIVESTATE: Color32 = Color32::from_rgb(41,  110, 214);
-pub const COLOR_STATE:       Color32 = Color32::from_rgb(178, 183, 191);
+// canvas elements
+pub const COLOR_BACKGROUND:  Color32 = Color32::from_rgb(35,  35 , 35 );
+pub const COLOR_ACCENT:      Color32 = Color32::from_rgb(41,  110, 214);
+pub const COLOR_CIRCLE:      Color32 = Color32::from_rgb(178, 183, 191);
+pub const CANVAS_ROUNDING:   f32     = 10.0;
 
 pub const COLOR_LOG_INFO:    Color32 = Color32::BLUE;
 pub const COLOR_LOG_WARNING: Color32 = Color32::ORANGE;
 pub const COLOR_LOG_ERROR:   Color32 = Color32::RED;
-
-
-
-// TODO: this
-// pub const CANVAS_ROUNDING: f32 = ...;
