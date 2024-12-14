@@ -30,8 +30,9 @@ CREATE TABLE matrix (
     gnd      INTEGER NOT NULL,
     v_plus   INTEGER NOT NULL,
     v_minus  INTEGER NOT NULL,
-    dds1_out INTEGER NOT NULL,
-    dds2_out INTEGER NOT NULL,
-    dds3_out INTEGER NOT NULL,
-    adc_in   INTEGER NOT NULL
+    dds_out1 INTEGER NOT NULL,
+    dds_out2 INTEGER NOT NULL,
+    dds_out3 INTEGER NOT NULL,
+    adc_in1  INTEGER NOT NULL,
+    adc_in2  INTEGER NOT NULL
 );

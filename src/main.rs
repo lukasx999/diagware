@@ -11,6 +11,9 @@ use dds::DDS;
 mod db;
 use db::DB;
 
+mod shift_reg;
+use shift_reg::ShiftRegister;
+
 mod diagnosis;
 use diagnosis::Diagnosis;
 

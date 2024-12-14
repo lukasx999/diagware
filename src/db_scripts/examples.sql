@@ -23,13 +23,13 @@ VALUES (3, 'power_factor', NULL, 0.5, NULL);
 
 
 INSERT INTO matrix
-    (id, gnd, v_plus, v_minus, dds1_out, dds2_out, dds3_out, adc_in)
-VALUES (1, 0, 5, 9, 2, 3, 5, 9);
+    (id, gnd, v_plus, v_minus, dds_out1, dds_out2, dds_out3, adc_in1, adc_in2)
+VALUES (1, 0, 5, 9, 2, 3, 5, 9, 4);
 
 INSERT INTO matrix
-    (id, gnd, v_plus, v_minus, dds1_out, dds2_out, dds3_out, adc_in)
-VALUES (2, 3, 3, 6, 4, 5, 6, 7);
+    (id, gnd, v_plus, v_minus, dds_out1, dds_out2, dds_out3, adc_in1, adc_in2)
+VALUES (2, 2, 3, 6, 5, 6, 3, 5, 6);
 
 INSERT INTO matrix
-    (id, gnd, v_plus, v_minus, dds1_out, dds2_out, dds3_out, adc_in)
-VALUES (3, 5, 1, 2, 3, 3, 5, 4);
+    (id, gnd, v_plus, v_minus, dds_out1, dds_out2, dds_out3, adc_in1, adc_in2)
+VALUES (3, 0, 5, 9, 2, 3, 5, 9, 4);

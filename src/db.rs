@@ -3,7 +3,7 @@ use tokio::runtime::Runtime as TokioRuntime;
 use std::future::Future;
 
 pub mod model;
-use model::{Module, TargetValue};
+use model::{Module, TargetValue, Matrix};
 
 
 // Modify here!
@@ -126,5 +126,15 @@ impl DB {
         Ok(self.run_sync(future)?)
 
     }
+
+    // pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
+    //
+    //     let future =
+    //     sqlx::query_as!(Matrix, "SELECT * FROM matrix WHERE id=?1", id)
+    //         .fetch_all(&self.conn);
+    //
+    //     Ok(self.run_sync(future)?)
+    //
+    // }
 
 }

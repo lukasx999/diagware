@@ -68,7 +68,7 @@ impl EEPROM {
     }
 
 
-    #[cfg(target_arch ="aarch64")]
+    #[cfg(target_arch = "aarch64")]
     pub fn get_serial(&self) -> EepromResult<String> {
 
         let mut buf = [0_u8; EEPROM_COLUMNS];
