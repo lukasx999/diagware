@@ -193,11 +193,12 @@ impl GuiState {
             }
 
             painter.arrow(
-                center
-                - vec2(offset_to_origin - radius, 0.0)
-                + vec2(i as f32 * offset, 0.0),
-                vec2(gap, 0.0),
-                Stroke::new(2.0, Color32::GRAY)
+                center - vec2(offset_to_origin - radius, 0.0)
+                + vec2(i as f32 * offset, 0.0)
+                + vec2(outline_thickness, 0.0),
+                vec2(gap, 0.0)
+                - vec2(outline_thickness*2.0, 0.0),
+                Stroke::new(1.0, Color32::GRAY)
             );
 
         }

@@ -16,6 +16,9 @@ use logger::Logger;
 
 
 // TODO: seperate structs for diagnosis and state
+// struct Diag {}
+// struct State {}
+
 
 struct GuiState {
     diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis

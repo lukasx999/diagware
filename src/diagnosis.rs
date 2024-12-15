@@ -92,16 +92,17 @@ pub enum DiagnosisError {
 }
 
 
+pub type MeasuredValue = crate::db::model::TargetValue;
+
 
 // TODO:
 /* this holds the results of a successful diagnosis */
-#[derive(Debug, Clone, Copy)]
-pub struct DiagnosisReport {
-}
+#[derive(Debug, Clone)]
+pub struct DiagnosisReport(Vec<MeasuredValue>);
 
 impl DiagnosisReport {
     pub fn new() -> Self {
-        Self {}
+        Self(Vec::new())
     }
 }
 
