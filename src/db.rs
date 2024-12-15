@@ -27,7 +27,7 @@ impl DB {
     }
 
     fn run_sync<F>(&self, future: F) -> F::Output
-        where F: Future
+where F: Future
     {
         self.rt.block_on(future)
     }
@@ -127,16 +127,32 @@ impl DB {
 
     }
 
-    // TODO: varchar vs int
+    pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
 
-    // pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
-    //
-    //     let future =
-    //     sqlx::query_as!(Matrix, "SELECT * FROM matrix WHERE id=?1", id)
-    //         .fetch_all(&self.conn);
-    //
-    //     Ok(self.run_sync(future)?)
-    //
-    // }
+        // NOTE: problem: Sqlite3 only supports 64bit signed integer types
+        // hence we are reading in 64bit ints, then converting to 16bit uints
+
+        let future = sqlx::query!("SELECT * FROM matrix WHERE id=?1", id)
+            .fetch_one(&self.conn);
+
+        let raw = self.run_sync(future)?;
+
+        Ok(Matrix::new(
+            Some(raw.id),
+            raw.gnd      as u16,
+            raw.v_plus   as u16,
+            raw.v_minus  as u16,
+            raw.dds_out1 as u16,
+            raw.dds_out2 as u16,
+            raw.dds_out3 as u16,
+            raw.adc_in1  as u16,
+            raw.adc_in2  as u16
+        ))
+
+    }
+
+
+
+
 
 }

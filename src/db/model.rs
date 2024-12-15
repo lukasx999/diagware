@@ -59,7 +59,7 @@ impl TargetValue {
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
-    pub id:       Option<i64>,
+    pub id:       Option<i64>, // TODO: consider removing Option<T> here, as it is not necessarily needed
     pub gnd:      u16,
     pub v_plus:   u16,
     pub v_minus:  u16,

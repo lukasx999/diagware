@@ -11,7 +11,7 @@ use crate::{
     eeprom,
     EEPROM,
     DB,
-    db::model::Module,
+    db::model::{Module, Matrix, TargetValue},
 };
 
 
@@ -235,9 +235,11 @@ impl Diagnosis {
             State::SwitchMatrix => {
                 Self::do_stuff();
 
-                let id = self.temp_module.as_ref().unwrap().id;
-                // TODO: this
-                // self.db.get_matrix_by_id(id);
+                let id = self.temp_module.as_ref().unwrap().id.unwrap();
+                let matrix: Matrix = self.db.get_matrix_by_id(id)?;
+                dbg!(&matrix);
+
+                // TODO: shift reg
 
                 self.next_state()?;
             }
