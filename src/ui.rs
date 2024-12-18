@@ -24,7 +24,7 @@ struct GuiState {
     diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis
     diag_receiver: mpsc::Receiver<DiagnosisState>,
     diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
-                                   // the state in state machine diagram and 2. block off other ui elements
+    // the state in state machine diagram and 2. block off other ui elements
     // Handle to the diagnosis thread
     // None if diagnosis is not active
     diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
@@ -47,9 +47,8 @@ impl GuiState {
 
     pub fn new(
         diagnosis: Diagnosis,
-        receiver: mpsc::Receiver<DiagnosisState>
+        receiver:  mpsc::Receiver<DiagnosisState>
     ) -> Self {
-
 
         Self {
             diagnosis:     Arc::new(Mutex::new(diagnosis)),
@@ -80,26 +79,27 @@ impl GuiState {
 impl eframe::App for GuiState {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        use egui::{TopBottomPanel, SidePanel};
 
         // Config
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
         ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
-                               // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
-                               // every frame
+        // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
+        // every frame
 
         // Receive new state from running diagnosis
         if let Ok(state) = self.diag_receiver.try_recv() {
             self.diag_state = state;
         }
 
-        egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
+        TopBottomPanel::top("TopPanel").show(ctx, |ui| {
             self.ui_topbar(&ctx, ui);
         });
 
 
-        egui::SidePanel::left("WindowList")
+        SidePanel::left("Windows")
             .show_animated(ctx, self.show_windowlist, |ui| {
                 ui.toggle_value(&mut self.show_dbmanager,     config::PAGE_DBMANAGEMENT);
                 ui.toggle_value(&mut self.show_diagnosis,     config::PAGE_DIAGNOSIS);
@@ -137,9 +137,6 @@ impl eframe::App for GuiState {
                 self.ui_logging(ui);
             });
         self.show_logging = active;
-
-
-
 
 
         // TODO: refactor this into a macro!

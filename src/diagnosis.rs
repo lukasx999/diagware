@@ -11,6 +11,7 @@ use crate::{
     eeprom,
     EEPROM,
     DB,
+    ShiftRegister,
     db::model::{Module, Matrix, TargetValue},
 };
 
@@ -24,7 +25,7 @@ pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
     "Auslesen Seriennummer",
     "DB Lookup",
     "Schaltmatrix",
-    "Anlegen der Signale",
+    "Signalerzeugung",
     "Messung",
     "Auswertung",
     "End"
@@ -51,8 +52,6 @@ pub enum DiagnosisState {
 }
 
 
-
-// TODO: repr trait vs Display trait
 
 impl std::fmt::Display for DiagnosisState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -122,35 +121,15 @@ pub enum DiagnosisMode {
 
 
 
-// TODO: this
-
-/*
-pub trait Repr {
-    fn repr(&self) -> &str;
-}
-
-impl DiagnosisMode {
-    fn repr(&self) -> &str {
-        use DiagnosisMode as Mode;
-        match self {
-            Mode::Manual    => "Manuell",
-            Mode::Automatic => "Automatisch",
-        }
-    }
-}
-*/
-
-
-
-
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    state:      DiagnosisState,
-    sender:     mpsc::Sender<DiagnosisState>, // informing the receiver about change of state
-    pub mode:   DiagnosisMode,
-    pub eeprom: EEPROM,
-    pub db:     DB,
+    state:        DiagnosisState,
+    sender:       mpsc::Sender<DiagnosisState>, // informing the receiver about change of state
+    pub mode:     DiagnosisMode,
+    pub eeprom:   EEPROM,
+    pub db:       DB,
+    pub shiftreg: ShiftRegister,
 
     // Temporary values resulting from computations within the states
     temp_serial: Option<String>,
@@ -159,13 +138,14 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(eeprom: EEPROM, db: DB, sender: mpsc::Sender<DiagnosisState>) -> Self {
+    pub fn new(eeprom: EEPROM, db: DB, shiftreg: ShiftRegister, sender: mpsc::Sender<DiagnosisState>) -> Self {
         Self {
             state: DiagnosisState::default(),
             sender,
             mode: DiagnosisMode::default(),
             eeprom,
             db,
+            shiftreg,
             temp_serial: None,
             temp_module: None,
         }
@@ -206,24 +186,21 @@ impl Diagnosis {
     /* Returns a DiagnosisResult if the last state was executed successfully  */
     pub fn run_state(&mut self) -> Result<Option<DiagnosisReport>, DiagnosisError> {
 
-        use DiagnosisState as State;
+        use DiagnosisState as S;
         match self.state {
 
-            State::Idle => {
-                self.next_state()?;
-            }
+            S::Idle => self.next_state()?,
 
-            State::ReadSerial => {
+            S::ReadSerial => {
                 Self::do_stuff();
                 let serial: String = self.eeprom.get_serial()?;
                 self.temp_serial = Some(serial);
                 self.next_state()?;
             }
 
-            State::DBLookup => {
+            S::DBLookup => {
                 Self::do_stuff();
 
-                // TODO: consider Option::take
                 let serial = self.temp_serial.as_ref().unwrap();
                 let module: Module = self.db.get_module_by_serial(&serial)?;
                 dbg!(&module);
@@ -232,7 +209,7 @@ impl Diagnosis {
                 self.next_state()?;
             }
 
-            State::SwitchMatrix => {
+            S::SwitchMatrix => {
                 Self::do_stuff();
 
                 let id = self.temp_module.as_ref().unwrap().id.unwrap();
@@ -244,17 +221,17 @@ impl Diagnosis {
                 self.next_state()?;
             }
 
-            State::ApplySignals => {
+            S::ApplySignals => {
                 Self::do_stuff();
                 self.next_state()?;
             }
 
-            State::Measurements => {
+            S::Measurements => {
                 Self::do_stuff();
                 self.next_state()?;
             }
 
-            State::Evaluation => {
+            S::Evaluation => {
                 use crate::db::model::TargetValue;
 
                 Self::do_stuff();
@@ -268,7 +245,7 @@ impl Diagnosis {
                 self.next_state()?;
             }
 
-            State::End => {
+            S::End => {
                 Self::do_stuff();
                 self.reset()?;
                 return Ok(Some(DiagnosisReport::new()));

@@ -30,6 +30,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let diagnosis = Diagnosis::new(
         eeprom,
         db,
+        shiftreg,
         tx
     );
 

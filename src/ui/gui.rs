@@ -46,11 +46,6 @@ impl GuiState {
 
     pub fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
-        let modal = Self::ui_error(ctx, "Datenbank Verbindung fehlgeschlagen");
-        if ui.button("ERROR").clicked() {
-            modal.open();
-        }
-
         let modal = egui_modal::Modal::new(ctx, "Login");
 
         // TODO: create another egui window for textedit
@@ -210,8 +205,6 @@ impl GuiState {
     pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
         use crate::diagnosis::DiagnosisResult;
 
-        ui.heading("Diagnose");
-
         ui.collapsing("Legende", |ui| {
             ui.horizontal_wrapped(|ui| {
 
@@ -312,9 +305,6 @@ impl GuiState {
 
     pub fn ui_dbmanager(&mut self, ui: &mut egui::Ui) {
 
-        ui.heading("Database");
-        ui.label("DB Verwaltung");
-
         if ui.button("add").clicked() {
             todo!("add");
         }
@@ -370,11 +360,6 @@ impl GuiState {
 
 
     pub fn ui_serialmanager(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
-
-        // TODO: this
-        // text edit for writing serial to eeprom of module
-        ui.heading("Verwaltung - Seriennummer");
-        // ui.button("Seriennummer Beschreiben");
 
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
@@ -469,8 +454,6 @@ impl GuiState {
 
     pub fn ui_logging(&mut self, ui: &mut egui::Ui) {
         use logger::{LogMessage, LogLevel, Logger};
-
-        ui.heading("Logging");
 
         ui.separator();
 
