@@ -205,7 +205,7 @@ impl GuiState {
     pub fn ui_diagnosis(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
         use crate::diagnosis::DiagnosisResult;
 
-        ui.collapsing("Legende", |ui| {
+        ui.collapsing("Legend", |ui| {
             ui.horizontal_wrapped(|ui| {
 
                 let state = self.diag_state as usize;

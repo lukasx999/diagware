@@ -98,7 +98,6 @@ impl eframe::App for GuiState {
             self.ui_topbar(&ctx, ui);
         });
 
-
         SidePanel::left("Windows")
             .show_animated(ctx, self.show_windowlist, |ui| {
                 ui.toggle_value(&mut self.show_dbmanager,     config::PAGE_DBMANAGEMENT);
@@ -155,7 +154,6 @@ impl eframe::App for GuiState {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::containers::Frame::default().show(ui, |_ui| ());
         });
-
 
     }
 }

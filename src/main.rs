@@ -18,6 +18,14 @@ mod diagnosis;
 use diagnosis::Diagnosis;
 
 
+/*
+// TODO:
+struct for each window implementing the `Show` trait
+Show: functions for creating and updating window
+*/
+
+
+
 
 fn main() -> Result<(), Box<dyn Error>> {
 
