@@ -24,6 +24,8 @@ struct for each window implementing the `Show` trait
 Show: functions for creating and updating window
 */
 
+// TODO: crosscompile to aarch64 -> rsync binary only
+
 
 
 

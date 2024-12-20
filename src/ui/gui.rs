@@ -253,6 +253,31 @@ impl GuiState {
         );
 
 
+        ui.horizontal(|ui| {
+            if ui.button("Next").clicked() {
+                // assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+                //
+                // let diag = self.diagnosis.clone();
+                //
+                // let handle = std::thread::Builder::new()
+                //     .name("diagnosis".to_owned())
+                //     .spawn(move || {
+                //         diag.lock().unwrap().run_state()
+                //     }).unwrap();
+                //
+                // self.diag_thread_handle = Some(handle);
+            }
+
+            if ui.button("Repeat").clicked() {
+                todo!();
+            }
+            if ui.button("Loop").clicked() {
+                todo!();
+            }
+        });
+
+
+
 
         if btn_start.clicked() {
             assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
@@ -266,13 +291,7 @@ impl GuiState {
                 }).unwrap();
 
             self.diag_thread_handle = Some(handle);
-
         }
-
-        // TODO: maybe switch to logging window
-        let modal_error   = Self::ui_error(ctx, "ERROR");
-        let modal_success = Self::ui_error(ctx, "SUCCESS");
-
 
         if let Some(h) = &self.diag_thread_handle {
 
@@ -284,12 +303,10 @@ impl GuiState {
                     Ok(value) => {
                         println!("Diagnosis was successful!");
                         self.logger.append(logger::LogLevel::Info, "Diagnosis successful");
-                        // modal_success.open();
                     }
                     Err(error) => {
                         println!("Diagnosis failed!");
                         self.logger.append(logger::LogLevel::Error, "Diagnosis failed");
-                        // modal_error.open();
                     }
                 }
 
@@ -321,38 +338,38 @@ impl GuiState {
         let modules: Vec<Module> = db.get_modules_all().unwrap();
 
         egui_extras::TableBuilder::new(ui)
-            .column(egui_extras::Column::auto().resizable(true))
-            .column(egui_extras::Column::auto().resizable(true))
-            .column(egui_extras::Column::auto().resizable(true))
-            .column(egui_extras::Column::remainder())
-            .header(30.0, |mut header| {
-                header.col(|ui| { ui.heading("rm");     });
-                header.col(|ui| { ui.heading("id");     });
-                header.col(|ui| { ui.heading("name");   });
-                header.col(|ui| { ui.heading("serial"); });
-            })
-            .body(|mut body| {
+        .column(egui_extras::Column::auto().resizable(true))
+        .column(egui_extras::Column::auto().resizable(true))
+        .column(egui_extras::Column::auto().resizable(true))
+        .column(egui_extras::Column::remainder())
+        .header(30.0, |mut header| {
+        header.col(|ui| { ui.heading("rm");     });
+        header.col(|ui| { ui.heading("id");     });
+        header.col(|ui| { ui.heading("name");   });
+        header.col(|ui| { ui.heading("serial"); });
+        })
+        .body(|mut body| {
 
-                for module in modules {
-                    body.row(10.0, |mut row| {
-                        row.col(|ui| {
-                            if ui.button(egui_phosphor::regular::X).clicked() {
-                                todo!("Removing entries");
-                            }
-                        });
-                        row.col(|ui| {
-                            ui.label(format!("{}", module.id.unwrap()));
-                        });
-                        row.col(|ui| {
-                            ui.label(module.name);
-                        });
-                        row.col(|ui| {
-                            ui.label(module.serial);
-                        });
-                    });
-                }
+        for module in modules {
+        body.row(10.0, |mut row| {
+        row.col(|ui| {
+        if ui.button(egui_phosphor::regular::X).clicked() {
+        todo!("Removing entries");
+        }
+        });
+        row.col(|ui| {
+        ui.label(format!("{}", module.id.unwrap()));
+        });
+        row.col(|ui| {
+        ui.label(module.name);
+        });
+        row.col(|ui| {
+        ui.label(module.serial);
+        });
+        });
+        }
 
-            });
+        });
         */
 
     }
@@ -457,10 +474,13 @@ impl GuiState {
 
         ui.separator();
 
-        // TODO: optionally write log to file
 
-        if ui.button("Leeren").clicked() {
+        if ui.button("Clear").clicked() {
             self.logger.clear();
+        }
+
+        if ui.button("Export").clicked() {
+            self.logger.export();
         }
 
         ui.separator();
@@ -497,6 +517,8 @@ impl GuiState {
     pub fn ui_documents(&mut self, ui: &mut egui::Ui) {
 
         ui.label("Documents");
+        // TODO: fetch and render list of documents from database
+        ui.button("Download");
 
     }
 
