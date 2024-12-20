@@ -494,6 +494,13 @@ impl GuiState {
     }
 
 
+    pub fn ui_documents(&mut self, ui: &mut egui::Ui) {
+
+        ui.label("Documents");
+
+    }
+
+
 
 
 }

@@ -3,9 +3,13 @@
 ## Questions
 
 - **Error popups VS logging window?**
+  - export logging to file / to usb
 - Manual step through?
+  - repeating current step: cyclic repeat (hardcoded time) / manual step
 - Do we really need an error state? (continue/restart)
+  - yes
 - UI language english/german?
+  - english
 
 
 

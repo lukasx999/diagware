@@ -31,13 +31,14 @@ struct GuiState {
 
     logger: Logger,
 
-    is_expert_mode:     bool,
-    show_windowlist:    bool,
-    show_diagnosis:     bool,
-    show_dbmanager:     bool,
-    show_serialmanager: bool,
-    show_pineditor:     bool,
-    show_logging:       bool,
+    is_expert_mode:       bool,
+    show_documentmanager: bool,
+    show_windowlist:      bool,
+    show_diagnosis:       bool,
+    show_dbmanager:       bool,
+    show_serialmanager:   bool,
+    show_pineditor:       bool,
+    show_logging:         bool,
 
 }
 
@@ -58,13 +59,14 @@ impl GuiState {
 
             logger: Logger::new(),
 
-            is_expert_mode:     false,
-            show_windowlist:    true,
-            show_diagnosis:     true,
-            show_dbmanager:     false,
-            show_serialmanager: false,
-            show_pineditor:     false,
-            show_logging:       false,
+            is_expert_mode:       false,
+            show_documentmanager: false,
+            show_windowlist:      true,
+            show_diagnosis:       true,
+            show_dbmanager:       false,
+            show_serialmanager:   false,
+            show_pineditor:       false,
+            show_logging:         false,
 
         }
 
@@ -100,11 +102,12 @@ impl eframe::App for GuiState {
 
         SidePanel::left("Windows")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager,     config::PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis,     config::PAGE_DIAGNOSIS);
-                ui.toggle_value(&mut self.show_serialmanager, config::PAGE_SERIALMANAGER);
-                ui.toggle_value(&mut self.show_pineditor,     config::PAGE_PINEDITOR);
-                ui.toggle_value(&mut self.show_logging,       config::PAGE_LOGGING);
+                ui.toggle_value(&mut self.show_dbmanager,       config::PAGE_DBMANAGEMENT);
+                ui.toggle_value(&mut self.show_diagnosis,       config::PAGE_DIAGNOSIS);
+                ui.toggle_value(&mut self.show_serialmanager,   config::PAGE_SERIALMANAGER);
+                ui.toggle_value(&mut self.show_pineditor,       config::PAGE_PINEDITOR);
+                ui.toggle_value(&mut self.show_logging,         config::PAGE_LOGGING);
+                ui.toggle_value(&mut self.show_documentmanager, config::PAGE_DOCUMENTMANAGER);
             });
 
 
@@ -121,6 +124,11 @@ impl eframe::App for GuiState {
         self.show_pineditor =
             util::new_window(ctx, self.show_pineditor, config::PAGE_PINEDITOR, |ui| {
                 self.ui_pineditor(&ctx, ui);
+            });
+
+        self.show_documentmanager =
+            util::new_window(ctx, self.show_documentmanager, config::PAGE_DOCUMENTMANAGER, |ui| {
+                self.ui_documents(ui);
             });
 
 
