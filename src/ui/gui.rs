@@ -247,51 +247,57 @@ impl GuiState {
 
         let is_running = self.diag_thread_handle.is_some();
 
-        let btn_start: egui::Response = ui.add_enabled(
-            !is_running,
-            egui::Button::new("Start")
-        );
+        // BUG: blocks UI when running diagnosis
+        let mode = self.diagnosis.lock().unwrap().mode;
 
+        use DiagnosisMode as M;
+        match mode {
 
-        ui.horizontal(|ui| {
-            if ui.button("Next").clicked() {
-                // assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-                //
-                // let diag = self.diagnosis.clone();
-                //
-                // let handle = std::thread::Builder::new()
-                //     .name("diagnosis".to_owned())
-                //     .spawn(move || {
-                //         diag.lock().unwrap().run_state()
-                //     }).unwrap();
-                //
-                // self.diag_thread_handle = Some(handle);
+            M::Automatic => {
+                let btn_start: egui::Response = ui.add_enabled(
+                    !is_running,
+                    egui::Button::new("Start")
+                );
+
+                if btn_start.clicked() {
+                    assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+
+                    let diag = self.diagnosis.clone();
+
+                    let handle = std::thread::Builder::new()
+                        .name("diagnosis".to_owned())
+                        .spawn(move || {
+                            diag.lock().unwrap().run_to_end()
+                        }).unwrap();
+
+                    self.diag_thread_handle = Some(handle);
+                }
             }
 
-            if ui.button("Repeat").clicked() {
-                todo!();
+            M::Manual => {
+
+                ui.horizontal(|ui| {
+                    if ui.button("Next").clicked() {
+                        todo!();
+                    }
+
+                    if ui.button("Repeat").clicked() {
+                        todo!();
+                    }
+
+                    if ui.button("Loop").clicked() {
+                        todo!();
+                    }
+                });
             }
-            if ui.button("Loop").clicked() {
-                todo!();
-            }
-        });
-
-
-
-
-        if btn_start.clicked() {
-            assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-
-            let diag = self.diagnosis.clone();
-
-            let handle = std::thread::Builder::new()
-                .name("diagnosis".to_owned())
-                .spawn(move || {
-                    diag.lock().unwrap().run_to_end()
-                }).unwrap();
-
-            self.diag_thread_handle = Some(handle);
         }
+
+
+
+
+
+
+
 
         if let Some(h) = &self.diag_thread_handle {
 
@@ -376,32 +382,52 @@ impl GuiState {
 
 
 
-    pub fn ui_serialmanager(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+    pub fn ui_serialmanager(&mut self, ui: &mut egui::Ui) {
 
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
         } else {
-            "Not Available".to_owned()
+            "<Not Available>".to_owned()
         };
 
         ui.label(format!("Serial: {}", serial));
 
+        let mut serial_edit = "123";
+        ui.text_edit_singleline(&mut serial_edit);
 
-        let modal = Self::ui_error(ctx, "Cannot access EEPROM while diagnosis is active");
+        ui.horizontal(|ui| {
 
+            if ui.button("Write").clicked() {
 
-        if ui.button("Seriennummer Lesen").clicked() {
+                if let Ok(diag) = self.diagnosis.try_lock() {
+                    diag.eeprom.write_serial(&serial_edit).unwrap();
+                } else {
+                    self.logger.append(logger::LogLevel::Error, "Writing Serial to EEPROM failed");
+                }
 
-            let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
-                diag.eeprom.get_serial().unwrap()
-            } else {
-                modal.open();
-                "Not Available".to_owned()
-            };
+                self.logger.append(
+                    logger::LogLevel::Info,
+                    format!("New Serial (`{serial_edit}`) successfully written to EEPROM")
+                );
 
-            println!("{}", serial);
+            }
 
-        }
+            if ui.button("Clear").clicked() {
+
+                if let Ok(diag) = self.diagnosis.try_lock() {
+                    diag.eeprom.clear().unwrap();
+                } else {
+                    self.logger.append(logger::LogLevel::Error, "Clearing Serial from EEPROM failed");
+                }
+
+                self.logger.append(
+                    logger::LogLevel::Info,
+                    "EEPROM cleared",
+                );
+
+            }
+
+        });
 
     }
 
@@ -461,7 +487,13 @@ impl GuiState {
 
     pub fn ui_pineditor(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
 
-        ui.heading("Pin Editor");
+        /*
+        TODO:
+        combobox for selecting Pin (fetch from DB)
+        click on pin to apply pin selection
+        also color pins accordingly
+        */
+
 
         util::canvas_new(ui).show(ui, |ui| {
             self.canvas_pineditor(ui);

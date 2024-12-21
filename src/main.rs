@@ -22,6 +22,7 @@ use diagnosis::Diagnosis;
 // TODO:
 struct for each window implementing the `Show` trait
 Show: functions for creating and updating window
+better for seperating state for each window (text edit, etc)
 */
 
 // TODO: crosscompile to aarch64 -> rsync binary only

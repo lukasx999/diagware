@@ -89,9 +89,14 @@ impl EEPROM {
         // Ok("123".to_owned())
     }
 
+    #[cfg(target_arch = "x86_64")]
+    pub fn write_serial(&self, serial: &str) -> EepromResult<()> {
+        Ok(())
+    }
+
 
     // Accepts Strings with max. `EEPROM_COLUMNS` (=16) characters
-    #[cfg(target_arch ="aarch64")]
+    #[cfg(target_arch = "aarch64")]
     pub fn write_serial(&self, serial: &str) -> EepromResult<()> {
         // TODO: return eeprom error
         assert!(serial.len() <= EEPROM_COLUMNS);
@@ -105,7 +110,12 @@ impl EEPROM {
         Ok(())
     }
 
-    #[cfg(target_arch ="aarch64")]
+    #[cfg(target_arch = "x86_64")]
+    pub fn clear(&self) -> EepromResult<()> {
+        Ok(())
+    }
+
+    #[cfg(target_arch = "aarch64")]
     pub fn clear(&self) -> EepromResult<()> {
         let bytes = [EEPROM_CLEAR_BYTE; EEPROM_COLUMNS];
 

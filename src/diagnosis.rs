@@ -1,6 +1,3 @@
-
-/* Linear FSM */
-
 use std::{
     thread,
     time::Duration,
