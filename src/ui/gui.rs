@@ -248,49 +248,49 @@ impl GuiState {
         let is_running = self.diag_thread_handle.is_some();
 
         // BUG: blocks UI when running diagnosis
-        let mode = self.diagnosis.lock().unwrap().mode;
+        // let mode = self.diagnosis.lock().unwrap().mode;
 
-        use DiagnosisMode as M;
-        match mode {
-
-            M::Automatic => {
-                let btn_start: egui::Response = ui.add_enabled(
-                    !is_running,
-                    egui::Button::new("Start")
-                );
-
-                if btn_start.clicked() {
-                    assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-
-                    let diag = self.diagnosis.clone();
-
-                    let handle = std::thread::Builder::new()
-                        .name("diagnosis".to_owned())
-                        .spawn(move || {
-                            diag.lock().unwrap().run_to_end()
-                        }).unwrap();
-
-                    self.diag_thread_handle = Some(handle);
-                }
-            }
-
-            M::Manual => {
-
-                ui.horizontal(|ui| {
-                    if ui.button("Next").clicked() {
-                        todo!();
-                    }
-
-                    if ui.button("Repeat").clicked() {
-                        todo!();
-                    }
-
-                    if ui.button("Loop").clicked() {
-                        todo!();
-                    }
-                });
-            }
-        }
+        // use DiagnosisMode as M;
+        // match mode {
+        //
+        //     M::Automatic => {
+        //         let btn_start: egui::Response = ui.add_enabled(
+        //             !is_running,
+        //             egui::Button::new("Start")
+        //         );
+        //
+        //         if btn_start.clicked() {
+        //             assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+        //
+        //             let diag = self.diagnosis.clone();
+        //
+        //             let handle = std::thread::Builder::new()
+        //                 .name("diagnosis".to_owned())
+        //                 .spawn(move || {
+        //                     diag.lock().unwrap().run_to_end()
+        //                 }).unwrap();
+        //
+        //             self.diag_thread_handle = Some(handle);
+        //         }
+        //     }
+        //
+        //     M::Manual => {
+        //
+        //         ui.horizontal(|ui| {
+        //             if ui.button("Next").clicked() {
+        //                 todo!();
+        //             }
+        //
+        //             if ui.button("Repeat").clicked() {
+        //                 todo!();
+        //             }
+        //
+        //             if ui.button("Loop").clicked() {
+        //                 todo!();
+        //             }
+        //         });
+        //     }
+        // }
 
 
 
