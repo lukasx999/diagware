@@ -1,45 +1,39 @@
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread::JoinHandle;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisResult};
 
-mod gui;
 mod util;
 mod config;
 
 mod logger;
 use logger::Logger;
 
+mod components;
 
 
 
 
 
-// TODO: seperate structs for diagnosis and state
-// struct Diag {}
-// struct State {}
+
+pub trait Show {
+    fn name(&self) -> &'static str; // MUST be unique
+    fn show(&mut self, ctx: &egui::Context, active: &mut bool);
+}
+
 
 
 struct GuiState {
-    diagnosis:     Arc<Mutex<Diagnosis>>, // All HW/SW interfaces are owned by the diagnosis
-    diag_receiver: mpsc::Receiver<DiagnosisState>,
-    diag_state:    DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
-    // the state in state machine diagram and 2. block off other ui elements
-    // Handle to the diagnosis thread
-    // None if diagnosis is not active
-    diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
+    diagnosis: Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
+    logger:    Rc<RefCell<Logger>>,
 
-    logger: Logger,
+    show_windowlist: bool,
 
-    is_expert_mode:       bool,
-    show_documentmanager: bool,
-    show_windowlist:      bool,
-    show_diagnosis:       bool,
-    show_dbmanager:       bool,
-    show_serialmanager:   bool,
-    show_pineditor:       bool,
-    show_logging:         bool,
-
+    windows:       Vec<Box<dyn Show>>,
+    windows_state: HashMap<&'static str, bool>,
 }
 
 
@@ -48,26 +42,40 @@ impl GuiState {
 
     pub fn new(
         diagnosis: Diagnosis,
-        receiver:  mpsc::Receiver<DiagnosisState>
+        receiver:  mpsc::Receiver<DiagnosisState>,
     ) -> Self {
+        use components::{
+            serialmanager::Serialmanager,
+            pineditor::Pineditor,
+            diagnosis::DiagnosisUi,
+            dbmanager::DBManager,
+            logging::Logging,
+        };
+
+        let diagnosis = Arc::new(Mutex::new(diagnosis));
+        let logger = Rc::new(RefCell::new(Logger::new()));
+
+        let windows: Vec<Box<dyn Show>> = vec![
+            Box::new(Serialmanager::new(diagnosis.clone(), logger.clone())),
+            Box::new(Pineditor    ::new()),
+            Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
+            Box::new(DBManager    ::new(diagnosis.clone(), logger.clone())),
+            Box::new(Logging      ::new(logger.clone())),
+        ];
+
+        let mut windows_state = HashMap::new();
+        for window in &windows {
+            windows_state.insert(window.name(), false);
+        }
 
         Self {
-            diagnosis:     Arc::new(Mutex::new(diagnosis)),
-            diag_receiver: receiver,
-            diag_state:    DiagnosisState::default(),
-            diag_thread_handle: None,
+            diagnosis,
+            logger,
 
-            logger: Logger::new(),
+            show_windowlist: true,
 
-            is_expert_mode:       false,
-            show_documentmanager: false,
-            show_windowlist:      true,
-            show_diagnosis:       true,
-            show_dbmanager:       false,
-            show_serialmanager:   false,
-            show_pineditor:       false,
-            show_logging:         false,
-
+            windows,
+            windows_state,
         }
 
     }
@@ -91,73 +99,39 @@ impl eframe::App for GuiState {
         // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
         // every frame
 
-        // Receive new state from running diagnosis
-        if let Ok(state) = self.diag_receiver.try_recv() {
-            self.diag_state = state;
-        }
 
         TopBottomPanel::top("TopPanel").show(ctx, |ui| {
-            self.ui_topbar(&ctx, ui);
+            // TODO:
+            // self.ui_topbar(&ctx, ui);
         });
+
+        // SidePanel::left("Windows")
+        //     .show_animated(ctx, self.show_windowlist, |ui| {
+        //         ui.toggle_value(&mut self.show_dbmanager,       config::PAGE_DBMANAGEMENT);
+        //         ui.toggle_value(&mut self.show_diagnosis,       config::PAGE_DIAGNOSIS);
+        //         ui.toggle_value(&mut self.show_serialmanager,   config::PAGE_SERIALMANAGER);
+        //         ui.toggle_value(&mut self.show_pineditor,       config::PAGE_PINEDITOR);
+        //         ui.toggle_value(&mut self.show_logging,         config::PAGE_LOGGING);
+        //         ui.toggle_value(&mut self.show_documentmanager, config::PAGE_DOCUMENTMANAGER);
+        //     });
+
+
+
 
         SidePanel::left("Windows")
             .show_animated(ctx, self.show_windowlist, |ui| {
-                ui.toggle_value(&mut self.show_dbmanager,       config::PAGE_DBMANAGEMENT);
-                ui.toggle_value(&mut self.show_diagnosis,       config::PAGE_DIAGNOSIS);
-                ui.toggle_value(&mut self.show_serialmanager,   config::PAGE_SERIALMANAGER);
-                ui.toggle_value(&mut self.show_pineditor,       config::PAGE_PINEDITOR);
-                ui.toggle_value(&mut self.show_logging,         config::PAGE_LOGGING);
-                ui.toggle_value(&mut self.show_documentmanager, config::PAGE_DOCUMENTMANAGER);
+                for window in &mut self.windows {
+                    let active = self.windows_state.get_mut(window.name()).unwrap();
+                    ui.toggle_value(active, window.name());
+                }
             });
 
 
-        self.show_dbmanager =
-            util::new_window(ctx, self.show_dbmanager, config::PAGE_DBMANAGEMENT, |ui| {
-                self.ui_dbmanager(ui);
-            });
+        for window in &mut self.windows {
+            let active = self.windows_state.get_mut(window.name()).unwrap();
+            window.show(ctx, active);
+        }
 
-        self.show_serialmanager =
-            util::new_window(ctx, self.show_serialmanager, config::PAGE_SERIALMANAGER, |ui| {
-                self.ui_serialmanager(ui);
-            });
-
-        self.show_pineditor =
-            util::new_window(ctx, self.show_pineditor, config::PAGE_PINEDITOR, |ui| {
-                self.ui_pineditor(&ctx, ui);
-            });
-
-        self.show_documentmanager =
-            util::new_window(ctx, self.show_documentmanager, config::PAGE_DOCUMENTMANAGER, |ui| {
-                self.ui_documents(ui);
-            });
-
-
-        let mut active = self.show_logging;
-        egui::Window::new(config::PAGE_LOGGING)
-            .fade_in(true)
-            .fade_out(true)
-            .open(&mut active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
-            .show(ctx, |ui| {
-                self.ui_logging(ui);
-            });
-        self.show_logging = active;
-
-
-        // TODO: refactor this into a macro!
-        // TODO: min_width()
-        let mut active = self.show_diagnosis;
-        egui::Window::new(config::PAGE_DIAGNOSIS)
-            .fade_in(true)
-            .fade_out(true)
-            .open(&mut active)
-            .enabled(true)
-            .show(ctx, |ui| {
-                self.ui_diagnosis(ctx, ui);
-            });
-        self.show_diagnosis = active;
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::containers::Frame::default().show(ui, |_ui| ());
