@@ -2,7 +2,6 @@ use std::sync::{Arc, Mutex};
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::Diagnosis;
 use crate::ui::{Component, Logger, logger::LogLevel};
 use crate::ui::{config, util};
 
@@ -51,7 +50,11 @@ impl Topbar {
         }
 
         ui.horizontal(|ui| {
-            ui.toggle_value(&mut self.show_windowlist.borrow_mut(), "Windows");
+
+            ui.toggle_value(
+                &mut self.show_windowlist.borrow_mut(),
+                format!("🗖 Windows")
+            );
 
             let icon_lock      = egui_phosphor::regular::LOCK_SIMPLE;
             let icon_lock_open = egui_phosphor::regular::LOCK_SIMPLE_OPEN;

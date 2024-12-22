@@ -1,5 +1,7 @@
 use egui::Color32;
 
+// TODO: refactor all variables to config.rs
+// problem: all variables must be const
 
 // Modify here!
 pub const EXPERT_PASSWORD: &str = "foo";

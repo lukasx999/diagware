@@ -117,6 +117,7 @@ impl eframe::App for GuiState {
 
 
 
+
         egui::SidePanel::left("Windows")
             .show_animated(ctx, *self.show_windowlist.borrow(), |ui| {
                 for window in &mut self.windows {

@@ -114,6 +114,16 @@ pub enum DiagnosisMode {
 }
 
 
+impl std::fmt::Display for DiagnosisMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use DiagnosisMode as D;
+        let repr = match self {
+            D::Automatic => "Automatic",
+            D::Manual    => "Manual",
+        };
+        write!(f, "{}", repr)
+    }
+}
 
 
 

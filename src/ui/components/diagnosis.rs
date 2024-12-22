@@ -3,16 +3,26 @@ use std::rc::Rc;
 use std::cell::RefCell;
 use std::thread::JoinHandle;
 use std::sync::mpsc;
+
 use egui::Color32;
 
-use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisResult};
-use crate::ui::{Component, Logger};
-use crate::ui::{config, util};
-use crate::diagnosis::{STATE_COUNT, DIAGNOSIS_STATE_REPRS};
-use crate::ui::logger::LogLevel;
-
-
-
+use crate::{
+    diagnosis::{
+        Diagnosis,
+        DiagnosisState,
+        DiagnosisResult,
+        DiagnosisMode,
+        STATE_COUNT,
+        DIAGNOSIS_STATE_REPRS
+    },
+    ui::{
+        Component,
+        config,
+        util,
+        Logger,
+        logger::LogLevel
+    },
+};
 
 
 
@@ -71,34 +81,19 @@ impl DiagnosisUi {
             self.diag_state = state;
         }
 
+        self.ui_mode_select(ui);
 
         self.ui_legend(ui);
 
-
         util::canvas_new(ui).show(ui, |ui| {
-            self.canvas_statemachine(ui);
+            self.render_statemachine(ui);
         });
-
 
         ui.label(format!("Status: {}", self.diag_state));
 
-        // TODO: this
-        /*
-        let selected = &mut self.diagnosis.lock().unwrap().mode;
 
-        egui::ComboBox::from_label("Modus")
-        .selected_text(format!("{:?}", selected))
-        .show_ui(ui, |ui| {
-        ui.selectable_value(selected, DiagnosisMode::Automatic, "Automatisch");
-        ui.selectable_value(selected, DiagnosisMode::Manual,    "Manuell");
-        });
-        */
 
         let is_running = self.diag_thread_handle.is_some();
-
-
-
-
         let btn_start: egui::Response = ui.add_enabled(
             !is_running,
             egui::Button::new("Start")
@@ -178,6 +173,21 @@ impl DiagnosisUi {
 
     }
 
+    fn ui_mode_select(&mut self, ui: &mut egui::Ui) {
+        // let current_mode = &mut self.diagnosis.lock().unwrap().mode;
+
+        // let current_mode = &mut self.diagnosis.try_lock()
+        todo!("Disable combobox when diagnosis is running");
+
+        egui::ComboBox::from_label("Mode")
+            .selected_text(current_mode.to_string())
+            .show_ui(ui, |ui| {
+                ui.selectable_value(current_mode, DiagnosisMode::Automatic, "Automatic");
+                ui.selectable_value(current_mode, DiagnosisMode::Manual,    "Manual");
+            });
+
+    }
+
     fn ui_legend(&mut self, ui: &mut egui::Ui) {
         ui.collapsing("Legend", |ui| {
             ui.horizontal_wrapped(|ui| {
@@ -203,7 +213,7 @@ impl DiagnosisUi {
     }
 
 
-    fn canvas_statemachine(&mut self, ui: &mut egui::Ui) {
+    fn render_statemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Stroke};
 
         let width:  f32 = ui.available_width();
