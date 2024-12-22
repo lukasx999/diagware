@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::ui::Show;
+use crate::ui::Component;
 use crate::ui::logger::{LogMessage, LogLevel, Logger};
 use crate::ui::config;
 
@@ -13,7 +13,7 @@ pub struct Logging {
     logger: Rc<RefCell<Logger>>,
 }
 
-impl Show for Logging {
+impl Component for Logging {
     fn name(&self) -> &'static str {
         config::PAGE_LOGGING
     }

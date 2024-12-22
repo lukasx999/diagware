@@ -6,7 +6,7 @@ use std::sync::mpsc;
 use egui::Color32;
 
 use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisResult};
-use crate::ui::{Show, Logger};
+use crate::ui::{Component, Logger};
 use crate::ui::{config, util};
 use crate::diagnosis::{STATE_COUNT, DIAGNOSIS_STATE_REPRS};
 use crate::ui::logger::LogLevel;
@@ -29,7 +29,7 @@ pub struct DiagnosisUi {
 
 }
 
-impl Show for DiagnosisUi {
+impl Component for DiagnosisUi {
     fn name(&self) -> &'static str {
         config::PAGE_DIAGNOSIS
     }

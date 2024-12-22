@@ -1,43 +1,71 @@
+use std::sync::{Arc, Mutex};
+use std::rc::Rc;
+use std::cell::RefCell;
 
-    pub fn ui_topbar(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+use crate::Diagnosis;
+use crate::ui::{Component, Logger, logger::LogLevel};
+use crate::ui::{config, util};
 
-        let modal = egui_modal::Modal::new(ctx, "Login");
 
-        // TODO: create another egui window for textedit
+pub struct Topbar {
+    show_windowlist: Rc<RefCell<bool>>,
+    is_expertmode:   Rc<RefCell<bool>>,
+    logger:          Rc<RefCell<Logger>>,
 
-        modal.show(|ui| {
+    modal_open: bool,
+    modal_current_password: String,
+}
 
-            modal.title(ui, "Login");
-
-            modal.frame(ui, |ui| {
-                modal.body(ui, "Passworteingabe");
-            });
-
-            modal.buttons(ui, |ui| {
-                if modal.button(ui, "Abbruch").clicked() {}
-                if modal.button(ui, "Ok").clicked() {
-                    self.is_expert_mode = true;
-                }
-            });
-
+impl Component for Topbar {
+    fn name(&self) -> &'static str {
+        "TopBar"
+    }
+    fn show(&mut self, ctx: &egui::Context, _active: &mut bool) {
+        egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
+            self.ui(ui);
         });
+    }
+}
 
 
+impl Topbar {
+
+    pub fn new(
+        show_windowlist: Rc<RefCell<bool>>,
+        is_expertmode:   Rc<RefCell<bool>>,
+        logger:          Rc<RefCell<Logger>>,
+    ) -> Self {
+        Self {
+            show_windowlist,
+            is_expertmode,
+            modal_open: false,
+            modal_current_password: String::new(),
+            logger,
+        }
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui) {
+
+        if self.modal_open {
+            self.login_modal(ui);
+        }
 
         ui.horizontal(|ui| {
+            ui.toggle_value(&mut self.show_windowlist.borrow_mut(), "Windows");
 
-            ui.toggle_value(&mut self.show_windowlist, "Windows");
+            let icon_lock      = egui_phosphor::regular::LOCK_SIMPLE;
+            let icon_lock_open = egui_phosphor::regular::LOCK_SIMPLE_OPEN;
 
-            if self.is_expert_mode {
+            if *self.is_expertmode.borrow() {
 
-                if ui.button("Logout").clicked() {
-                    self.is_expert_mode = false;
+                if ui.button(format!("{icon_lock} Logout")).clicked() {
+                    *self.is_expertmode.borrow_mut() = false;
                 }
 
             } else {
 
-                if ui.button("Login").clicked() {
-                    modal.open();
+                if ui.button(format!("{icon_lock_open} Login")).clicked() {
+                    self.modal_open = true;
                 }
 
             }
@@ -66,5 +94,60 @@
             ui.label(format!("{}@{}", username, ip));
 
         });
+    }
+
+    fn login_modal(&mut self, ui: &mut egui::Ui) {
+        use egui::containers::Modal;
+        use egui::Id;
+
+        let modal = Modal::new(Id::new("Login")).show(ui.ctx(), |ui| {
+
+            ui.heading("Login");
+            let response = ui.text_edit_singleline(&mut self.modal_current_password);
+            response.request_focus();
+
+            let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
+            if enter_pressed {
+                self.login();
+            }
+
+
+            ui.separator();
+
+            egui::Sides::new().show( ui, |_ui| (), |ui| {
+                if ui.button("Login").clicked() {
+                    self.login();
+                }
+                if ui.button("Cancel").clicked() {
+                    self.modal_current_password.clear();
+                    self.modal_open = false;
+                }
+            },
+            );
+
+        });
+
+        if modal.should_close() {
+            self.modal_open = false;
+        }
 
     }
+
+    fn login(&mut self) {
+
+        let logger = &mut self.logger.borrow_mut();
+
+        if self.modal_current_password == config::EXPERT_PASSWORD {
+            *self.is_expertmode.borrow_mut() = true;
+            logger.append(LogLevel::Info, "Logged in as Expert");
+        } else {
+            logger.append(LogLevel::Error, "Password is incorrect");
+        }
+
+        self.modal_current_password.clear();
+        self.modal_open = false;
+
+    }
+
+
+}

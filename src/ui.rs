@@ -1,10 +1,9 @@
 use std::sync::{Arc, Mutex, mpsc};
-use std::thread::JoinHandle;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::diagnosis::{Diagnosis, DiagnosisState, DiagnosisResult};
+use crate::diagnosis::{Diagnosis, DiagnosisState};
 
 mod util;
 mod config;
@@ -13,13 +12,13 @@ mod logger;
 use logger::Logger;
 
 mod components;
+use components::topbar::Topbar;
 
 
 
 
 
-
-pub trait Show {
+pub trait Component {
     fn name(&self) -> &'static str; // MUST be unique
     fn show(&mut self, ctx: &egui::Context, active: &mut bool);
 }
@@ -27,14 +26,18 @@ pub trait Show {
 
 
 struct GuiState {
-    diagnosis: Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
-    logger:    Rc<RefCell<Logger>>,
+    // Shared data:
+    diagnosis:       Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
+    logger:          Rc<RefCell<Logger>>,
+    show_windowlist: Rc<RefCell<bool>>,
+    is_expertmode:   Rc<RefCell<bool>>,
 
-    show_windowlist: bool,
-
-    windows:       Vec<Box<dyn Show>>,
+    windows:       Vec<Box<dyn Component>>,
     windows_state: HashMap<&'static str, bool>,
+
+    topbar: Topbar,
 }
+
 
 
 
@@ -46,16 +49,18 @@ impl GuiState {
     ) -> Self {
         use components::{
             serialmanager::Serialmanager,
-            pineditor::Pineditor,
-            diagnosis::DiagnosisUi,
-            dbmanager::DBManager,
-            logging::Logging,
+            pineditor    ::Pineditor,
+            diagnosis    ::DiagnosisUi,
+            dbmanager    ::DBManager,
+            logging      ::Logging,
         };
 
-        let diagnosis = Arc::new(Mutex::new(diagnosis));
-        let logger = Rc::new(RefCell::new(Logger::new()));
+        let diagnosis       = Arc::new(Mutex::new(diagnosis));
+        let logger          = Rc::new(RefCell::new(Logger::new()));
+        let show_windowlist = Rc::new(RefCell::new(true));
+        let is_expertmode   = Rc::new(RefCell::new(false));
 
-        let windows: Vec<Box<dyn Show>> = vec![
+        let windows: Vec<Box<dyn Component>> = vec![
             Box::new(Serialmanager::new(diagnosis.clone(), logger.clone())),
             Box::new(Pineditor    ::new()),
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
@@ -63,17 +68,25 @@ impl GuiState {
             Box::new(Logging      ::new(logger.clone())),
         ];
 
+
         let mut windows_state = HashMap::new();
         for window in &windows {
             windows_state.insert(window.name(), false);
         }
 
+
         Self {
             diagnosis,
+
+            topbar: Topbar::new(
+                show_windowlist.clone(),
+                is_expertmode.clone(),
+                logger.clone()
+            ),
+
             logger,
-
-            show_windowlist: true,
-
+            show_windowlist,
+            is_expertmode,
             windows,
             windows_state,
         }
@@ -89,9 +102,8 @@ impl GuiState {
 impl eframe::App for GuiState {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        use egui::{TopBottomPanel, SidePanel};
 
-        // Config
+        /* Config */
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
@@ -100,26 +112,13 @@ impl eframe::App for GuiState {
         // every frame
 
 
-        TopBottomPanel::top("TopPanel").show(ctx, |ui| {
-            // TODO:
-            // self.ui_topbar(&ctx, ui);
-        });
-
-        // SidePanel::left("Windows")
-        //     .show_animated(ctx, self.show_windowlist, |ui| {
-        //         ui.toggle_value(&mut self.show_dbmanager,       config::PAGE_DBMANAGEMENT);
-        //         ui.toggle_value(&mut self.show_diagnosis,       config::PAGE_DIAGNOSIS);
-        //         ui.toggle_value(&mut self.show_serialmanager,   config::PAGE_SERIALMANAGER);
-        //         ui.toggle_value(&mut self.show_pineditor,       config::PAGE_PINEDITOR);
-        //         ui.toggle_value(&mut self.show_logging,         config::PAGE_LOGGING);
-        //         ui.toggle_value(&mut self.show_documentmanager, config::PAGE_DOCUMENTMANAGER);
-        //     });
+        let mut topbar_active = true;
+        self.topbar.show(ctx, &mut topbar_active);
 
 
 
-
-        SidePanel::left("Windows")
-            .show_animated(ctx, self.show_windowlist, |ui| {
+        egui::SidePanel::left("Windows")
+            .show_animated(ctx, *self.show_windowlist.borrow(), |ui| {
                 for window in &mut self.windows {
                     let active = self.windows_state.get_mut(window.name()).unwrap();
                     ui.toggle_value(active, window.name());

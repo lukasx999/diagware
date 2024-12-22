@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::Diagnosis;
-use crate::ui::{Show, Logger};
+use crate::ui::{Component, Logger};
 use crate::ui::config;
 
 
@@ -12,7 +12,7 @@ pub struct Serialmanager {
     logger: Rc<RefCell<Logger>>,
 }
 
-impl Show for Serialmanager {
+impl Component for Serialmanager {
     fn name(&self) -> &'static str {
         config::PAGE_SERIALMANAGER
     }

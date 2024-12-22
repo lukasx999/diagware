@@ -1,10 +1,10 @@
-use crate::ui::Show;
+use crate::ui::Component;
 
 
 pub struct Pineditor {
 }
 
-impl Show for Pineditor {
+impl Component for Pineditor {
     fn name(&self) -> &'static str {
         "Pineditor"
     }
