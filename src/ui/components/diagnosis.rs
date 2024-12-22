@@ -11,7 +11,6 @@ use crate::{
         Diagnosis,
         DiagnosisState,
         DiagnosisResult,
-        DiagnosisMode,
         STATE_COUNT,
         DIAGNOSIS_STATE_REPRS
     },
@@ -26,6 +25,44 @@ use crate::{
 
 
 
+#[derive(Debug, Clone, Copy, Default)]
+enum ModuleFunctioningState {
+    #[default] NotYetMeasured,
+    Defective,
+    Functional,
+}
+
+impl ModuleFunctioningState {
+    pub fn get_richtext(&self) -> egui::RichText {
+        use ModuleFunctioningState as M;
+        match self {
+            M::NotYetMeasured => {
+                egui::RichText::new("No Measurements yet")
+                    .strong()
+                    .color(Color32::GRAY)
+            }
+
+            M::Defective => {
+                egui::RichText::new("Module is defective")
+                    .strong()
+                    .color(Color32::RED)
+            }
+
+            M::Functional => {
+                egui::RichText::new("Module is functional")
+                    .strong()
+                    .color(Color32::GREEN)
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 pub struct DiagnosisUi {
     diagnosis: Arc<Mutex<Diagnosis>>,
     logger:    Rc<RefCell<Logger>>,
@@ -37,6 +74,7 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<DiagnosisState>,
     diag_state:         DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
 
+    diagnosis_report: ModuleFunctioningState,
 }
 
 impl Component for DiagnosisUi {
@@ -71,80 +109,61 @@ impl DiagnosisUi {
             receiver,
             diag_thread_handle: None,
             diag_state: DiagnosisState::default(),
+
+            diagnosis_report: ModuleFunctioningState::default(),
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
+        use egui::Button;
 
         // Receive new state from running diagnosis
         if let Ok(state) = self.receiver.try_recv() {
             self.diag_state = state;
         }
 
-        self.ui_mode_select(ui);
+        ui.label(format!("Status: {}", self.diag_state));
+        ui.separator();
 
-        self.ui_legend(ui);
+
+        let is_running = self.diag_thread_handle.is_some();
+
+        ui.horizontal(|ui| {
+
+            if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
+                self.diagnosis_automatic();
+            }
+
+            if ui.add_enabled(!is_running, Button::new("Next")).clicked() {
+                todo!();
+            }
+
+            if ui.add_enabled(!is_running, Button::new("Repeat")).clicked() {
+                todo!();
+            }
+
+            if ui.add_enabled(!is_running, Button::new("Loop")).clicked() {
+                todo!();
+            }
+
+            if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
+                self.diagnosis_report = ModuleFunctioningState::NotYetMeasured;
+                // self.diagnosis.reset();
+            }
+
+        });
+
+
 
         util::canvas_new(ui).show(ui, |ui| {
             self.render_statemachine(ui);
         });
 
-        ui.label(format!("Status: {}", self.diag_state));
+        ui.label(self.diagnosis_report.get_richtext());
 
+        ui.separator();
 
-
-        let is_running = self.diag_thread_handle.is_some();
-        let btn_start: egui::Response = ui.add_enabled(
-            !is_running,
-            egui::Button::new("Start")
-        );
-
-        if btn_start.clicked() {
-            assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-
-            let diag = self.diagnosis.clone();
-
-            let handle = std::thread::Builder::new()
-                .name("diagnosis".to_owned())
-                .spawn(move || {
-                    diag.lock().unwrap().run_to_end()
-                }).unwrap();
-
-            self.diag_thread_handle = Some(handle);
-        }
-
-
-
-
-        /*
-        // BUG: blocks UI when running diagnosis
-        let mode = self.diagnosis.lock().unwrap().mode;
-
-        use DiagnosisMode as M;
-        match mode {
-
-        M::Automatic => {
-        }
-
-        M::Manual => {
-
-        ui.horizontal(|ui| {
-        if ui.button("Next").clicked() {
-        todo!();
-        }
-
-        if ui.button("Repeat").clicked() {
-        todo!();
-        }
-
-        if ui.button("Loop").clicked() {
-        todo!();
-        }
-        });
-        }
-        }
-        */
-
+        self.ui_legend(ui);
 
 
         let logger = &mut self.logger.borrow_mut();
@@ -159,6 +178,14 @@ impl DiagnosisUi {
                     Ok(value) => {
                         println!("Diagnosis was successful!");
                         logger.append(LogLevel::Info, "Diagnosis successful");
+
+                        self.diagnosis_report =
+                            if value.is_functional {
+                                ModuleFunctioningState::Functional
+                            } else {
+                                ModuleFunctioningState::Defective
+                            };
+
                     }
                     Err(error) => {
                         println!("Diagnosis failed!");
@@ -173,26 +200,23 @@ impl DiagnosisUi {
 
     }
 
-    fn ui_mode_select(&mut self, ui: &mut egui::Ui) {
-
-        // TODO: implement manual/automatic measurements
-        // TODO: disable combobox when diagnosis is running
-
-        if let Ok(mut diag) = self.diagnosis.try_lock() {
-
-            let mode = &mut diag.mode;
-
-            egui::ComboBox::from_label("Mode")
-                .selected_text(mode.to_string())
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(mode, DiagnosisMode::Automatic, "Automatic");
-                    ui.selectable_value(mode, DiagnosisMode::Manual,    "Manual");
-                });
-
-        }
 
 
+    fn diagnosis_automatic(&mut self) {
+        assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+
+        let diag = self.diagnosis.clone();
+
+        let handle = std::thread::Builder::new()
+            .name("diagnosis".to_owned())
+            .spawn(move || {
+                diag.lock().unwrap().run_to_end()
+            }).unwrap();
+
+        self.diag_thread_handle = Some(handle);
     }
+
+
 
     fn ui_legend(&mut self, ui: &mut egui::Ui) {
         ui.collapsing("Legend", |ui| {

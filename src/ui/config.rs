@@ -1,3 +1,4 @@
+use std::time::Duration;
 use egui::Color32;
 
 // TODO: refactor all variables to config.rs
@@ -26,3 +27,7 @@ pub const CANVAS_ROUNDING:   f32     = 10.0;
 pub const COLOR_LOG_INFO:    Color32 = Color32::BLUE;
 pub const COLOR_LOG_WARNING: Color32 = Color32::ORANGE;
 pub const COLOR_LOG_ERROR:   Color32 = Color32::RED;
+
+
+pub const DIAGNOSIS_LOOP_CYLCE: Duration = Duration::from_millis(250);
+pub const DIAGNOSIS_MODULE_TOLERANCE: f32 = 5.0;

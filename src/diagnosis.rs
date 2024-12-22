@@ -67,9 +67,6 @@ impl DiagnosisState {
 
 
 
-#[derive(thiserror::Error, Debug)]
-pub enum DiagnosisErrorInternal {
-}
 
 
 #[derive(thiserror::Error, Debug)]
@@ -88,42 +85,22 @@ pub enum DiagnosisError {
 }
 
 
-pub type MeasuredValue = crate::db::model::TargetValue;
 
-
-// TODO:
 /* this holds the results of a successful diagnosis */
 #[derive(Debug, Clone)]
-pub struct DiagnosisReport(Vec<MeasuredValue>);
+pub struct DiagnosisReport {
+    pub is_functional: bool,
+}
 
 impl DiagnosisReport {
-    pub fn new() -> Self {
-        Self(Vec::new())
+    pub fn new(is_functional: bool) -> Self {
+        Self {
+            is_functional
+        }
     }
 }
 
 pub type DiagnosisResult = Result<DiagnosisReport, DiagnosisError>;
-
-
-
-
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
-pub enum DiagnosisMode {
-    #[default] Automatic,
-    Manual,
-}
-
-
-impl std::fmt::Display for DiagnosisMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use DiagnosisMode as D;
-        let repr = match self {
-            D::Automatic => "Automatic",
-            D::Manual    => "Manual",
-        };
-        write!(f, "{}", repr)
-    }
-}
 
 
 
@@ -133,7 +110,6 @@ impl std::fmt::Display for DiagnosisMode {
 pub struct Diagnosis {
     state:        DiagnosisState,
     sender:       mpsc::Sender<DiagnosisState>, // informing the receiver about change of state
-    pub mode:     DiagnosisMode,
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub shiftreg: ShiftRegister,
@@ -149,7 +125,6 @@ impl Diagnosis {
         Self {
             state: DiagnosisState::default(),
             sender,
-            mode: DiagnosisMode::default(),
             eeprom,
             db,
             shiftreg,
@@ -255,7 +230,7 @@ impl Diagnosis {
             S::End => {
                 Self::do_stuff();
                 self.reset()?;
-                return Ok(Some(DiagnosisReport::new()));
+                return Ok(Some(DiagnosisReport::new(true)));
             }
 
         }
