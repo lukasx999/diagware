@@ -174,17 +174,23 @@ impl DiagnosisUi {
     }
 
     fn ui_mode_select(&mut self, ui: &mut egui::Ui) {
-        // let current_mode = &mut self.diagnosis.lock().unwrap().mode;
 
-        // let current_mode = &mut self.diagnosis.try_lock()
-        todo!("Disable combobox when diagnosis is running");
+        // TODO: implement manual/automatic measurements
+        // TODO: disable combobox when diagnosis is running
 
-        egui::ComboBox::from_label("Mode")
-            .selected_text(current_mode.to_string())
-            .show_ui(ui, |ui| {
-                ui.selectable_value(current_mode, DiagnosisMode::Automatic, "Automatic");
-                ui.selectable_value(current_mode, DiagnosisMode::Manual,    "Manual");
-            });
+        if let Ok(mut diag) = self.diagnosis.try_lock() {
+
+            let mode = &mut diag.mode;
+
+            egui::ComboBox::from_label("Mode")
+                .selected_text(mode.to_string())
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(mode, DiagnosisMode::Automatic, "Automatic");
+                    ui.selectable_value(mode, DiagnosisMode::Manual,    "Manual");
+                });
+
+        }
+
 
     }
 
