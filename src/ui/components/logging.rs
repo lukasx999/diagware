@@ -46,13 +46,17 @@ impl Logging {
 
         let logger = &mut self.logger.borrow_mut();
 
-        if ui.button("Clear").clicked() {
-            logger.clear();
-        }
+        ui.horizontal(|ui| {
 
-        if ui.button("Export").clicked() {
-            logger.export();
-        }
+            if ui.button("Clear").clicked() {
+                logger.clear();
+            }
+
+            if ui.button("Export").clicked() {
+                logger.export();
+            }
+
+        });
 
         ui.separator();
 

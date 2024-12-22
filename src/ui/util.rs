@@ -1,7 +1,3 @@
-use std::sync::{Arc, Mutex, mpsc};
-
-use crate::ui::GuiState;
-use crate::diagnosis::{Diagnosis, DiagnosisState};
 use crate::ui::config;
 
 
@@ -22,27 +18,6 @@ pub fn get_date() -> String {
         .to_string()
 }
 
-// Returns new state of `enabled`
-pub fn new_window(
-    ctx:     &egui::Context,
-    enabled: bool,
-    title:   &str,
-    mut ui_callback: impl FnMut(&mut egui::Ui),
-) -> bool {
-
-    let mut active: bool = enabled;
-
-    egui::Window::new(title)
-        .fade_in(true)
-        .fade_out(true)
-        .open(&mut active)
-        .show(ctx, |ui| {
-            ui_callback(ui);
-        });
-
-    active
-
-}
 
 pub fn canvas_setup(
     ui: &mut egui::Ui,

@@ -26,34 +26,21 @@ use crate::{
 
 
 #[derive(Debug, Clone, Copy, Default)]
-enum ModuleFunctioningState {
+enum ModuleGist {
     #[default] NotYetMeasured,
     Defective,
     Functional,
 }
 
-impl ModuleFunctioningState {
+impl ModuleGist {
     pub fn get_richtext(&self) -> egui::RichText {
-        use ModuleFunctioningState as M;
-        match self {
-            M::NotYetMeasured => {
-                egui::RichText::new("No Measurements yet")
-                    .strong()
-                    .color(Color32::GRAY)
-            }
-
-            M::Defective => {
-                egui::RichText::new("Module is defective")
-                    .strong()
-                    .color(Color32::RED)
-            }
-
-            M::Functional => {
-                egui::RichText::new("Module is functional")
-                    .strong()
-                    .color(Color32::GREEN)
-            }
-        }
+        use ModuleGist as M;
+        let (text, color) = match self {
+            M::NotYetMeasured => ("No Measurements yet",  Color32::GRAY),
+            M::Defective      => ("Module is defective",  Color32::RED),
+            M::Functional     => ("Module is functional", Color32::GREEN),
+        };
+        egui::RichText::new(text).strong().color(color)
     }
 }
 
@@ -74,7 +61,7 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<DiagnosisState>,
     diag_state:         DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
 
-    diagnosis_report: ModuleFunctioningState,
+    diagnosis_report: ModuleGist,
 }
 
 impl Component for DiagnosisUi {
@@ -110,7 +97,7 @@ impl DiagnosisUi {
             diag_thread_handle: None,
             diag_state: DiagnosisState::default(),
 
-            diagnosis_report: ModuleFunctioningState::default(),
+            diagnosis_report: ModuleGist::default(),
         }
     }
 
@@ -147,7 +134,7 @@ impl DiagnosisUi {
             }
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
-                self.diagnosis_report = ModuleFunctioningState::NotYetMeasured;
+                self.diagnosis_report = ModuleGist::NotYetMeasured;
                 // self.diagnosis.reset();
             }
 
@@ -159,8 +146,19 @@ impl DiagnosisUi {
             self.render_statemachine(ui);
         });
 
-        ui.label(self.diagnosis_report.get_richtext());
 
+        let progress = self.diag_state as u32 as f32 / (STATE_COUNT as f32 - 1.0);
+
+        // TODO: smooth animations
+        ui.add(
+            egui::ProgressBar::new(progress)
+                .show_percentage()
+                .animate(true)
+                .rounding(45.0)
+        );
+
+        ui.separator();
+        ui.label(self.diagnosis_report.get_richtext());
         ui.separator();
 
         self.ui_legend(ui);
@@ -181,9 +179,9 @@ impl DiagnosisUi {
 
                         self.diagnosis_report =
                             if value.is_functional {
-                                ModuleFunctioningState::Functional
+                                ModuleGist::Functional
                             } else {
-                                ModuleFunctioningState::Defective
+                                ModuleGist::Defective
                             };
 
                     }
