@@ -37,7 +37,7 @@ pub const STATE_COUNT: usize = 7; // needed for rendering state machine
 // TODO: potential self test
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
-pub enum DiagnosisState {
+pub enum State {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
     DBLookup        = 2,
@@ -50,14 +50,14 @@ pub enum DiagnosisState {
 
 
 
-impl std::fmt::Display for DiagnosisState {
+impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let repr = DIAGNOSIS_STATE_REPRS[self.clone() as usize];
         write!(f, "{}", repr)
     }
 }
 
-impl DiagnosisState {
+impl State {
     pub fn repr(&self) -> &str {
         DIAGNOSIS_STATE_REPRS[self.clone() as usize]
     }
@@ -70,9 +70,9 @@ impl DiagnosisState {
 
 
 #[derive(thiserror::Error, Debug)]
-pub enum DiagnosisError {
+pub enum Failure {
     #[error("Failed to transmit current state")]
-    SendError(#[from] mpsc::SendError<DiagnosisState>),
+    SendError(#[from] mpsc::SendError<State>),
     #[error("Database operation failed")]
     DatabaseError(#[from] sqlx::Error),
     #[error("EEPROM operation failed")]
@@ -86,30 +86,24 @@ pub enum DiagnosisError {
 
 
 
-/* this holds the results of a successful diagnosis */
-#[derive(Debug, Clone)]
-pub struct DiagnosisReport {
-    pub is_functional: bool,
+// Holds the results of a completed state
+#[derive(Debug, Clone, Copy)]
+pub enum Report {
+    Pending,
+    Completed {
+        is_functional: bool,
+    },
 }
 
-impl DiagnosisReport {
-    pub fn new(is_functional: bool) -> Self {
-        Self {
-            is_functional
-        }
-    }
-}
 
-pub type DiagnosisResult = Result<DiagnosisReport, DiagnosisError>;
-
-
+pub type DiagnosisResult = Result<Report, Failure>;
 
 
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    state:        DiagnosisState,
-    sender:       mpsc::Sender<DiagnosisState>, // informing the receiver about change of state
+    state:        State,
+    sender:       mpsc::Sender<State>, // informing the receiver about change of state
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub shiftreg: ShiftRegister,
@@ -124,10 +118,10 @@ impl Diagnosis {
     pub fn new(eeprom: EEPROM,
         db: DB,
         shiftreg: ShiftRegister,
-        sender: mpsc::Sender<DiagnosisState>,
+        sender: mpsc::Sender<State>,
     ) -> Self {
         Self {
-            state: DiagnosisState::default(),
+            state: State::default(),
             sender,
             eeprom,
             db,
@@ -137,12 +131,11 @@ impl Diagnosis {
         }
     }
 
-    fn next_state(&mut self) -> Result<(), DiagnosisError> {
+    fn next_state(&mut self) -> Result<(), Failure> {
 
-        self.sender.send(self.state)?;
         println!("current state: {}", self.state.repr());
 
-        use DiagnosisState as DS;
+        use State as DS;
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
@@ -153,6 +146,9 @@ impl Diagnosis {
             DS::Evaluation   => DS::End,
             DS::End          => DS::Idle,
         };
+
+        // TODO: think about this
+        self.sender.send(self.state)?;
 
         Ok(())
 
@@ -166,9 +162,9 @@ impl Diagnosis {
     /* Executes the current state, and transitions to the next state                  */
     /* Returns Ok(None) if state execution was successful, else returns error         */
     /* Returns Ok(Some(DiagnosisResult)) if the last state was executed successfully  */
-    pub fn run_state(&mut self) -> Result<Option<DiagnosisReport>, DiagnosisError> {
+    pub fn run_state(&mut self) -> DiagnosisResult {
 
-        use DiagnosisState as S;
+        use State as S;
         match self.state {
 
             S::Idle => self.next_state()?,
@@ -230,17 +226,17 @@ impl Diagnosis {
             S::End => {
                 Self::do_stuff();
                 self.reset()?;
-                return Ok(Some(DiagnosisReport::new(true)));
+                return Ok(Report::Completed { is_functional: true });
             }
 
         }
 
-        Ok(None)
+        Ok(Report::Pending)
 
     }
 
-    pub fn reset(&mut self) -> Result<(), DiagnosisError> {
-        self.state = DiagnosisState::default();
+    pub fn reset(&mut self) -> Result<(), Failure> {
+        self.state = State::default();
         self.temp_serial = None;
         self.temp_module = None;
         self.sender.send(self.state)?;
@@ -251,7 +247,7 @@ impl Diagnosis {
         loop {
             match self.run_state() {
                 Ok(result) => {
-                    if let Some(result) = result {
+                    if let Report::Completed { .. } = result {
                         break Ok(result);
                     }
                 }

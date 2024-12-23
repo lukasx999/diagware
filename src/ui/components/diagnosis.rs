@@ -7,9 +7,10 @@ use egui::Color32;
 
 use crate::{
     diagnosis::{
+        self as diag,
         Diagnosis,
-        DiagnosisState,
         DiagnosisResult,
+        State,
         STATE_COUNT,
         DIAGNOSIS_STATE_REPRS
     },
@@ -28,6 +29,7 @@ use crate::{
 #[derive(Debug, Clone, Copy, Default)]
 enum ModuleGist {
     #[default] NotYetMeasured,
+    Pending,
     Defective,
     Functional,
 }
@@ -37,6 +39,7 @@ impl ModuleGist {
         use ModuleGist as M;
         let (text, color) = match self {
             M::NotYetMeasured => ("No Measurements yet",  Color32::GRAY),
+            M::Pending        => ("Gist is pending...",   Color32::WHITE),
             M::Defective      => ("Module is defective",  Color32::RED),
             M::Functional     => ("Module is functional", Color32::GREEN),
         };
@@ -55,8 +58,8 @@ pub struct DiagnosisUi {
     // Handle to the diagnosis thread
     // None if diagnosis is not active
     diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
-    receiver:           mpsc::Receiver<DiagnosisState>,
-    diag_state:         DiagnosisState, // UI needs to keep track of current diagnosis state to: 1. show
+    receiver:           mpsc::Receiver<State>,
+    diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
 
     diagnosis_report: ModuleGist,
 }
@@ -85,14 +88,14 @@ impl DiagnosisUi {
     pub fn new(
         diagnosis: Arc<Mutex<Diagnosis>>,
         logger:    Rc<RefCell<Logger>>,
-        receiver:  mpsc::Receiver<DiagnosisState>,
+        receiver:  mpsc::Receiver<State>,
     ) -> Self {
         Self {
             diagnosis,
             logger,
             receiver,
             diag_thread_handle: None,
-            diag_state: DiagnosisState::default(),
+            diag_state: State::default(),
 
             diagnosis_report: ModuleGist::default(),
         }
@@ -119,7 +122,17 @@ impl DiagnosisUi {
             }
 
             if ui.add_enabled(!is_running, Button::new("Next")).clicked() {
-                todo!();
+                assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+
+                let diag = self.diagnosis.clone();
+
+                let handle = std::thread::Builder::new()
+                    .name("diagnosis".to_owned())
+                    .spawn(move || {
+                        diag.lock().unwrap().run_state()
+                    }).unwrap();
+
+                self.diag_thread_handle = Some(handle);
             }
 
             if ui.add_enabled(!is_running, Button::new("Repeat")).clicked() {
@@ -156,19 +169,27 @@ impl DiagnosisUi {
                 let result: DiagnosisResult = handle.join().unwrap();
 
                 match result {
-                    Ok(value) => {
+                    Ok(report) => {
                         logger.append(LogLevel::Info, "Diagnosis successful");
 
-                        self.diagnosis_report =
-                            if value.is_functional {
-                                ModuleGist::Functional
-                            } else {
-                                ModuleGist::Defective
-                            };
+                        use diag::Report as R;
+                        self.diagnosis_report = match report {
+                            R::Pending => ModuleGist::Pending,
+                            R::Completed { is_functional } => {
+                                if is_functional {
+                                    ModuleGist::Functional
+                                } else {
+                                    ModuleGist::Defective
+                                }
+                            }
+                        };
+
+                        dbg!(report);
 
                     }
                     Err(error) => {
                         logger.append(LogLevel::Error, "Diagnosis failed");
+                        dbg!(error);
                     }
                 }
 

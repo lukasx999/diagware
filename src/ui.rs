@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::diagnosis::{Diagnosis, DiagnosisState};
+use crate::diagnosis::{Diagnosis, State};
 
 mod util;
 mod config;
@@ -45,7 +45,7 @@ impl GuiState {
 
     pub fn new(
         diagnosis: Diagnosis,
-        receiver:  mpsc::Receiver<DiagnosisState>,
+        receiver:  mpsc::Receiver<State>,
     ) -> Self {
         use components::{
             serialmanager::Serialmanager,
@@ -161,7 +161,7 @@ fn frame_setup() -> eframe::NativeOptions {
 
 pub fn run_gui(
     diagnosis: Diagnosis,
-    receiver:  mpsc::Receiver<DiagnosisState>
+    receiver:  mpsc::Receiver<State>
 ) -> eframe::Result {
 
     let options: eframe::NativeOptions = frame_setup();
