@@ -121,7 +121,11 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(eeprom: EEPROM, db: DB, shiftreg: ShiftRegister, sender: mpsc::Sender<DiagnosisState>) -> Self {
+    pub fn new(eeprom: EEPROM,
+        db: DB,
+        shiftreg: ShiftRegister,
+        sender: mpsc::Sender<DiagnosisState>,
+    ) -> Self {
         Self {
             state: DiagnosisState::default(),
             sender,
@@ -134,11 +138,11 @@ impl Diagnosis {
     }
 
     fn next_state(&mut self) -> Result<(), DiagnosisError> {
-        use DiagnosisState as DS;
 
         self.sender.send(self.state)?;
-
         println!("current state: {}", self.state.repr());
+
+        use DiagnosisState as DS;
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
@@ -159,13 +163,9 @@ impl Diagnosis {
     }
 
 
-    // + return diagnosiserror in case of error -> show error popup
-    // TODO: diag error should contain information for showing error popup on ui
-
-
-    /* Executes the current state, and transitions to the next state          */
-    /* Returns Ok(None) if state execution was successful, else returns error */
-    /* Returns a DiagnosisResult if the last state was executed successfully  */
+    /* Executes the current state, and transitions to the next state                  */
+    /* Returns Ok(None) if state execution was successful, else returns error         */
+    /* Returns Ok(Some(DiagnosisResult)) if the last state was executed successfully  */
     pub fn run_state(&mut self) -> Result<Option<DiagnosisReport>, DiagnosisError> {
 
         use DiagnosisState as S;
@@ -247,10 +247,8 @@ impl Diagnosis {
         Ok(())
     }
 
-    // TODO: implement manual stepping
     pub fn run_to_end(&mut self) -> DiagnosisResult {
         loop {
-
             match self.run_state() {
                 Ok(result) => {
                     if let Some(result) = result {
@@ -259,11 +257,10 @@ impl Diagnosis {
                 }
                 Err(e) => {
                     self.reset()?;
-                    return Err(e);
+                    break Err(e);
                 }
 
             }
-
         }
     }
 

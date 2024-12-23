@@ -67,9 +67,6 @@ impl DiagnosisState {
 
 
 
-#[derive(thiserror::Error, Debug)]
-pub enum DiagnosisErrorInternal {
-}
 
 
 #[derive(thiserror::Error, Debug)]
@@ -88,32 +85,22 @@ pub enum DiagnosisError {
 }
 
 
-pub type MeasuredValue = crate::db::model::TargetValue;
 
-
-// TODO:
 /* this holds the results of a successful diagnosis */
 #[derive(Debug, Clone)]
-pub struct DiagnosisReport(Vec<MeasuredValue>);
+pub struct DiagnosisReport {
+    pub is_functional: bool,
+}
 
 impl DiagnosisReport {
-    pub fn new() -> Self {
-        Self(Vec::new())
+    pub fn new(is_functional: bool) -> Self {
+        Self {
+            is_functional
+        }
     }
 }
 
 pub type DiagnosisResult = Result<DiagnosisReport, DiagnosisError>;
-
-
-
-
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
-pub enum DiagnosisMode {
-    #[default] Automatic,
-    Manual,
-}
-
-
 
 
 
@@ -123,7 +110,6 @@ pub enum DiagnosisMode {
 pub struct Diagnosis {
     state:        DiagnosisState,
     sender:       mpsc::Sender<DiagnosisState>, // informing the receiver about change of state
-    pub mode:     DiagnosisMode,
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub shiftreg: ShiftRegister,
@@ -135,11 +121,14 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(eeprom: EEPROM, db: DB, shiftreg: ShiftRegister, sender: mpsc::Sender<DiagnosisState>) -> Self {
+    pub fn new(eeprom: EEPROM,
+        db: DB,
+        shiftreg: ShiftRegister,
+        sender: mpsc::Sender<DiagnosisState>,
+    ) -> Self {
         Self {
             state: DiagnosisState::default(),
             sender,
-            mode: DiagnosisMode::default(),
             eeprom,
             db,
             shiftreg,
@@ -149,11 +138,11 @@ impl Diagnosis {
     }
 
     fn next_state(&mut self) -> Result<(), DiagnosisError> {
-        use DiagnosisState as DS;
 
         self.sender.send(self.state)?;
-
         println!("current state: {}", self.state.repr());
+
+        use DiagnosisState as DS;
         self.state = match self.state {
             DS::Idle         => DS::ReadSerial,
             DS::ReadSerial   => DS::DBLookup,
@@ -174,13 +163,9 @@ impl Diagnosis {
     }
 
 
-    // + return diagnosiserror in case of error -> show error popup
-    // TODO: diag error should contain information for showing error popup on ui
-
-
-    /* Executes the current state, and transitions to the next state          */
-    /* Returns Ok(None) if state execution was successful, else returns error */
-    /* Returns a DiagnosisResult if the last state was executed successfully  */
+    /* Executes the current state, and transitions to the next state                  */
+    /* Returns Ok(None) if state execution was successful, else returns error         */
+    /* Returns Ok(Some(DiagnosisResult)) if the last state was executed successfully  */
     pub fn run_state(&mut self) -> Result<Option<DiagnosisReport>, DiagnosisError> {
 
         use DiagnosisState as S;
@@ -245,7 +230,7 @@ impl Diagnosis {
             S::End => {
                 Self::do_stuff();
                 self.reset()?;
-                return Ok(Some(DiagnosisReport::new()));
+                return Ok(Some(DiagnosisReport::new(true)));
             }
 
         }
@@ -262,10 +247,8 @@ impl Diagnosis {
         Ok(())
     }
 
-    // TODO: implement manual stepping
     pub fn run_to_end(&mut self) -> DiagnosisResult {
         loop {
-
             match self.run_state() {
                 Ok(result) => {
                     if let Some(result) = result {
@@ -274,11 +257,10 @@ impl Diagnosis {
                 }
                 Err(e) => {
                     self.reset()?;
-                    return Err(e);
+                    break Err(e);
                 }
 
             }
-
         }
     }
 

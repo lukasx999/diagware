@@ -1,5 +1,0 @@
-debug/
-target/
-Session.vim
-Cargo.lock
-**/*.rs.bk
