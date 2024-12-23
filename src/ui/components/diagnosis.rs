@@ -12,7 +12,6 @@ use crate::{
         DiagnosisResult,
         State,
         STATE_COUNT,
-        DIAGNOSIS_STATE_REPRS
     },
     ui::{
         Component,
@@ -109,7 +108,10 @@ impl DiagnosisUi {
             self.diag_state = state;
         }
 
-        ui.label(format!("Status: {}", self.diag_state));
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new("State:").strong());
+            ui.label(format!("{}", self.diag_state));
+        });
         ui.separator();
 
 
@@ -136,6 +138,7 @@ impl DiagnosisUi {
             }
 
             if ui.add_enabled(!is_running, Button::new("Repeat")).clicked() {
+                // TODO: add repeating functionality
                 todo!();
             }
 
@@ -145,7 +148,7 @@ impl DiagnosisUi {
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
                 self.diagnosis_report = ModuleGist::NotYetMeasured;
-                // self.diagnosis.reset();
+                self.diagnosis.lock().unwrap().reset().unwrap();
             }
 
         });
@@ -222,7 +225,7 @@ impl DiagnosisUi {
         ui.collapsing("Legend", |ui| {
             ui.horizontal_wrapped(|ui| {
 
-                let state = self.diag_state as usize;
+                let state = self.diag_state as u32;
 
                 for i in 0..STATE_COUNT {
 
@@ -234,7 +237,8 @@ impl DiagnosisUi {
 
                     ui.colored_label(color, format!("{i}"));
                     ui.colored_label(Color32::DARK_GRAY, "->");
-                    ui.colored_label(color, DIAGNOSIS_STATE_REPRS[i]);
+                    let state = diag::State::from_u32(i);
+                    ui.colored_label(color, state.to_string());
                     ui.end_row();
                 }
 
@@ -265,10 +269,10 @@ impl DiagnosisUi {
         // TODO: increase font step-wise
         // TODO: hover popup for descriptions
 
-        let state = self.diag_state as usize;
 
         for i in 0..STATE_COUNT {
 
+            let state = self.diag_state as u32;
             let mut color_circle = if i == state {
                 config::COLOR_ACCENT
             } else {

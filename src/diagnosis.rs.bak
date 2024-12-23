@@ -14,8 +14,27 @@ use crate::{
 
 
 
+/* CONFIG */
 
-pub const STATE_COUNT: u32 = 8; // needed for rendering state machine
+// NOTE: Array, so that rendering states as a list is possible
+pub const DIAGNOSIS_STATE_REPRS: [&str; STATE_COUNT+1] = [
+    "Leerlauf",
+    "Auslesen Seriennummer",
+    "DB Lookup",
+    "Schaltmatrix",
+    "Signalerzeugung",
+    "Messung",
+    "Auswertung",
+    "End"
+];
+
+
+
+
+pub const STATE_COUNT: usize = 7; // needed for rendering state machine
+
+// NOTE: using numeric constants, because it makes rendering and incrementing state easier
+// TODO: potential self test
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum State {
@@ -29,38 +48,22 @@ pub enum State {
     End             = 7, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
-impl State {
-    pub fn from_u32(num: u32) -> Self {
-        match num {
-            0 => Self::Idle,
-            1 => Self::ReadSerial,
-            2 => Self::DBLookup,
-            3 => Self::SwitchMatrix,
-            4 => Self::ApplySignals,
-            5 => Self::Measurements,
-            6 => Self::Evaluation,
-            7 => Self::End,
-            _ => panic!("Invalid integer"),
-        }
-    }
-}
+
 
 impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use State as S;
-        let repr = match self {
-            S::Idle          => "Idle",
-            S::ReadSerial    => "Read Serial",
-            S::DBLookup      => "DB Lookup",
-            S::SwitchMatrix  => "Switching Matrix",
-            S::ApplySignals  => "Applying Signals",
-            S::Measurements  => "Measurements",
-            S::Evaluation    => "Evaluation",
-            S::End           => "End"
-        };
+        let repr = DIAGNOSIS_STATE_REPRS[self.clone() as usize];
         write!(f, "{}", repr)
     }
 }
+
+impl State {
+    pub fn repr(&self) -> &str {
+        DIAGNOSIS_STATE_REPRS[self.clone() as usize]
+    }
+}
+
+
 
 
 
@@ -130,7 +133,7 @@ impl Diagnosis {
 
     fn next_state(&mut self) -> Result<(), Failure> {
 
-        println!("current state: {}", self.state);
+        println!("current state: {}", self.state.repr());
 
         use State as DS;
         self.state = match self.state {
