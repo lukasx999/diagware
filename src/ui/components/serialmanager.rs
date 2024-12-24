@@ -3,8 +3,7 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::Diagnosis;
-use crate::ui::{Component, Logger};
-use crate::ui::config;
+use crate::ui::{Component, Logger, config};
 
 
 
@@ -72,6 +71,7 @@ impl Serialmanager {
                         format!("New Serial `{}` successfully written to EEPROM",
                             &self.serial_textedit)
                     );
+                    self.serial_textedit.clear();
 
                 } else {
                     logger.append(LogLevel::Error, "Writing Serial to EEPROM failed");

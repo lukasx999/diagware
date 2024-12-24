@@ -164,7 +164,10 @@ impl Diagnosis {
         use State as S;
         match self.state {
 
-            S::Idle => self.next_state()?,
+            S::Idle => {
+                Self::do_stuff();
+                self.next_state()?;
+            }
 
             S::ReadSerial => {
                 Self::do_stuff();
