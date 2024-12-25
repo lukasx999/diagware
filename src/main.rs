@@ -18,11 +18,7 @@ mod diagnosis;
 use diagnosis::Diagnosis;
 
 
-/*
 
- TODO: crosscompile to aarch64 -> rsync binary only
-
-*/
 
 
 

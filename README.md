@@ -4,6 +4,8 @@
 
 ## TODO
 
+
+- [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] make `next` move to next state and execute that state
 - [ ] cyclic state loop
 - [ ] egui: slider and preview for DDS waveform
