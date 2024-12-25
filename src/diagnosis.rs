@@ -128,37 +128,32 @@ impl Diagnosis {
         }
     }
 
-    fn next_state(&mut self) -> Result<(), Failure> {
-
-        println!("current state: {}", self.state);
-
-        use State as DS;
-        self.state = match self.state {
-            DS::Idle         => DS::ReadSerial,
-            DS::ReadSerial   => DS::DBLookup,
-            DS::DBLookup     => DS::SwitchMatrix,
-            DS::SwitchMatrix => DS::ApplySignals,
-            DS::ApplySignals => DS::Measurements,
-            DS::Measurements => DS::Evaluation,
-            DS::Evaluation   => DS::End,
-            DS::End          => DS::Idle,
-        };
-
-        // TODO: think about this
-        self.sender.send(self.state)?;
-
-        Ok(())
-
-    }
-
     fn do_stuff() {
         thread::sleep(Duration::from_millis(500));
     }
 
+    fn reset_internal_state(&mut self) {
+        self.temp_serial = None;
+        self.temp_module = None;
+    }
 
-    /* Executes the current state, and transitions to the next state                  */
-    /* Returns Ok(None) if state execution was successful, else returns error         */
-    /* Returns Ok(Some(DiagnosisResult)) if the last state was executed successfully  */
+    // Transition to the next state
+    pub fn next_state(&mut self) {
+        use State as S;
+        self.state = match self.state {
+            S::Idle         => S::ReadSerial,
+            S::ReadSerial   => S::DBLookup,
+            S::DBLookup     => S::SwitchMatrix,
+            S::SwitchMatrix => S::ApplySignals,
+            S::ApplySignals => S::Measurements,
+            S::Measurements => S::Evaluation,
+            S::Evaluation   => S::End,
+            S::End          => S::Idle,
+        };
+        self.sender.send(self.state).unwrap();
+    }
+
+    // Execute the current state
     pub fn run_state(&mut self) -> DiagnosisResult {
 
         use State as S;
@@ -166,14 +161,12 @@ impl Diagnosis {
 
             S::Idle => {
                 Self::do_stuff();
-                self.next_state()?;
             }
 
             S::ReadSerial => {
                 Self::do_stuff();
                 let serial: String = self.eeprom.get_serial()?;
                 self.temp_serial = Some(serial);
-                self.next_state()?;
             }
 
             S::DBLookup => {
@@ -183,8 +176,6 @@ impl Diagnosis {
                 let module: Module = self.db.get_module_by_serial(&serial)?;
                 dbg!(&module);
                 self.temp_module = Some(module);
-
-                self.next_state()?;
             }
 
             S::SwitchMatrix => {
@@ -195,18 +186,14 @@ impl Diagnosis {
                 dbg!(&matrix);
 
                 // TODO: shift reg
-
-                self.next_state()?;
             }
 
             S::ApplySignals => {
                 Self::do_stuff();
-                self.next_state()?;
             }
 
             S::Measurements => {
                 Self::do_stuff();
-                self.next_state()?;
             }
 
             S::Evaluation => {
@@ -219,13 +206,11 @@ impl Diagnosis {
                 // let id = self.temp_module.as_ref().unwrap().id.unwrap();
                 // let targetvalues: Vec<TargetValue> = self.db.get_targetvalue_by_id(id)?;
                 // // TODO: compare measured values with targetvalues
-
-                self.next_state()?;
             }
 
             S::End => {
                 Self::do_stuff();
-                self.reset()?;
+                self.reset_internal_state();
                 return Ok(Report::Completed { is_functional: true });
             }
 
@@ -235,27 +220,33 @@ impl Diagnosis {
 
     }
 
-    pub fn reset(&mut self) -> Result<(), Failure> {
+    // Reset the statemachine
+    pub fn reset_state(&mut self) {
+        self.reset_internal_state();
         self.state = State::default();
-        self.temp_serial = None;
-        self.temp_module = None;
-        self.sender.send(self.state)?;
-        Ok(())
+        self.sender.send(self.state).unwrap();
     }
 
+    // Execute the current state, and transition to the next state
+    pub fn run_and_next(&mut self) -> DiagnosisResult {
+        let report = self.run_state();
+        self.next_state();
+        report
+    }
+
+    // Run all states until the end has been reached (=> Automatic diagnosis)
     pub fn run_to_end(&mut self) -> DiagnosisResult {
         loop {
-            match self.run_state() {
+            match self.run_and_next() {
                 Ok(result) => {
                     if let Report::Completed { .. } = result {
                         break Ok(result);
                     }
                 }
                 Err(e) => {
-                    self.reset()?;
+                    // self.reset();
                     break Err(e);
                 }
-
             }
         }
     }

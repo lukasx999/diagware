@@ -2,35 +2,22 @@
 
 ## Questions
 
-- **Error popups VS logging window?**
-  - export logging to file / to usb
-- Manual step through?
-  - repeating current step: cyclic repeat (hardcoded time) / manual step
-- Do we really need an error state? (continue/restart)
-  - yes
-- UI language english/german?
-  - english
-
-
-
-
 ## TODO
 
+- [ ] make `next` move to next state and execute that state
+- [ ] cyclic state loop
 - [ ] egui: slider and preview for DDS waveform
-- [ ] **EGUI: Error Popup for error handling**
-- [ ] Login
+- [ ] EGUI: Error Popup for error handling
 - [ ] Multiple DB (stable/experimental)
-
-- [ ] Visio Drawing & Explanation for Drawing States
 - [ ] Hardware checker page to see if all devices are connected and working
+- [ ] X11 isolated enviroment
+- [ ] exercise/data sheets in DB
+- [ ] writing to USB (documents / logfile)
+- [ ] File path handling for SQLx and egui::include\_image!
+- [ ] Visio Drawing & Explanation for Drawing States
 - [x] State machine for diagnosis
 - [x] Cargo Script for uploading to rpi
-- [ ] File path handling for SQLx and egui::include\_image!
-- [ ] X11 config
-  - Isolated Environment (what about crashes?)
-- [ ] LaTeX docs
-- [ ] exercise/data sheets in DB
-- [ ] writing to USB
+- [x] Login
 - [x] UI (probably last)
 - [x] make use of async
 - [x] Testing Code on RPi4

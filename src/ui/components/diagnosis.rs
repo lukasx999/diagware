@@ -120,26 +120,15 @@ impl DiagnosisUi {
         ui.horizontal(|ui| {
 
             if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
-                self.diagnosis_automatic();
+                self.spawn_diag_thread(|diag| diag.run_to_end());
             }
 
             if ui.add_enabled(!is_running, Button::new("Next")).clicked() {
-                assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-
-                let diag = self.diagnosis.clone();
-
-                let handle = std::thread::Builder::new()
-                    .name("diagnosis".to_owned())
-                    .spawn(move || {
-                        diag.lock().unwrap().run_state()
-                    }).unwrap();
-
-                self.diag_thread_handle = Some(handle);
+                self.spawn_diag_thread(|diag| diag.run_and_next());
             }
 
             if ui.add_enabled(!is_running, Button::new("Repeat")).clicked() {
-                // TODO: add repeating functionality
-                todo!();
+                self.spawn_diag_thread(|diag| diag.run_state());
             }
 
             if ui.add_enabled(!is_running, Button::new("Loop")).clicked() {
@@ -148,7 +137,7 @@ impl DiagnosisUi {
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
                 self.diagnosis_report = ModuleGist::NotYetMeasured;
-                self.diagnosis.lock().unwrap().reset().unwrap();
+                self.diagnosis.lock().unwrap().reset_state();
             }
 
         });
@@ -204,8 +193,11 @@ impl DiagnosisUi {
     }
 
 
-
-    fn diagnosis_automatic(&mut self) {
+    // Launch a new thread, save the handle, and let the caller provide a callback receiving a
+    // mutable reference to the diagnosis
+    fn spawn_diag_thread<T>(&mut self, callback: T)
+where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
+    {
         assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
 
         let diag = self.diagnosis.clone();
@@ -213,12 +205,11 @@ impl DiagnosisUi {
         let handle = std::thread::Builder::new()
             .name("diagnosis".to_owned())
             .spawn(move || {
-                diag.lock().unwrap().run_to_end()
+                callback(&mut diag.lock().unwrap())
             }).unwrap();
 
         self.diag_thread_handle = Some(handle);
     }
-
 
 
     fn ui_legend(&mut self, ui: &mut egui::Ui) {

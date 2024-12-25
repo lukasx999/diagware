@@ -21,7 +21,6 @@ use diagnosis::Diagnosis;
 /*
 
  TODO: crosscompile to aarch64 -> rsync binary only
- TODO: egui progressbar for diagnosis
 
 */
 
