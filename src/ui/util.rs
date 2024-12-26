@@ -24,7 +24,6 @@ pub fn canvas_setup(
     width: f32,
     height: f32
 ) -> (egui::Response, egui::Painter, egui::Pos2) {
-
     use egui::{vec2, Sense, Painter, Rect, Response};
 
     let (response, painter): (Response, Painter) = ui.allocate_painter(

@@ -142,14 +142,14 @@ impl DiagnosisUi {
                 *self.is_looping.lock().unwrap() = true;
                 let is_looping = self.is_looping.clone();
                 self.spawn_diag_thread(move |diag| {
-                    loop {
-                        println!("looping");
-                        let is_looping = is_looping.lock().unwrap();
-                        let ret = diag.run_state();
-                        if !*is_looping {
-                            break ret;
-                        }
-                    }
+                loop {
+                println!("looping");
+                let is_looping = is_looping.lock().unwrap();
+                let ret = diag.run_state();
+                if !*is_looping {
+                break ret;
+                }
+                }
                 });
                 */
             }
@@ -161,7 +161,7 @@ impl DiagnosisUi {
 
             /*
             if ui.add_enabled(*self.is_looping.lock().unwrap(), Button::new("Cancel")).clicked() {
-                *self.is_looping.lock().unwrap() = false;
+            *self.is_looping.lock().unwrap() = false;
             }
             */
 
@@ -281,7 +281,7 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
         font.size = 15.0;
         // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
 
-        // TODO: dont show anything of available_width is smaller than min size
+        // TODO: dont show anything if available_width is smaller than min size
         // TODO: increase font step-wise
         // TODO: hover popup for descriptions
 
@@ -295,17 +295,39 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
                 config::COLOR_CIRCLE
             };
 
-
             let circle_center = center
             - vec2(offset_to_origin, 0.0)
             + vec2(i as f32 * offset, 0.0);
 
 
-            if let Some(pos) = response.hover_pos() {
-                if pos.distance(circle_center) < radius {
-                    color_circle = color_circle.gamma_multiply(0.75);
-                }
+            let hovered = if let Some(pos) = response.hover_pos() {
+                pos.distance(circle_center) < radius
+            } else { false };
+
+            let clicked = hovered && response.clicked();
+
+            if hovered {
+                color_circle = color_circle.gamma_multiply(0.75);
             }
+
+            if clicked {
+                println!("clicked!");
+                let state = diag::State::from_u32(i);
+                dbg!(&state);
+            }
+
+            // TODO: dynamically render the popup offset
+            let popup_offset = 35.0;
+            if hovered {
+                painter.text(
+                    circle_center - vec2(0.0, popup_offset),
+                    egui::Align2::CENTER_CENTER,
+                    diag::State::from_u32(i).to_string(),
+                    font.clone(),
+                    Color32::WHITE
+                );
+            }
+
 
 
             painter.circle_filled(

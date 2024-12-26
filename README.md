@@ -1,6 +1,12 @@
 # Diagware
 
-## Questions
+## Notes
+
+- Login is functional
+- breakpoints?
+- popups functional now
+
+
 
 ## TODO
 
