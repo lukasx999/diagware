@@ -1,5 +1,7 @@
 use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
+
 use crate::db::model::Matrix;
+use crate::io::IoResult;
 
 
 // TODO: handle multiple SPI devices on different buses
@@ -14,8 +16,8 @@ pub struct ShiftRegister {
 
 impl ShiftRegister {
 
-    #[cfg(target_arch ="aarch64")]
-    pub fn new() -> spi::Result<Self> {
+    #[cfg(target_arch = "aarch64")]
+    pub fn new() -> IoResult<Self> {
 
         let spi = Spi::new(
             Bus::Spi0,
@@ -28,7 +30,7 @@ impl ShiftRegister {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn new() -> spi::Result<Self> {
+    pub fn new() -> IoResult<Self> {
         Ok(Self {})
     }
 
@@ -45,10 +47,19 @@ impl ShiftRegister {
 
     }
 
+    #[cfg(target_arch = "x86_64")]
+    pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
+
+        let bits = Self::int_to_bits(matrix.gnd);
+        dbg!(bits);
+
+        Ok(())
+    }
+
 
 
     #[cfg(target_arch = "aarch64")]
-    pub fn switch(&mut self, matrix: &Matrix) -> spi::Result<()> {
+    pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
 
         let bits = Self::int_to_bits(matrix.gnd);
         dbg!(bits);

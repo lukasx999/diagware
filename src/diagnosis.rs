@@ -5,10 +5,10 @@ use std::{
 };
 
 use crate::{
-    eeprom,
     EEPROM,
-    DB,
+    DDS,
     ShiftRegister,
+    DB,
     db::model::{Module, Matrix, TargetValue},
 };
 
@@ -69,13 +69,8 @@ pub enum Failure {
     SendError(#[from] mpsc::SendError<State>),
     #[error("Database operation failed")]
     DatabaseError(#[from] sqlx::Error),
-    #[error("EEPROM operation failed")]
-    EepromError(#[from] eeprom::EepromError),
-
-    // The current DUT is holding a serial number which was not found within the database
-    // UnknownModule {
-    //     serial: String,
-    // },
+    #[error("IO operation failed")]
+    IoError(#[from] crate::io::IoError),
 }
 
 
@@ -84,9 +79,7 @@ pub enum Failure {
 #[derive(Debug, Clone, Copy)]
 pub enum Report {
     Pending,
-    Completed {
-        is_functional: bool,
-    },
+    Completed { is_functional: bool, },
 }
 
 
@@ -167,6 +160,7 @@ impl Diagnosis {
                 Self::delay();
                 let id = self.temp_module.as_ref().unwrap().id;
                 let matrix: Matrix = self.db.get_matrix_by_id(id)?;
+                self.shiftreg.switch(&matrix)?;
                 dbg!(&matrix);
 
                 // TODO: shift reg

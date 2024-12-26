@@ -1,5 +1,7 @@
 use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
 
+use crate::io::IoResult;
+
 
 #[derive(Debug)]
 pub struct DDS {
@@ -10,7 +12,7 @@ pub struct DDS {
 impl DDS {
 
     #[cfg(target_arch = "aarch64")]
-    pub fn new() -> spi::Result<Self> {
+    pub fn new() -> IoResult<Self> {
 
         let spi = Spi::new(
             Bus::Spi0,
@@ -23,7 +25,7 @@ impl DDS {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn new() -> spi::Result<Self> {
+    pub fn new() -> IoResult<Self> {
         Ok(Self {})
     }
 

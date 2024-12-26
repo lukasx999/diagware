@@ -1,3 +1,8 @@
+
+mod prelude {
+    // pub use std::sync::{Arc, Mutex, mpsc};
+}
+
 pub mod pineditor;
 pub mod serialmanager;
 pub mod diagnosis;

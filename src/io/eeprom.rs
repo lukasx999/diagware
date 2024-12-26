@@ -1,6 +1,8 @@
+use std::time::Duration;
+
 use rppal::i2c::{self, I2c};
 
-use std::time::Duration;
+use crate::io::IoResult;
 
 
 // Show I2C devices:
@@ -26,20 +28,6 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
-// TODO: consider using the `thiserror` crate
-
-#[derive(thiserror::Error, Debug)]
-pub enum EepromError {
-    #[error("I2C operation failed")]
-    I2cError(#[from] i2c::Error),
-    #[error("UTF8 operation failed")]
-    Utf8Error(#[from] std::str::Utf8Error),
-}
-
-
-pub type EepromResult<T> = std::result::Result<T, EepromError>;
-
-
 
 
 
@@ -59,7 +47,7 @@ impl EEPROM {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn new() -> EepromResult<Self> {
+    pub fn new() -> IoResult<Self> {
         Ok(Self {})
     }
 
@@ -84,20 +72,20 @@ impl EEPROM {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn get_serial(&self) -> EepromResult<String> {
+    pub fn get_serial(&self) -> IoResult<String> {
         Ok("214232".to_owned())
         // Ok("123".to_owned())
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn write_serial(&self, serial: &str) -> EepromResult<()> {
+    pub fn write_serial(&self, serial: &str) -> IoResult<()> {
         Ok(())
     }
 
 
     // Accepts Strings with max. `EEPROM_COLUMNS` (=16) characters
     #[cfg(target_arch = "aarch64")]
-    pub fn write_serial(&self, serial: &str) -> EepromResult<()> {
+    pub fn write_serial(&self, serial: &str) -> IoResult<()> {
         // TODO: return eeprom error
         assert!(serial.len() <= EEPROM_COLUMNS);
 
@@ -111,12 +99,12 @@ impl EEPROM {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn clear(&self) -> EepromResult<()> {
+    pub fn clear(&self) -> IoResult<()> {
         Ok(())
     }
 
     #[cfg(target_arch = "aarch64")]
-    pub fn clear(&self) -> EepromResult<()> {
+    pub fn clear(&self) -> IoResult<()> {
         let bytes = [EEPROM_CLEAR_BYTE; EEPROM_COLUMNS];
 
         for row in (0x0..=EEPROM_ROW_MAX).step_by(EEPROM_ROW_STEP) {

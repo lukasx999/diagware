@@ -2,23 +2,18 @@ use std::error::Error;
 
 mod ui;
 
-mod eeprom;
-use eeprom::EEPROM;
-
-mod dds;
-use dds::DDS;
-
 mod db;
 use db::DB;
-
-mod shift_reg;
-use shift_reg::ShiftRegister;
 
 mod diagnosis;
 use diagnosis::Diagnosis;
 
-
-
+mod io;
+use io::{
+    eeprom::EEPROM,
+    dds::DDS,
+    shift_reg::ShiftRegister,
+};
 
 
 
@@ -39,7 +34,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     ui::run_gui(diagnosis, rx)?;
-
 
     Ok(())
 

@@ -25,7 +25,7 @@ pub trait Component {
 
 
 
-struct GuiState {
+struct GuiApplication {
     // Shared data:
     diagnosis:       Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
     logger:          Rc<RefCell<Logger>>,
@@ -41,7 +41,7 @@ struct GuiState {
 
 
 
-impl GuiState {
+impl GuiApplication {
 
     pub fn new(
         diagnosis: Diagnosis,
@@ -100,7 +100,7 @@ impl GuiState {
 
 
 
-impl eframe::App for GuiState {
+impl eframe::App for GuiApplication {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
@@ -179,7 +179,7 @@ pub fn run_gui(
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiState::new(diagnosis, receiver)))
+            Ok(Box::new(GuiApplication::new(diagnosis, receiver)))
 
         }),
     )
