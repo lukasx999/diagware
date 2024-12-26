@@ -60,6 +60,8 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<State>,
     diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
 
+    // is_looping: Arc<Mutex<bool>>,
+
     diagnosis_report: ModuleGist,
 }
 
@@ -95,6 +97,8 @@ impl DiagnosisUi {
             receiver,
             diag_thread_handle: None,
             diag_state: State::default(),
+
+            // is_looping: Arc::new(Mutex::new(false)),
 
             diagnosis_report: ModuleGist::default(),
         }
@@ -133,12 +137,32 @@ impl DiagnosisUi {
 
             if ui.add_enabled(!is_running, Button::new("Loop")).clicked() {
                 todo!();
+                /*
+                *self.is_looping.lock().unwrap() = true;
+                let is_looping = self.is_looping.clone();
+                self.spawn_diag_thread(move |diag| {
+                    loop {
+                        println!("looping");
+                        let is_looping = is_looping.lock().unwrap();
+                        let ret = diag.run_state();
+                        if !*is_looping {
+                            break ret;
+                        }
+                    }
+                });
+                */
             }
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
                 self.diagnosis_report = ModuleGist::NotYetMeasured;
                 self.diagnosis.lock().unwrap().reset_state();
             }
+
+            /*
+            if ui.add_enabled(*self.is_looping.lock().unwrap(), Button::new("Cancel")).clicked() {
+                *self.is_looping.lock().unwrap() = false;
+            }
+            */
 
         });
 

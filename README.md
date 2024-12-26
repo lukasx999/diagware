@@ -4,7 +4,7 @@
 
 ## TODO
 
-
+- [ ] Set breakpoints for states
 - [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] make `next` move to next state and execute that state
 - [ ] cyclic state loop
