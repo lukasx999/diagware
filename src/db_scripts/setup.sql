@@ -1,12 +1,13 @@
+-- Module
 CREATE TABLE modules (
-    id      INTEGER PRIMARY KEY,
+    id      INTEGER PRIMARY KEY NOT NULL, -- NOT NULL, so that SQLx wont require a Option<T> wrapping the id
     name    TEXT    NOT NULL UNIQUE,
     serial  TEXT    NOT NULL UNIQUE
 );
 
 -- Sollwerte
 CREATE TABLE targetvalues (
-    id         INTEGER PRIMARY KEY,
+    id         INTEGER PRIMARY KEY NOT NULL,
     module_id  INTEGER NOT NULL,
     identifier TEXT    NOT NULL,
     descriptor TEXT,
@@ -17,7 +18,7 @@ CREATE TABLE targetvalues (
 
 -- Übungsblätter
 CREATE TABLE documents (
-    id         INTEGER PRIMARY KEY,
+    id         INTEGER PRIMARY KEY NOT NULL,
     module_id  INTEGER NOT NULL,
     document   BLOB    NOT NULL,
     descriptor TEXT NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE documents (
 
 -- Schaltmatrix
 CREATE TABLE matrix (
-    id       INTEGER PRIMARY KEY,
+    id       INTEGER PRIMARY KEY NOT NULL,
     gnd      INTEGER NOT NULL,
     v_plus   INTEGER NOT NULL,
     v_minus  INTEGER NOT NULL,

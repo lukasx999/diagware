@@ -15,18 +15,17 @@ use crate::{
 
 
 
-pub const STATE_COUNT: u32 = 8; // needed for rendering state machine
+pub const STATE_COUNT: u32 = 7; // needed for rendering state machine
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum State {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
-    DBLookup        = 2,
-    SwitchMatrix    = 3,
-    ApplySignals    = 4,
-    Measurements    = 5,
-    Evaluation      = 6,
-    End             = 7, // NOTE: not included in `STATE_COUNT` (implementationdetail)
+    SwitchMatrix    = 2,
+    ApplySignals    = 3,
+    Measurements    = 4,
+    Evaluation      = 5,
+    End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
 }
 
 impl State {
@@ -34,12 +33,11 @@ impl State {
         match num {
             0 => Self::Idle,
             1 => Self::ReadSerial,
-            2 => Self::DBLookup,
-            3 => Self::SwitchMatrix,
-            4 => Self::ApplySignals,
-            5 => Self::Measurements,
-            6 => Self::Evaluation,
-            7 => Self::End,
+            2 => Self::SwitchMatrix,
+            3 => Self::ApplySignals,
+            4 => Self::Measurements,
+            5 => Self::Evaluation,
+            6 => Self::End,
             _ => panic!("Invalid integer"),
         }
     }
@@ -51,7 +49,6 @@ impl std::fmt::Display for State {
         let repr = match self {
             S::Idle          => "Idle",
             S::ReadSerial    => "Read Serial",
-            S::DBLookup      => "DB Lookup",
             S::SwitchMatrix  => "Switching Matrix",
             S::ApplySignals  => "Applying Signals",
             S::Measurements  => "Measurements",
@@ -106,7 +103,6 @@ pub struct Diagnosis {
     pub shiftreg: ShiftRegister,
 
     // Temporary values resulting from computations within the states
-    temp_serial: Option<String>,
     temp_module: Option<Module>,
 }
 
@@ -123,17 +119,15 @@ impl Diagnosis {
             eeprom,
             db,
             shiftreg,
-            temp_serial: None,
             temp_module: None,
         }
     }
 
-    fn do_stuff() {
+    fn delay() {
         thread::sleep(Duration::from_millis(500));
     }
 
     fn reset_internal_state(&mut self) {
-        self.temp_serial = None;
         self.temp_module = None;
     }
 
@@ -142,8 +136,7 @@ impl Diagnosis {
         use State as S;
         self.state = match self.state {
             S::Idle         => S::ReadSerial,
-            S::ReadSerial   => S::DBLookup,
-            S::DBLookup     => S::SwitchMatrix,
+            S::ReadSerial   => S::SwitchMatrix,
             S::SwitchMatrix => S::ApplySignals,
             S::ApplySignals => S::Measurements,
             S::Measurements => S::Evaluation,
@@ -160,28 +153,19 @@ impl Diagnosis {
         match self.state {
 
             S::Idle => {
-                Self::do_stuff();
+                Self::delay();
             }
 
             S::ReadSerial => {
-                Self::do_stuff();
+                Self::delay();
                 let serial: String = self.eeprom.get_serial()?;
-                self.temp_serial = Some(serial);
-            }
-
-            S::DBLookup => {
-                Self::do_stuff();
-
-                let serial = self.temp_serial.as_ref().unwrap();
                 let module: Module = self.db.get_module_by_serial(&serial)?;
-                dbg!(&module);
-                self.temp_module = Some(module);
+                self.temp_module   = Some(module);
             }
 
             S::SwitchMatrix => {
-                Self::do_stuff();
-
-                let id = self.temp_module.as_ref().unwrap().id.unwrap();
+                Self::delay();
+                let id = self.temp_module.as_ref().unwrap().id;
                 let matrix: Matrix = self.db.get_matrix_by_id(id)?;
                 dbg!(&matrix);
 
@@ -189,17 +173,17 @@ impl Diagnosis {
             }
 
             S::ApplySignals => {
-                Self::do_stuff();
+                Self::delay();
             }
 
             S::Measurements => {
-                Self::do_stuff();
+                Self::delay();
             }
 
             S::Evaluation => {
                 use crate::db::model::TargetValue;
 
-                Self::do_stuff();
+                Self::delay();
 
                 // // TODO: deal with unwrap()
                 // // let id = self.temp_module.clone().unwrap().id.unwrap();
@@ -209,7 +193,7 @@ impl Diagnosis {
             }
 
             S::End => {
-                Self::do_stuff();
+                Self::delay();
                 self.reset_internal_state();
                 return Ok(Report::Completed { is_functional: true });
             }

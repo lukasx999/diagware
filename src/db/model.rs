@@ -1,13 +1,13 @@
 #[derive(Debug, Clone, PartialEq)]
 pub struct Module {
-    pub id:     Option<i64>,
+    pub id:     i64,
     pub name:   String,
     pub serial: String,
 }
 
 impl Module {
     pub fn new(
-        id:     Option<i64>,
+        id:     i64,
         name:   &str,
         serial: &str
     ) -> Self {
@@ -25,7 +25,7 @@ impl Module {
 
 #[derive(Debug, Clone)]
 pub struct TargetValue {
-    pub id:         Option<i64>,
+    pub id:         i64,
     pub module_id:  Option<i64>,
     pub identifier: String,
     pub descriptor: Option<String>,
@@ -35,7 +35,7 @@ pub struct TargetValue {
 
 impl TargetValue {
     pub fn new(
-        id:         Option<i64>,
+        id:         i64,
         module_id:  Option<i64>,
         identifier: String,
         descriptor: Option<String>,
@@ -59,7 +59,7 @@ impl TargetValue {
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
-    pub id:       Option<i64>, // TODO: consider removing Option<T> here, as it is not necessarily needed
+    pub id:       i64,
     pub gnd:      u16,
     pub v_plus:   u16,
     pub v_minus:  u16,
@@ -72,7 +72,7 @@ pub struct Matrix {
 
 impl Matrix {
     pub fn new(
-        id:       Option<i64>,
+        id:       i64,
         gnd:      u16,
         v_plus:   u16,
         v_minus:  u16,

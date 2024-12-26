@@ -4,8 +4,8 @@
 
 ## TODO
 
-- [ ] Set breakpoints for states
 - [ ] crosscompile to aarch64 -> rsync binary only
+- [ ] Set breakpoints for states
 - [ ] make `next` move to next state and execute that state
 - [ ] cyclic state loop
 - [ ] egui: slider and preview for DDS waveform
