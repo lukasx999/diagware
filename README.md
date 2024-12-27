@@ -7,6 +7,7 @@
 
 ## TODO
 
+- [ ] export new json to file (logger)
 - [ ] Diagnosis breakpoints
 - [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] Set breakpoints for states

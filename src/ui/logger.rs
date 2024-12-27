@@ -70,6 +70,10 @@ impl Logger {
         use std::fs::{File, DirBuilder};
         use std::io::Write;
 
+        // TODO: write this to file
+        let exported_json: String = serde_json::to_string_pretty(&self.log).unwrap();
+        dbg!(&exported_json);
+
         let lines: Vec<String> = self.log
             .iter()
             .map(|item| serde_json::to_string(item).unwrap())
