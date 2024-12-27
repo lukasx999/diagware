@@ -11,7 +11,6 @@
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
-- [ ] export new json to file (logger)
 - [ ] Diagnosis breakpoints
 - [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] Set breakpoints for states
@@ -25,6 +24,7 @@
 - [ ] exercise/data sheets in DB
 - [ ] File path handling for SQLx and egui::include\_image!
 - [ ] Visio Drawing & Explanation for Drawing States
+- [x] export new json to file (logger)
 - [x] State machine for diagnosis
 - [x] Cargo Script for uploading to rpi
 - [x] Login

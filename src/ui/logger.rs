@@ -65,27 +65,24 @@ impl Logger {
         self.log.clear();
     }
 
-    // TODO: this
     pub fn export(&mut self) {
         use std::fs::{File, DirBuilder};
         use std::io::Write;
 
-        // TODO: write this to file
-        let exported_json: String = serde_json::to_string_pretty(&self.log).unwrap();
-        dbg!(&exported_json);
-
-        let lines: Vec<String> = self.log
-            .iter()
-            .map(|item| serde_json::to_string(item).unwrap())
-            .collect();
+        let log_json: String = serde_json::to_string_pretty(&self.log).unwrap();
 
         let filename = format!("{}_{}",
-            util::get_date(),
-            util::get_time()
+            chrono::Local::now()
+                .date_naive()
+                .format("%d_%m_%Y")
+                .to_string(),
+            chrono::Local::now()
+                .time()
+                .format("%H_%M_%S")
+                .to_string()
         );
 
-        // TODO: better date formatting
-        let filepath = format!("{}/{}.json", LOGDIRECTORY, filename);
+        let filepath = format!("{LOGDIRECTORY}/{filename}.json");
 
         // Make sure log directory exists
         DirBuilder::new()
@@ -102,12 +99,9 @@ impl Logger {
             }
         };
 
-        // TODO: use OpenOptions to append to file
-        for line in lines {
-            if let Err(_) = file.write_all(line.as_bytes()) {
-                self.append(LogLevel::Error, "Saving log failed");
-                return;
-            }
+        if let Err(_) = file.write_all(log_json.as_bytes()) {
+            self.append(LogLevel::Error, "Saving log failed");
+            return;
         }
 
         self.append(LogLevel::Info, format!("Log saved to {filepath}"));

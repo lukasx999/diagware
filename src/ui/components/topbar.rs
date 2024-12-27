@@ -122,12 +122,12 @@ impl Topbar {
             ui.separator();
 
             egui::Sides::new().show( ui, |_ui| (), |ui| {
-                if ui.button("Login").clicked() {
-                    self.login();
-                }
                 if ui.button("Cancel").clicked() {
                     self.modal_current_password.clear();
                     self.modal_open = false;
+                }
+                if ui.button("Login").clicked() {
+                    self.login();
                 }
             },
             );
