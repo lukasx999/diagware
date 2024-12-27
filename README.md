@@ -7,6 +7,9 @@
 
 ## TODO
 
+- [ ] Scripts for inserting binary data (eg images) as blob into DB
+- [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
+- [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
 - [ ] export new json to file (logger)
 - [ ] Diagnosis breakpoints
@@ -20,7 +23,6 @@
 - [ ] Hardware checker page to see if all devices are connected and working
 - [ ] X11 isolated enviroment
 - [ ] exercise/data sheets in DB
-- [ ] writing to USB (documents / logfile)
 - [ ] File path handling for SQLx and egui::include\_image!
 - [ ] Visio Drawing & Explanation for Drawing States
 - [x] State machine for diagnosis
