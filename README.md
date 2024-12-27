@@ -2,14 +2,12 @@
 
 ## Notes
 
-- Login is functional
-- breakpoints?
-- popups functional now
-
+- Housekeeping is 2nd priority
 
 
 ## TODO
 
+- [ ] Diagnosis breakpoints
 - [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] Set breakpoints for states
 - [ ] make `next` move to next state and execute that state
