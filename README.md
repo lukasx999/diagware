@@ -69,8 +69,13 @@
 On the host machine:
 
 - `ssh-keygen -t rsa`
-- `ssh-copy-id -i .ssh/id_rsa.pub <user>@<ip>`
+- `ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<ip>`
 
+
+### Viewing I2C EEPROM on RPi
+
+- `i2cdetect -y 1`
+- `i2cdump 1 0x50`
 
 
 ### Uploading Code to RPi4

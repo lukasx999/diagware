@@ -2,6 +2,10 @@ use serde::Serialize;
 
 use crate::ui::util;
 
+
+#[cfg(target_arch = "aarch64")]
+const LOGDIRECTORY: &str = "/home/pi/.diagware/log";
+#[cfg(target_arch = "x86_64")]
 const LOGDIRECTORY: &str = "/home/lukas/.diagware/log";
 
 

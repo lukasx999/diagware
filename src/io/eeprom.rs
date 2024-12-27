@@ -13,6 +13,8 @@ use crate::io::IoResult;
 
 // TODO: create config.rs
 // Modify here!
+pub const EEPROM_SERIAL_MAX_SIZE: usize = 16;
+
 const EEPROM_ADDRESS: u16 = 0x50;
 const EEPROM_I2C_BUS: u8  = 0x1;
 
@@ -87,7 +89,7 @@ impl EEPROM {
     #[cfg(target_arch = "aarch64")]
     pub fn write_serial(&self, serial: &str) -> IoResult<()> {
         // TODO: return eeprom error
-        assert!(serial.len() <= EEPROM_COLUMNS);
+        assert!(serial.len() <= EEPROM_SERIAL_MAX_SIZE);
 
         self.clear()?;
         let bytes: &[u8] = serial.as_bytes();

@@ -4,6 +4,7 @@ use std::cell::RefCell;
 
 use crate::Diagnosis;
 use crate::ui::{Component, Logger, config};
+use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
 
 
 
@@ -55,8 +56,12 @@ impl Serialmanager {
         };
 
         ui.label(format!("Serial: {}", serial));
-        ui.text_edit_singleline(&mut self.serial_textedit);
+        let response = egui::TextEdit::singleline(&mut self.serial_textedit)
+            .char_limit(EEPROM_SERIAL_MAX_SIZE)
+            .show(ui).response;
 
+        response.request_focus();
+        // TODO: confirm with enter
 
         let logger = &mut self.logger.borrow_mut();
 

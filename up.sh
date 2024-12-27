@@ -3,7 +3,8 @@ set -euxo pipefail
 
 
 USER=pi
-IP=10.0.0.253
+# IP=10.0.0.253
+IP=172.31.178.126
 REMOTE=${USER}@${IP}
 DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo

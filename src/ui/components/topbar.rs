@@ -106,7 +106,11 @@ impl Topbar {
         let modal = Modal::new(Id::new("Login")).show(ui.ctx(), |ui| {
 
             ui.heading("Login");
-            let response = ui.text_edit_singleline(&mut self.modal_current_password);
+
+            let response = egui::TextEdit::singleline(&mut self.modal_current_password)
+                .password(true)
+                .show(ui).response;
+
             response.request_focus();
 
             let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
