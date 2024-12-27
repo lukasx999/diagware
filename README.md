@@ -7,6 +7,7 @@
 
 ## TODO
 
+- [ ] Using sqlitestudio for DB management instead
 - [ ] export new json to file (logger)
 - [ ] Diagnosis breakpoints
 - [ ] crosscompile to aarch64 -> rsync binary only
