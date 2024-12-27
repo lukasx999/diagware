@@ -180,7 +180,6 @@ impl DiagnosisUi {
         let logger = &mut self.logger.borrow_mut();
 
         if let Some(h) = &self.diag_thread_handle {
-
             if h.is_finished() {
                 let handle = Option::take(&mut self.diag_thread_handle).unwrap();
                 let result: DiagnosisResult = handle.join().unwrap();
