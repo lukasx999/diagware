@@ -14,16 +14,13 @@ pub enum LogLevel {
 
 impl std::fmt::Display for LogLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-
         use LogLevel as L;
         let repr = match self {
             L::Info    => "Info",
             L::Warning => "Warn",
             L::Error   => "Error",
         };
-
         write!(f, "{}", repr)
-
     }
 }
 
@@ -44,7 +41,6 @@ pub struct Logger {
 impl Logger {
 
     pub fn new() -> Self {
-
         let mut s = Self {
             log: Vec::new(),
         };
@@ -65,6 +61,7 @@ impl Logger {
         self.log.clear();
     }
 
+    // TODO: this
     pub fn export(&mut self) {
         use std::fs::{File, DirBuilder};
         use std::io::Write;

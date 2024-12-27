@@ -40,7 +40,7 @@ pub struct EEPROM {
 impl EEPROM {
 
     #[cfg(target_arch = "aarch64")]
-    pub fn new() -> EepromResult<Self> {
+    pub fn new() -> IoResult<Self> {
         let mut i2c = I2c::with_bus(EEPROM_I2C_BUS)?;
         i2c.set_slave_address(EEPROM_ADDRESS)?;
         Ok(Self { i2c })
@@ -57,7 +57,7 @@ impl EEPROM {
 
 
     #[cfg(target_arch = "aarch64")]
-    pub fn get_serial(&self) -> EepromResult<String> {
+    pub fn get_serial(&self) -> IoResult<String> {
 
         let mut buf = [0_u8; EEPROM_COLUMNS];
         self.i2c.block_read(0x0, &mut buf)?;
