@@ -68,13 +68,11 @@ impl GuiApplication {
             Box::new(Logging      ::new(logger.clone())),
         ];
 
-
         let mut windows_state = HashMap::new();
         for window in &windows {
             let state = window.name() == "Diagnosis"; // TODO:
             windows_state.insert(window.name(), state);
         }
-
 
         Self {
             diagnosis,
@@ -98,8 +96,6 @@ impl GuiApplication {
 
 
 
-
-
 impl eframe::App for GuiApplication {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -112,12 +108,8 @@ impl eframe::App for GuiApplication {
         // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
         // every frame
 
-
         let mut topbar_active = true;
         self.topbar.show(ctx, &mut topbar_active);
-
-
-
 
         egui::SidePanel::left("Windows")
             .show_animated(ctx, *self.show_windowlist.borrow(), |ui| {
@@ -127,12 +119,10 @@ impl eframe::App for GuiApplication {
                 }
             });
 
-
         for window in &mut self.windows {
             let active = self.windows_state.get_mut(window.name()).unwrap();
             window.show(ctx, active);
         }
-
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::containers::Frame::default().show(ui, |_ui| ());
