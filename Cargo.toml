@@ -9,6 +9,7 @@ eframe = "0.30.0"
 egui = "0.30.0"
 egui-phosphor = "0.8.0"
 egui_extras = { version = "0.30.0", features = [ "image", "file" ] }
+egui_file = "0.20.0"
 emath = "0.30.0"
 # epaint = "0.30.0"
 local-ip-address = "0.6.3"

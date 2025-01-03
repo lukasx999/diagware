@@ -53,6 +53,7 @@ impl GuiApplication {
             diagnosis    ::DiagnosisUi,
             dbmanager    ::DBManager,
             logging      ::Logging,
+            documents    ::Documents,
         };
 
         let diagnosis       = Arc::new(Mutex::new(diagnosis));
@@ -66,6 +67,7 @@ impl GuiApplication {
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
             Box::new(DBManager    ::new(diagnosis.clone(), logger.clone())),
             Box::new(Logging      ::new(logger.clone())),
+            Box::new(Documents    ::new(logger.clone())),
         ];
 
         let mut windows_state = HashMap::new();
