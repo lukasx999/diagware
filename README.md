@@ -4,6 +4,10 @@
 
 - Housekeeping is 2nd priority
 
+## Questions
+
+- implementing usb-stick download is complicated, maybe serving documents over http will suffice?
+
 
 ## TODO
 
