@@ -25,6 +25,7 @@ pub trait Component {
 
 
 
+#[allow(dead_code)]
 struct GuiApplication {
     // Shared data:
     diagnosis:       Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
@@ -49,11 +50,11 @@ impl GuiApplication {
     ) -> Self {
         use components::{
             serialmanager::Serialmanager,
-            pineditor    ::Pineditor,
-            diagnosis    ::DiagnosisUi,
-            dbmanager    ::DBManager,
-            logging      ::Logging,
-            documents    ::Documents,
+            pineditor::Pineditor,
+            diagnosis::DiagnosisUi,
+            dbmanager::DBManager,
+            logging::Logging,
+            documents::Documents,
         };
 
         let diagnosis       = Arc::new(Mutex::new(diagnosis));

@@ -25,8 +25,10 @@ pub enum State {
     ApplySignals    = 3,
     Measurements    = 4,
     Evaluation      = 5,
-    End             = 6, // NOTE: not included in `STATE_COUNT` (implementationdetail)
+    End             = 6, // not included in `STATE_COUNT` (implementationdetail)
 }
+
+
 
 impl State {
     pub fn from_u32(num: u32) -> Self {
@@ -141,6 +143,7 @@ impl Diagnosis {
 
     // Execute the current state
     pub fn run_state(&mut self) -> DiagnosisResult {
+        println!("{}: {}", self.state as u32, self.state);
 
         use State as S;
         match self.state {
@@ -161,9 +164,6 @@ impl Diagnosis {
                 let id = self.temp_module.as_ref().unwrap().id;
                 let matrix: Matrix = self.db.get_matrix_by_id(id)?;
                 self.shiftreg.switch(&matrix)?;
-                dbg!(&matrix);
-
-                // TODO: shift reg
             }
 
             S::ApplySignals => {
@@ -175,7 +175,7 @@ impl Diagnosis {
             }
 
             S::Evaluation => {
-                use crate::db::model::TargetValue;
+                // use crate::db::model::TargetValue;
 
                 Self::delay();
 

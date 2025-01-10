@@ -16,6 +16,7 @@ pub struct DB {
     rt:   TokioRuntime,
 }
 
+#[allow(dead_code)]
 impl DB {
 
     pub fn new() -> sqlx::Result<Self> {

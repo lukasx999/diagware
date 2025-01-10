@@ -61,9 +61,8 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<State>,
     diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
 
-    // is_looping: Arc<Mutex<bool>>,
-
-    diagnosis_report: ModuleGist,
+    is_looping: bool,
+    diagnosis_gist: ModuleGist,
 }
 
 impl Component for DiagnosisUi {
@@ -99,9 +98,8 @@ impl DiagnosisUi {
             diag_thread_handle: None,
             diag_state: State::default(),
 
-            // is_looping: Arc::new(Mutex::new(false)),
-
-            diagnosis_report: ModuleGist::default(),
+            is_looping: false,
+            diagnosis_gist: ModuleGist::default(),
         }
     }
 
@@ -136,85 +134,82 @@ impl DiagnosisUi {
                 self.spawn_diag_thread(|diag| diag.run_state());
             }
 
-            if ui.add_enabled(!is_running, Button::new("Loop")).clicked() {
-                todo!();
-                /*
-                *self.is_looping.lock().unwrap() = true;
-                let is_looping = self.is_looping.clone();
-                self.spawn_diag_thread(move |diag| {
-                loop {
-                println!("looping");
-                let is_looping = is_looping.lock().unwrap();
-                let ret = diag.run_state();
-                if !*is_looping {
-                break ret;
-                }
-                }
-                });
-                */
+            let (show_condition, label, new_loopstate) = if self.is_looping {
+                (true, "Cancel", false)
+            } else {
+                (!is_running, "Loop", true)
+            };
+
+            if ui.add_enabled(show_condition, Button::new(label)).clicked() {
+                self.is_looping = new_loopstate
             }
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
-                self.diagnosis_report = ModuleGist::NotYetMeasured;
+                self.diagnosis_gist = ModuleGist::NotYetMeasured;
                 self.diagnosis.lock().unwrap().reset_state();
             }
 
-            /*
-            if ui.add_enabled(*self.is_looping.lock().unwrap(), Button::new("Cancel")).clicked() {
-            *self.is_looping.lock().unwrap() = false;
-            }
-            */
-
         });
+
+
+        /* Loop */
+        let is_active = self.diag_thread_handle.is_some();
+        if self.is_looping && !is_active {
+            self.spawn_diag_thread(|diag| diag.run_state());
+        }
+
 
         util::canvas_new(ui).show(ui, |ui| {
             self.render_statemachine(ui);
         });
 
         ui.separator();
-        ui.label(self.diagnosis_report.get_richtext());
+        ui.label(self.diagnosis_gist.get_richtext());
         ui.separator();
         self.ui_legend(ui);
-
-
-        let logger = &mut self.logger.borrow_mut();
 
         if let Some(h) = &self.diag_thread_handle {
             if h.is_finished() {
                 let handle = Option::take(&mut self.diag_thread_handle).unwrap();
                 let result: DiagnosisResult = handle.join().unwrap();
-
-                match result {
-                    Ok(report) => {
-                        logger.append(LogLevel::Info, "Diagnosis successful");
-
-                        use diag::Report as R;
-                        self.diagnosis_report = match report {
-                            R::Pending => ModuleGist::Pending,
-                            R::Completed { is_functional } => {
-                                if is_functional {
-                                    ModuleGist::Functional
-                                } else {
-                                    ModuleGist::Defective
-                                }
-                            }
-                        };
-
-                        dbg!(report);
-
-                    }
-                    Err(error) => {
-                        logger.append(LogLevel::Error, "Diagnosis failed");
-                        dbg!(error);
-                    }
-                }
-
+                self.handle_diagnosis_result(result);
+            } else {
+                self.diagnosis_gist = ModuleGist::Pending;
             }
-
         }
 
-
     }
+
+
+    fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
+        let logger = &mut self.logger.borrow_mut();
+
+        match result {
+            Ok(report) => {
+
+                use diag::Report as R;
+                self.diagnosis_gist = match report {
+                    R::Pending => ModuleGist::Pending,
+                    R::Completed { is_functional } => {
+                        logger.append(LogLevel::Info, "Diagnosis successful");
+                        println!("Diagnosis successful");
+                        if is_functional {
+                            ModuleGist::Functional
+                        } else {
+                            ModuleGist::Defective
+                        }
+                    }
+                };
+
+            }
+            Err(_error) => {
+                logger.append(LogLevel::Error, "Diagnosis failed");
+                println!("Diagnosis failed");
+            }
+        }
+    }
+
+
 
 
     // Launch a new thread, save the handle, and let the caller provide a callback receiving a
