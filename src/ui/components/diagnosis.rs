@@ -1,10 +1,7 @@
-// use crate::ui::components::prelude::*;
-use std::sync::{Arc, Mutex, mpsc};
-use std::rc::Rc;
-use std::cell::RefCell;
-use std::thread::JoinHandle;
+use crate::ui::components::prelude::*;
 
-use egui::Color32;
+use std::sync::mpsc;
+use std::thread::JoinHandle;
 
 use crate::{
     diagnosis::{
@@ -122,12 +119,11 @@ impl DiagnosisUi {
 
         self.ui_controlpanel(ui);
 
-        /* Loop */
+        /* State Loop */
         let is_active = self.diag_thread_handle.is_some();
         if self.is_looping && !is_active {
             self.spawn_diag_thread(|diag| diag.run_state());
         }
-
 
         util::canvas_new(ui).show(ui, |ui| {
             self.ui_statemachine(ui);

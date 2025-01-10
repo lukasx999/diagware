@@ -16,11 +16,7 @@
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
-- [ ] Diagnosis breakpoints
 - [ ] crosscompile to aarch64 -> rsync binary only
-- [ ] Set breakpoints for states
-- [ ] make `next` move to next state and execute that state
-- [ ] cyclic state loop
 - [ ] egui: slider and preview for DDS waveform
 - [ ] EGUI: Error Popup for error handling
 - [ ] Multiple DB (stable/experimental)
@@ -29,6 +25,10 @@
 - [ ] exercise/data sheets in DB
 - [ ] File path handling for SQLx and egui::include\_image!
 - [ ] Visio Drawing & Explanation for Drawing States
+- [x] Set breakpoints for states
+- [x] make `next` move to next state and execute that state
+- [x] cyclic state loop
+- [x] Diagnosis breakpoints
 - [x] export new json to file (logger)
 - [x] State machine for diagnosis
 - [x] Cargo Script for uploading to rpi

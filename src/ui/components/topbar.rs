@@ -1,6 +1,4 @@
-use std::sync::{Arc, Mutex};
-use std::rc::Rc;
-use std::cell::RefCell;
+use crate::ui::components::prelude::*;
 
 use crate::ui::{Component, Logger, logger::LogLevel};
 use crate::ui::{config, util};
