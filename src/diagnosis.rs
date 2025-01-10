@@ -15,6 +15,7 @@ use crate::{
 
 
 
+// TODO: num_traits::FromPrimitive
 pub const STATE_COUNT: u32 = 7; // needed for rendering state machine
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -213,9 +214,17 @@ impl Diagnosis {
     }
 
     // Run all states until the end has been reached (=> Automatic diagnosis)
-    pub fn run_to_end(&mut self) -> DiagnosisResult {
+    // Will stop at an optional breakpoint
+    pub fn run_to_end(&mut self, breakpoint: Option<State>) -> DiagnosisResult {
         loop {
-            match self.run_and_next() {
+
+            let res = self.run_and_next();
+
+            if breakpoint.is_some_and(|bp| bp == self.state) {
+                break res;
+            }
+
+            match res {
                 Ok(result) => {
                     if let Report::Completed { .. } = result {
                         break Ok(result);

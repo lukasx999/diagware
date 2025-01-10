@@ -61,6 +61,7 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<State>,
     diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
 
+    breakpoint: Option<State>,
     is_looping: bool,
     diagnosis_gist: ModuleGist,
 }
@@ -84,6 +85,8 @@ impl Component for DiagnosisUi {
 }
 
 
+
+/* Core */
 impl DiagnosisUi {
 
     pub fn new(
@@ -98,13 +101,13 @@ impl DiagnosisUi {
             diag_thread_handle: None,
             diag_state: State::default(),
 
+            breakpoint: None,
             is_looping: false,
             diagnosis_gist: ModuleGist::default(),
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        use egui::Button;
 
         // Receive new state from running diagnosis
         if let Ok(state) = self.receiver.try_recv() {
@@ -117,13 +120,55 @@ impl DiagnosisUi {
         });
         ui.separator();
 
+        self.ui_controlpanel(ui);
+
+        /* Loop */
+        let is_active = self.diag_thread_handle.is_some();
+        if self.is_looping && !is_active {
+            self.spawn_diag_thread(|diag| diag.run_state());
+        }
+
+
+        util::canvas_new(ui).show(ui, |ui| {
+            self.ui_statemachine(ui);
+        });
+
+        ui.separator();
+        ui.label(self.diagnosis_gist.get_richtext());
+        ui.separator();
+        self.ui_legend(ui);
+
+        if let Some(h) = &self.diag_thread_handle {
+            if h.is_finished() {
+                let handle = Option::take(&mut self.diag_thread_handle).unwrap();
+                let result: DiagnosisResult = handle.join().unwrap();
+                self.handle_diagnosis_result(result);
+            } else {
+                self.diagnosis_gist = ModuleGist::Pending;
+            }
+        }
+
+    }
+
+}
+
+
+
+
+
+/* Ui */
+impl DiagnosisUi {
+
+    fn ui_controlpanel(&mut self, ui: &mut egui::Ui) {
+        use egui::Button;
 
         let is_running = self.diag_thread_handle.is_some();
 
         ui.horizontal(|ui| {
 
             if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
-                self.spawn_diag_thread(|diag| diag.run_to_end());
+                let bp = self.breakpoint;
+                self.spawn_diag_thread(move |diag| diag.run_to_end(bp));
             }
 
             if ui.add_enabled(!is_running, Button::new("Next")).clicked() {
@@ -147,100 +192,25 @@ impl DiagnosisUi {
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
                 self.diagnosis_gist = ModuleGist::NotYetMeasured;
                 self.diagnosis.lock().unwrap().reset_state();
+                self.breakpoint = None;
             }
 
         });
-
-
-        /* Loop */
-        let is_active = self.diag_thread_handle.is_some();
-        if self.is_looping && !is_active {
-            self.spawn_diag_thread(|diag| diag.run_state());
-        }
-
-
-        util::canvas_new(ui).show(ui, |ui| {
-            self.render_statemachine(ui);
-        });
-
-        ui.separator();
-        ui.label(self.diagnosis_gist.get_richtext());
-        ui.separator();
-        self.ui_legend(ui);
-
-        if let Some(h) = &self.diag_thread_handle {
-            if h.is_finished() {
-                let handle = Option::take(&mut self.diag_thread_handle).unwrap();
-                let result: DiagnosisResult = handle.join().unwrap();
-                self.handle_diagnosis_result(result);
-            } else {
-                self.diagnosis_gist = ModuleGist::Pending;
-            }
-        }
-
-    }
-
-
-    fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        let logger = &mut self.logger.borrow_mut();
-
-        match result {
-            Ok(report) => {
-
-                use diag::Report as R;
-                self.diagnosis_gist = match report {
-                    R::Pending => ModuleGist::Pending,
-                    R::Completed { is_functional } => {
-                        logger.append(LogLevel::Info, "Diagnosis successful");
-                        println!("Diagnosis successful");
-                        if is_functional {
-                            ModuleGist::Functional
-                        } else {
-                            ModuleGist::Defective
-                        }
-                    }
-                };
-
-            }
-            Err(_error) => {
-                logger.append(LogLevel::Error, "Diagnosis failed");
-                println!("Diagnosis failed");
-            }
-        }
-    }
-
-
-
-
-    // Launch a new thread, save the handle, and let the caller provide a callback receiving a
-    // mutable reference to the diagnosis
-    fn spawn_diag_thread<T>(&mut self, callback: T)
-where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
-    {
-        assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
-
-        let diag = self.diagnosis.clone();
-
-        let handle = std::thread::Builder::new()
-            .name("diagnosis".to_owned())
-            .spawn(move || {
-                callback(&mut diag.lock().unwrap())
-            }).unwrap();
-
-        self.diag_thread_handle = Some(handle);
     }
 
 
     fn ui_legend(&mut self, ui: &mut egui::Ui) {
         ui.collapsing("Legend", |ui| {
             ui.horizontal_wrapped(|ui| {
-
                 let state = self.diag_state as u32;
 
                 for i in 0..STATE_COUNT {
+                    let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
 
                     let color = if i == state {
                         config::COLOR_ACCENT
+                    } else if is_breakpoint {
+                        config::COLOR_CIRCLE_BREAKPOINT
                     } else {
                         Color32::GRAY
                     };
@@ -257,7 +227,7 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
     }
 
 
-    fn render_statemachine(&mut self, ui: &mut egui::Ui) {
+    fn ui_statemachine(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Stroke};
 
         let width:  f32 = ui.available_width();
@@ -273,7 +243,7 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
 
         let mut font = egui::FontId::default();
         font.size = 15.0;
-        // font.size = radius * 1.3; // NOTE: resizing will cause lag at first, because new font size is not cached yet
+        // font.size = radius * 1.3; // resizing will cause lag at first, because new font size is not cached yet
 
         // TODO: dont show anything if available_width is smaller than min size
         // TODO: increase font step-wise
@@ -282,17 +252,21 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
 
         for i in 0..STATE_COUNT {
 
-            let state = self.diag_state as u32;
-            let mut color_circle = if i == state {
+            let state_current = self.diag_state as u32;
+            let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
+
+            let mut color_circle = if i == state_current {
                 config::COLOR_ACCENT
+            } else if is_breakpoint {
+                config::COLOR_CIRCLE_BREAKPOINT
             } else {
                 config::COLOR_CIRCLE
             };
 
+
             let circle_center = center
             - vec2(offset_to_origin, 0.0)
             + vec2(i as f32 * offset, 0.0);
-
 
             let hovered = if let Some(pos) = response.hover_pos() {
                 pos.distance(circle_center) < radius
@@ -305,9 +279,10 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
             }
 
             if clicked {
-                println!("clicked!");
-                let state = diag::State::from_u32(i);
-                dbg!(&state);
+                /* dont set breakpoint at first, last or current state */
+                if i != 0 && i != STATE_COUNT-1 && i != state_current {
+                    self.breakpoint = Some(diag::State::from_u32(i));
+                }
             }
 
             // TODO: dynamically render the popup offset
@@ -360,6 +335,58 @@ where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
 
         }
 
+    }
+}
+
+
+
+/* Utility */
+impl DiagnosisUi {
+
+    fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
+        let logger = &mut self.logger.borrow_mut();
+
+        match result {
+            Ok(report) => {
+
+                use diag::Report as R;
+                self.diagnosis_gist = match report {
+                    R::Pending => ModuleGist::Pending,
+                    R::Completed { is_functional } => {
+                        logger.append(LogLevel::Info, "Diagnosis successful");
+                        println!("Diagnosis successful");
+                        if is_functional {
+                            ModuleGist::Functional
+                        } else {
+                            ModuleGist::Defective
+                        }
+                    }
+                };
+
+            }
+            Err(_error) => {
+                logger.append(LogLevel::Error, "Diagnosis failed");
+                println!("Diagnosis failed");
+            }
+        }
+    }
+
+    // Launch a new thread, save the handle, and let the caller provide a callback receiving a
+    // mutable reference to the diagnosis
+    fn spawn_diag_thread<T>(&mut self, callback: T)
+where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
+    {
+        assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
+
+        let diag = self.diagnosis.clone();
+
+        let handle = std::thread::Builder::new()
+            .name("diagnosis".to_owned())
+            .spawn(move || {
+                callback(&mut diag.lock().unwrap())
+            }).unwrap();
+
+        self.diag_thread_handle = Some(handle);
     }
 
 }
