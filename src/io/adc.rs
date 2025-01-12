@@ -4,12 +4,12 @@ use crate::io::IoResult;
 
 
 #[derive(Debug)]
-pub struct DDS {
+pub struct ADC {
     #[cfg(target_arch = "aarch64")]
     spi: Spi,
 }
 
-impl DDS {
+impl ADC {
 
     #[cfg(target_arch = "aarch64")]
     pub fn new() -> IoResult<Self> {
@@ -30,16 +30,13 @@ impl DDS {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn apply_signals(&mut self) -> IoResult<()> {
-        /* TODO:
-           DDS configuration:
-           get DDS config from DB
-           pass config as parameters or config object */
+    pub fn measure(&mut self) -> IoResult<()> {
+        // TODO: adc measurement results struct
         Ok(())
     }
 
     #[cfg(target_arch = "aarch64")]
-    pub fn apply_signals(&mut self) -> IoResult<()> {
+    pub fn measure(&mut self) -> IoResult<()> {
         todo!();
         Ok(())
     }

@@ -9,6 +9,7 @@ use crate::{
     DDS,
     ShiftRegister,
     DB,
+    ADC,
     db::model::{Module, Matrix, TargetValue},
 };
 
@@ -96,6 +97,8 @@ pub struct Diagnosis {
     sender:       mpsc::Sender<State>, // informing the receiver about change of state
     pub eeprom:   EEPROM,
     pub db:       DB,
+    pub dds:      DDS,
+    pub adc:      ADC,
     pub shiftreg: ShiftRegister,
 
     // Temporary values resulting from computations within the states
@@ -107,6 +110,8 @@ impl Diagnosis {
     pub fn new(eeprom: EEPROM,
         db: DB,
         shiftreg: ShiftRegister,
+        dds: DDS,
+        adc: ADC,
         sender: mpsc::Sender<State>,
     ) -> Self {
         Self {
@@ -114,6 +119,8 @@ impl Diagnosis {
             sender,
             eeprom,
             db,
+            dds,
+            adc,
             shiftreg,
             temp_module: None,
         }
@@ -169,10 +176,13 @@ impl Diagnosis {
 
             S::ApplySignals => {
                 Self::delay();
+                // TODO: fetch DDS config from DB
+                self.dds.apply_signals()?;
             }
 
             S::Measurements => {
                 Self::delay();
+                self.adc.measure()?;
             }
 
             S::Evaluation => {

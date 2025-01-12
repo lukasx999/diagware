@@ -3,6 +3,7 @@
 ## Notes
 
 - Housekeeping is 2nd priority
+- Database Entry for DDS configuration
 
 ## Questions
 

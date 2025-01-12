@@ -49,7 +49,6 @@ impl ShiftRegister {
 
     #[cfg(target_arch = "x86_64")]
     pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
-
         let bits = Self::int_to_bits(matrix.gnd);
 
         Ok(())
@@ -61,10 +60,7 @@ impl ShiftRegister {
     pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
 
         let bits = Self::int_to_bits(matrix.gnd);
-
-
-
-
+        todo!();
 
         Ok(())
     }

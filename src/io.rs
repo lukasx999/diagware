@@ -1,6 +1,7 @@
 pub mod eeprom;
 pub mod dds;
 pub mod shift_reg;
+pub mod adc;
 
 
 
