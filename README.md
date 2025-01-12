@@ -12,6 +12,7 @@
 
 ## TODO
 
+- [ ] Shaders
 - [ ] Scripts for inserting binary data (eg images) as blob into DB
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] DB Manager - View DB
