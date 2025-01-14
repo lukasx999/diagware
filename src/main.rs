@@ -28,10 +28,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         libc::seteuid(1000); // prevent us from accidentely messing up something as root
     }
 
-    // let result = drives::get_devices();
-    // for device in result.unwrap() {
-    //     dbg!(device);
-    // }
+    let xfer = Xfer::new("/home/lukas/usb".to_owned());
+
 
 
     let db       = DB::new()?;
