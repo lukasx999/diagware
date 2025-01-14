@@ -16,10 +16,23 @@ use io::{
     adc::ADC,
 };
 
+mod xfer;
+use xfer::Xfer;
 
 
 
 fn main() -> Result<(), Box<dyn Error>> {
+
+    unsafe {
+        libc::setuid(0);
+        libc::seteuid(1000); // prevent us from accidentely messing up something as root
+    }
+
+    // let result = drives::get_devices();
+    // for device in result.unwrap() {
+    //     dbg!(device);
+    // }
+
 
     let db       = DB::new()?;
     let eeprom   = EEPROM::new()?;
