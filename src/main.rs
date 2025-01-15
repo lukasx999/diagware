@@ -23,12 +23,21 @@ use xfer::Xfer;
 
 fn main() -> Result<(), Box<dyn Error>> {
 
+    /*
     unsafe {
-        libc::setuid(0);
-        libc::seteuid(1000); // prevent us from accidentely messing up something as root
+        let mut err = libc::setuid(0);
+        assert_eq!(err, 0);
+        err = libc::seteuid(1000); // prevent us from accidentely messing up something as root
+        assert_eq!(err, 0);
     }
+    */
 
-    let xfer = Xfer::new("/home/lukas/usb".to_owned());
+    // unsafe {
+    //     let err = libc::mount("/dev/sda", "~/usb");
+    //     assert_eq!(err, 0);
+    // }
+
+    // let xfer = Xfer::new("/home/lukas/usb".to_owned());
 
 
 

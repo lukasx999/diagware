@@ -1,16 +1,12 @@
-use std::sync::{Arc, Mutex};
-use std::rc::Rc;
-use std::cell::RefCell;
+use crate::ui::components::prelude::*;
 
 use crate::ui::{Component, Logger, config};
-
-use egui_file::FileDialog;
 
 
 
 pub struct Documents {
     logger: Rc<RefCell<Logger>>,
-    dialog: FileDialog,
+    download_mode: bool,
 }
 
 impl Component for Documents {
@@ -36,20 +32,50 @@ impl Documents {
     pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
         Self {
             logger,
-            dialog: FileDialog::open_file(Some("/".into())),
+            download_mode: false,
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
 
-        ui.label("documents!");
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new("Download Mode:").strong());
+            if self.download_mode {
+                ui.label(egui::RichText::new("On").color(Color32::GREEN).strong());
+            } else {
+                ui.label(egui::RichText::new("Off").color(Color32::RED).strong());
+            }
+        });
+        ui.separator();
 
-        self.dialog.show(ui.ctx());
-
-        // TODO: this
-        if ui.button("open dialog").clicked() {
-            self.dialog.open();
+        ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
+        if self.download_mode {
         }
+
+        // TODO: document selector
+
+        if ui.button("Mount").clicked() {
+
+            let result = drives::get_devices();
+            for device in result.unwrap() {
+                dbg!(device);
+            }
+
+
+        }
+
+
+        // let mut s = String::from("foo");
+        // egui::ComboBox::from_label("Select one!")
+        //     .selected_text(format!("{:?}", s))
+        //     .show_ui(ui, |ui| {
+        //         ui.selectable_value(&mut s, 1, "First".to_owned());
+        //         ui.selectable_value(&mut s, 2, "Second");
+        //         ui.selectable_value(&mut s, 3, "Third");
+        //     }
+            // );
+
+
 
     }
 

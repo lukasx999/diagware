@@ -6,9 +6,6 @@ pub mod model;
 use model::{Module, TargetValue, Matrix};
 
 
-// Modify here!
-const DB_FILENAME: &str = "src/database.db";
-
 
 #[derive(Debug)]
 pub struct DB {
@@ -22,7 +19,7 @@ impl DB {
     pub fn new() -> sqlx::Result<Self> {
         let rt = TokioRuntime::new()?;
         Ok(Self {
-            conn: rt.block_on(SqlitePool::connect(DB_FILENAME))?,
+            conn: rt.block_on(SqlitePool::connect(env!("DATABASE_URL")))?,
             rt
         })
     }
