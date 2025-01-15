@@ -3,7 +3,7 @@ use tokio::runtime::Runtime as TokioRuntime;
 use std::future::Future;
 
 pub mod model;
-use model::{Module, TargetValue, Matrix};
+use model::{Module, TargetValue, Matrix, Document};
 
 
 
@@ -106,7 +106,7 @@ where F: Future
         Ok(self.run_sync(fut)?)
     }
 
-    pub fn get_targetvalue_by_id(&self, id: i64) -> sqlx::Result<Vec<TargetValue>> {
+    pub fn get_targetvalues_by_id(&self, id: i64) -> sqlx::Result<Vec<TargetValue>> {
         let fut = sqlx::query_as!(
             TargetValue,
             "SELECT * FROM targetvalues WHERE module_id=?1",
@@ -141,8 +141,14 @@ where F: Future
         ))
     }
 
+    pub fn get_documents_by_id(&self, id: i64) -> sqlx::Result<Vec<Document>> {
+        let fut = sqlx::query_as!(
+            Document,
+            "SELECT * FROM documents WHERE module_id=?1",
+            id
+        ).fetch_all(&self.conn);
 
-
-
+        Ok(self.run_sync(fut)?)
+    }
 
 }

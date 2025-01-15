@@ -26,7 +26,7 @@ impl Module {
 #[derive(Debug, Clone)]
 pub struct TargetValue {
     pub id:         i64,
-    pub module_id:  Option<i64>,
+    pub module_id:  i64,
     pub identifier: String,
     pub descriptor: Option<String>,
     pub value:      f64,
@@ -36,7 +36,7 @@ pub struct TargetValue {
 impl TargetValue {
     pub fn new(
         id:         i64,
-        module_id:  Option<i64>,
+        module_id:  i64,
         identifier: String,
         descriptor: Option<String>,
         value:      f64,
@@ -96,4 +96,14 @@ impl Matrix {
         }
 
     }
+}
+
+
+
+#[derive(Debug, Clone)]
+pub struct Document {
+    pub id:         i64,
+    pub module_id:  i64,
+    pub document:   Vec<u8>,
+    pub descriptor: String,
 }

@@ -68,7 +68,7 @@ impl GuiApplication {
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
             Box::new(DBManager    ::new(diagnosis.clone(), logger.clone())),
             Box::new(Logging      ::new(logger.clone())),
-            Box::new(Documents    ::new(logger.clone())),
+            Box::new(Documents    ::new(diagnosis.clone(), logger.clone())),
         ];
 
         let mut windows_state = HashMap::new();

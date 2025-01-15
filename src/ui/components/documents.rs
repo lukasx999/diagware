@@ -1,10 +1,13 @@
 use crate::ui::components::prelude::*;
 
+use crate::Diagnosis;
 use crate::ui::{Component, Logger, config};
 
 
 
+
 pub struct Documents {
+    diagnosis: Arc<Mutex<Diagnosis>>,
     logger: Rc<RefCell<Logger>>,
     download_mode: bool,
 }
@@ -29,8 +32,9 @@ impl Component for Documents {
 
 impl Documents {
 
-    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
+    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>, logger: Rc<RefCell<Logger>>) -> Self {
         Self {
+            diagnosis,
             logger,
             download_mode: false,
         }
@@ -51,6 +55,24 @@ impl Documents {
         ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
         if self.download_mode {
         }
+
+
+        let diag = self.diagnosis.clone();
+        let db = &diag.lock().unwrap().db;
+        let modules = db.get_modules_all().unwrap();
+
+        for module in modules {
+            ui.label(module.name);
+        }
+
+        let selected = 1;
+        let documents = db.get_documents_by_id(selected).unwrap();
+
+        for doc in documents {
+            ui.label(doc.descriptor);
+        }
+
+
 
         // TODO: document selector
 
