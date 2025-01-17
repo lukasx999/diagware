@@ -23,14 +23,14 @@ use xfer::Xfer;
 
 fn main() -> Result<(), Box<dyn Error>> {
 
-    /*
+    // TODO: shutdown
+
     unsafe {
         let mut err = libc::setuid(0);
         assert_eq!(err, 0);
         err = libc::seteuid(1000); // prevent us from accidentely messing up something as root
         assert_eq!(err, 0);
     }
-    */
 
     // unsafe {
     //     let err = libc::mount("/dev/sda", "~/usb");

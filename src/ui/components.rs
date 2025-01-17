@@ -3,6 +3,7 @@ mod prelude {
     pub use std::sync::{Arc, Mutex};
     pub use std::rc::Rc;
     pub use std::cell::RefCell;
+    pub use std::collections::HashMap;
     pub use egui::Color32;
 }
 

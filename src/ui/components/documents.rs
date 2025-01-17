@@ -7,9 +7,12 @@ use crate::ui::{Component, Logger, config};
 
 
 pub struct Documents {
-    diagnosis: Arc<Mutex<Diagnosis>>,
-    logger: Rc<RefCell<Logger>>,
+    diagnosis:     Arc<Mutex<Diagnosis>>,
+    logger:        Rc<RefCell<Logger>>,
     download_mode: bool,
+    // TODO:
+    // checked_documents: HashMap<String, bool>,
+    // selected_module: i64,
 }
 
 impl Component for Documents {
@@ -32,7 +35,10 @@ impl Component for Documents {
 
 impl Documents {
 
-    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>, logger: Rc<RefCell<Logger>>) -> Self {
+    pub fn new(
+        diagnosis: Arc<Mutex<Diagnosis>>,
+        logger:    Rc<RefCell<Logger>>
+    ) -> Self {
         Self {
             diagnosis,
             logger,
@@ -44,11 +50,15 @@ impl Documents {
 
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new("Download Mode:").strong());
-            if self.download_mode {
-                ui.label(egui::RichText::new("On").color(Color32::GREEN).strong());
+
+            let (label, color) = if self.download_mode {
+                ("On", Color32::GREEN)
             } else {
-                ui.label(egui::RichText::new("Off").color(Color32::RED).strong());
-            }
+                ("Off", Color32::RED)
+            };
+
+            ui.label(egui::RichText::new(label).color(color).strong());
+
         });
         ui.separator();
 
