@@ -25,6 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // TODO: shutdown
 
+    #[cfg(not(debug_assertions))]
     unsafe {
         let mut err = libc::setuid(0);
         assert_eq!(err, 0);
