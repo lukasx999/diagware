@@ -74,12 +74,12 @@ impl Topbar {
 
 
             if ui.button(egui_phosphor::regular::POWER).clicked() {
-                if cfg!(target_arch = "aarch64") {
-                    // TODO: shutdown requires sudo
-                    // std::process::Command::new("systemctl")
-                    //     .args(["poweroff"])
-                    //     .spawn()
-                    //     .unwrap();
+
+                if cfg!(all(target_arch = "aarch64", not(debug_assertions))) {
+                    std::process::Command::new("systemctl")
+                        .args(["poweroff"])
+                        .spawn()
+                        .unwrap();
                 }
                 else {
                     panic!("Shutdown");
