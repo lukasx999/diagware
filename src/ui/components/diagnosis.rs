@@ -154,14 +154,12 @@ impl DiagnosisUi {
 
 /* Ui */
 impl DiagnosisUi {
-
     fn ui_controlpanel(&mut self, ui: &mut egui::Ui) {
         use egui::Button;
 
         let is_running = self.diag_thread_handle.is_some();
 
         ui.horizontal(|ui| {
-
             if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
                 let bp = self.breakpoint;
                 self.spawn_diag_thread(move |diag| diag.run_to_end(bp));
@@ -258,7 +256,6 @@ impl DiagnosisUi {
             } else {
                 config::COLOR_CIRCLE
             };
-
 
             let circle_center = center
             - vec2(offset_to_origin, 0.0)

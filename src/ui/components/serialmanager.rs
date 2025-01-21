@@ -6,6 +6,7 @@ use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
 
 
 
+// TODO: window is too large
 pub struct Serialmanager {
     diagnosis: Arc<Mutex<Diagnosis>>,
     logger:    Rc<RefCell<Logger>>,
@@ -30,9 +31,7 @@ impl Component for Serialmanager {
     }
 }
 
-
 impl Serialmanager {
-
     pub fn new(
         diagnosis: Arc<Mutex<Diagnosis>>,
         logger:    Rc<RefCell<Logger>>
@@ -47,6 +46,10 @@ impl Serialmanager {
     fn ui(&mut self, ui: &mut egui::Ui) {
         use crate::ui::logger::LogLevel;
 
+        let logger = &mut self.logger.borrow_mut();
+
+
+        // TODO: colored label
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
         } else {
@@ -54,6 +57,9 @@ impl Serialmanager {
         };
 
         ui.label(format!("Serial: {}", serial));
+
+        ui.separator();
+
         let response = egui::TextEdit::singleline(&mut self.serial_textedit)
             .char_limit(EEPROM_SERIAL_MAX_SIZE)
             .show(ui).response;
@@ -61,39 +67,32 @@ impl Serialmanager {
         response.request_focus();
         // TODO: confirm with enter
 
-        let logger = &mut self.logger.borrow_mut();
 
         ui.horizontal(|ui| {
-
             if ui.button("Write").clicked() {
-
                 if let Ok(diag) = self.diagnosis.try_lock() {
                     diag.eeprom.write_serial(&self.serial_textedit).unwrap();
                     logger.append(
                         LogLevel::Info,
-                        format!("New Serial `{}` successfully written to EEPROM",
-                            &self.serial_textedit)
+                        format!(
+                            "New Serial `{}` successfully written to EEPROM",
+                            &self.serial_textedit
+                        )
                     );
                     self.serial_textedit.clear();
 
                 } else {
                     logger.append(LogLevel::Error, "Writing Serial to EEPROM failed");
                 }
-
-
             }
-
             if ui.button("Clear").clicked() {
-
                 if let Ok(diag) = self.diagnosis.try_lock() {
                     diag.eeprom.clear().unwrap();
                     logger.append(LogLevel::Info, "EEPROM cleared");
                 } else {
                     logger.append(LogLevel::Error, "Clearing Serial from EEPROM failed");
                 }
-
             }
-
         });
 
 

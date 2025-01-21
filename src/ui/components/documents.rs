@@ -83,6 +83,7 @@ impl Documents {
         }
 
 
+        // TODO: logging
 
         // TODO: document selector
 

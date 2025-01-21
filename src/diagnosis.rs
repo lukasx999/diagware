@@ -228,13 +228,13 @@ impl Diagnosis {
     pub fn run_to_end(&mut self, breakpoint: Option<State>) -> DiagnosisResult {
         loop {
 
-            let res = self.run_and_next();
+            let result = self.run_and_next();
 
             if breakpoint.is_some_and(|bp| bp == self.state) {
-                break res;
+                break result;
             }
 
-            match res {
+            match result {
                 Ok(result) => {
                     if let Report::Completed { .. } = result {
                         break Ok(result);
