@@ -9,17 +9,16 @@
 
 - implementing usb-stick download is complicated, maybe serving documents over http will suffice?
 - Multiple breakpoints?
+- Reset breakpoint after reaching breakpoint?
 
 
 ## TODO
 
 - [ ] Shaders
-- [ ] Scripts for inserting binary data (eg images) as blob into DB
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
 - [ ] crosscompile to aarch64 -> rsync binary only
-- [ ] egui: slider and preview for DDS waveform
 - [ ] EGUI: Error Popup for error handling
 - [ ] Multiple DB (stable/experimental)
 - [ ] Hardware checker page to see if all devices are connected and working
@@ -27,6 +26,7 @@
 - [ ] exercise/data sheets in DB
 - [ ] File path handling for SQLx and egui::include\_image!
 - [ ] Visio Drawing & Explanation for Drawing States
+- [ ] egui: slider and preview for DDS waveform
 - [x] Set breakpoints for states
 - [x] make `next` move to next state and execute that state
 - [x] cyclic state loop
