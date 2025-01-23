@@ -7,9 +7,10 @@ use crate::ui::{Component, Logger, config};
 
 
 pub struct Documents {
-    diagnosis:     Arc<Mutex<Diagnosis>>,
-    logger:        Rc<RefCell<Logger>>,
-    download_mode: bool,
+    diagnosis:       Arc<Mutex<Diagnosis>>,
+    logger:          Rc<RefCell<Logger>>,
+    download_mode:   bool,
+    selected_module: usize,
     // TODO:
     // checked_documents: HashMap<String, bool>,
     // selected_module: i64,
@@ -43,6 +44,7 @@ impl Documents {
             diagnosis,
             logger,
             download_mode: false,
+            selected_module: 0,
         }
     }
 
@@ -66,25 +68,28 @@ impl Documents {
         if self.download_mode {
         }
 
-
         let diag = self.diagnosis.clone();
         let db = &diag.lock().unwrap().db;
         let modules = db.get_modules_all().unwrap();
 
-        for module in modules {
-            ui.label(module.name);
-        }
 
-        let selected = 1;
-        let documents = db.get_documents_by_id(selected).unwrap();
+        egui::ComboBox::from_label("Selected Module")
+            .selected_text(&modules[self.selected_module].name)
+            .show_ui(ui, |ui| {
+                for (index, module) in modules.iter().enumerate() {
+                    ui.selectable_value(&mut self.selected_module, index, &module.name);
+                }
+            }
+            );
+
+
+        let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
 
         for doc in documents {
             ui.label(doc.descriptor);
         }
 
-
         // TODO: logging
-
         // TODO: document selector
 
         if ui.button("Mount").clicked() {
@@ -97,7 +102,6 @@ impl Documents {
 
         }
 
-
         // let mut s = String::from("foo");
         // egui::ComboBox::from_label("Select one!")
         //     .selected_text(format!("{:?}", s))
@@ -107,8 +111,6 @@ impl Documents {
         //         ui.selectable_value(&mut s, 3, "Third");
         //     }
             // );
-
-
 
     }
 
