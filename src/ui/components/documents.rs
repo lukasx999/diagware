@@ -46,6 +46,8 @@ impl Documents {
         let db = &diag.lock().unwrap().db;
         let modules: Vec<Module> = db.get_modules_all().unwrap();
 
+        // TODO: documents not shown for 'PAMP'
+
         for module in modules {
             let docs: HashMap<String, bool> = db
                 .get_documents_by_id(module.id)
@@ -58,6 +60,7 @@ impl Documents {
                 panic!("Key should not already exist");
             };
         }
+        dbg!(&s.selected_docs);
 
         s
     }
@@ -68,29 +71,7 @@ impl Documents {
         ui.separator();
 
 
-        let diag = self.diagnosis.clone();
-        if let Ok(d) = diag.try_lock() {
-            let db: &DB = &d.db;
-
-            self.ui_moduleselect(ui, &db);
-
-            let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
-            for doc in documents {
-                let module = &db.get_module_by_id(self.selected_module as i64).unwrap();
-
-                let checked = &mut self.selected_docs
-                    .get_mut(&module.name)
-                    .unwrap()
-                    .get_mut(&doc.descriptor)
-                    .unwrap();
-
-                ui.checkbox(checked, doc.descriptor);
-            }
-
-        } else {
-            ui.label("Unavailable");
-        }
-
+        self.ui_documentview(ui);
 
         // TODO: logging
 
@@ -110,15 +91,32 @@ impl Documents {
 
         }
 
-        // let mut s = String::from("foo");
-        // egui::ComboBox::from_label("Select one!")
-        //     .selected_text(format!("{:?}", s))
-        //     .show_ui(ui, |ui| {
-        //         ui.selectable_value(&mut s, 1, "First".to_owned());
-        //         ui.selectable_value(&mut s, 2, "Second");
-        //         ui.selectable_value(&mut s, 3, "Third");
-        //     }
-            // );
+    }
+
+    fn ui_documentview(&mut self, ui: &mut egui::Ui) {
+        let diag = self.diagnosis.clone();
+
+        if let Ok(d) = diag.try_lock() {
+            let db: &DB = &d.db;
+
+            self.ui_moduleselect(ui, &db);
+
+            let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
+            for doc in documents {
+                let module = &db.get_module_by_id(self.selected_module as i64).unwrap();
+
+                let checked = &mut self.selected_docs
+                    .get_mut(&module.name)
+                    .unwrap()
+                    .get_mut(&doc.descriptor)
+                    .unwrap();
+
+                ui.checkbox(checked, doc.descriptor);
+            }
+
+        } else {
+            ui.label("<Unavailable>");
+        };
 
     }
 
