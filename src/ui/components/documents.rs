@@ -55,9 +55,10 @@ impl Documents {
                 .map(|item| (item.descriptor, false))
                 .collect();
 
-            s.selected_docs.insert(module.name, docs).unwrap();
+            let None = s.selected_docs.insert(module.name, docs) else {
+                panic!("Key should not already exist");
+            };
         }
-        dbg!(&s.selected_docs);
 
         s
     }
@@ -79,7 +80,7 @@ impl Documents {
 
             let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
             for doc in documents {
-                let module = &db.get_modules_all().unwrap()[self.selected_module];
+                let module = &db.get_module_by_id(self.selected_module as i64).unwrap();
 
                 let checked = &mut self.selected_docs
                     .get_mut(&module.name)
