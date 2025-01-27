@@ -5,10 +5,13 @@ use rppal::i2c::{self, I2c};
 use crate::io::IoResult;
 
 
+
 // Show I2C devices:
 // `i2cdetect -y 1`
 // Dump contents of I2C device:
 // `i2cdump 1 0x50`
+
+
 
 
 // TODO: create config.rs

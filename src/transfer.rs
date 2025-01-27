@@ -1,10 +1,12 @@
-pub struct Xfer {
+pub struct Transfer {
     mountdir: String,
 }
 
 // TODO: umount() when mem::drop()'d
 
-impl Xfer {
+
+#[allow(dead_code)]
+impl Transfer {
 
     pub fn new(mountdir: String) -> Self {
         let s = Self {

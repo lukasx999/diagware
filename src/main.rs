@@ -16,8 +16,8 @@ use io::{
     adc::ADC,
 };
 
-mod xfer;
-use xfer::Xfer;
+mod transfer;
+use transfer::Transfer;
 
 
 
@@ -36,8 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     //     assert_eq!(err, 0);
     // }
 
-    // let xfer = Xfer::new("/home/lukas/usb".to_owned());
-
+    // let xfer = Transfer::new("/home/lukas/usb".to_owned());
 
 
     let db       = DB::new()?;

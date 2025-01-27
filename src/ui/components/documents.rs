@@ -60,7 +60,6 @@ impl Documents {
             };
 
         }
-        dbg!(&s.selected_docs);
 
         s
     }
@@ -74,6 +73,7 @@ impl Documents {
         self.ui_documentview(ui);
 
         // TODO: logging
+        // TODO: implement mounting & download
 
         ui.separator();
 
@@ -151,7 +151,5 @@ impl Documents {
 
         });
     }
-
-
 
 }
