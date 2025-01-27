@@ -78,6 +78,10 @@ impl Documents {
 
             let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
             for doc in documents {
+
+                let module = &db.get_modules_all().unwrap()[self.selected_module];
+
+                let checked: &mut bool = &mut self.selected_docs[&module.name][&doc.descriptor];
                 ui.checkbox(&mut false, doc.descriptor);
             }
 
