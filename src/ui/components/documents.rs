@@ -117,7 +117,7 @@ impl Documents {
             }
 
         } else {
-            ui.label("<Unavailable>");
+            ui.label("<Not Available>");
         };
 
     }

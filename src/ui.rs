@@ -108,9 +108,13 @@ impl eframe::App for GuiApplication {
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
-        ctx.request_repaint(); // NOTE: egui only redraws UI when the position of the mouse cursor
-        // changes, therefore, to show the changing of states, we have to explicitly redraw the ui
-        // every frame
+
+        /*
+         * egui only redraws UI when the position of the mouse cursor
+         * changes, therefore, to show the changing of states, we have to explicitly redraw the ui
+         * every frame
+         */
+        ctx.request_repaint();
 
         let mut topbar_active = true;
         self.topbar.show(ctx, &mut topbar_active);

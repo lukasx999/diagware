@@ -119,8 +119,10 @@ where F: Future
     }
 
     pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
-        // NOTE: problem: Sqlite3 only supports 64bit signed integer types
-        // hence we are reading in 64bit ints, then converting to 16bit uints
+        /*
+         * Sqlite3 only supports 64bit signed integer types
+         * hence we are reading in 64bit ints, then converting to 16bit uints
+         */
 
         let fut = sqlx::query!(
             "SELECT * FROM matrix WHERE id=?1",

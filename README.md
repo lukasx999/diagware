@@ -14,8 +14,10 @@
 
 ## TODO
 
-- [ ] Shaders
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
+- [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
+
+- [ ] Shaders
 - [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
 - [ ] crosscompile to aarch64 -> rsync binary only
@@ -23,7 +25,6 @@
 - [ ] Multiple DB (stable/experimental)
 - [ ] Hardware checker page to see if all devices are connected and working
 - [ ] X11 isolated enviroment
-- [ ] exercise/data sheets in DB
 - [ ] File path handling for SQLx and egui::include\_image!
 - [ ] Visio Drawing & Explanation for Drawing States
 - [ ] egui: slider and preview for DDS waveform
