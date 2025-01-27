@@ -189,7 +189,6 @@ impl DiagnosisUi {
         });
     }
 
-
     fn ui_legend(&mut self, ui: &mut egui::Ui) {
         ui.collapsing("Legend", |ui| {
             ui.horizontal_wrapped(|ui| {

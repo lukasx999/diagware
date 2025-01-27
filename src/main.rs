@@ -47,6 +47,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
 
+    // TODO: add logger to main
+
     let diagnosis = Diagnosis::new(
         eeprom,
         db,

@@ -7,7 +7,7 @@ mod prelude {
     pub use egui::Color32;
 }
 
-pub mod pineditor;
+pub mod pinview;
 pub mod serialmanager;
 pub mod diagnosis;
 pub mod dbmanager;

@@ -95,6 +95,8 @@ pub type DiagnosisResult = Result<Report, Failure>;
 pub struct Diagnosis {
     state:        State,
     sender:       mpsc::Sender<State>, // informing the receiver about change of state
+    // TODO: logger
+    // logger:       Rc<RefCell<Logger>>,
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub dds:      DDS,

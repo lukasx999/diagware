@@ -1,21 +1,22 @@
-use crate::ui::Component;
+use crate::ui::{Component, config};
+
+use egui::Color32;
 
 
-pub struct Pineditor {
+
+pub struct Pinview {
+    // TODO: diagnosis struct as member for db access
 }
 
-impl Component for Pineditor {
+impl Component for Pinview {
     fn name(&self) -> &'static str {
-        "Pineditor"
+        config::PAGE_PINVIEW
     }
     fn show(&mut self, ctx: &egui::Context, active: &mut bool) {
         egui::Window::new(self.name())
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
             .show(ctx, |ui| {
                 self.ui(ui);
             });
@@ -23,7 +24,7 @@ impl Component for Pineditor {
 }
 
 
-impl Pineditor {
+impl Pinview {
 
     pub fn new() -> Self {
         Self {}
@@ -32,19 +33,46 @@ impl Pineditor {
     fn ui(&mut self, ui: &mut egui::Ui) {
         use crate::ui::util;
 
-        /*
-        TODO:
-        combobox for selecting Pin (fetch from DB)
-        click on pin to apply pin selection
-        also color pins accordingly
-        */
+        // TODO: highlight legend when hovering pin
+        // multiple highlights for multiple pins
+        // TODO: how do we get to current module from running diagnosis?
 
+        // let module = ...
 
         util::canvas_new(ui).show(ui, |ui| {
             self.canvas_pineditor(ui);
         });
 
+        self.ui_legend(ui);
+
     }
+
+    fn ui_legend(&mut self, ui: &mut egui::Ui) {
+        ui.collapsing("Legend", |ui| {
+            ui.horizontal_wrapped(|ui| {
+
+                let legend = [
+                    ("GND",  Color32::GRAY),
+                    ("V+",   Color32::RED),
+                    ("V-",   Color32::BLUE),
+                    ("DDS1", Color32::YELLOW),
+                    ("DDS2", Color32::ORANGE),
+                    ("DDS3", Color32::LIGHT_YELLOW),
+                    ("ADC1", Color32::GREEN),
+                    ("ADC2", Color32::DARK_GREEN),
+                ];
+
+                for (index, pair) in legend.iter().enumerate() {
+                    ui.colored_label(Color32::WHITE, format!("{index}"));
+                    ui.colored_label(Color32::DARK_GRAY, "->");
+                    ui.colored_label(pair.1, pair.0);
+                    ui.end_row();
+                }
+
+            });
+        });
+    }
+
 
 
     fn canvas_pineditor(&mut self, ui: &mut egui::Ui) {

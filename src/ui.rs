@@ -50,7 +50,7 @@ impl GuiApplication {
     ) -> Self {
         use components::{
             serialmanager::Serialmanager,
-            pineditor::Pineditor,
+            pinview::Pinview,
             diagnosis::DiagnosisUi,
             dbmanager::DBManager,
             logging::Logging,
@@ -64,7 +64,7 @@ impl GuiApplication {
 
         let windows: Vec<Box<dyn Component>> = vec![
             Box::new(Serialmanager::new(diagnosis.clone(), logger.clone())),
-            Box::new(Pineditor    ::new()),
+            Box::new(Pinview    ::new()),
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
             Box::new(DBManager    ::new(diagnosis.clone(), logger.clone())),
             Box::new(Logging      ::new(logger.clone())),
@@ -73,8 +73,7 @@ impl GuiApplication {
 
         let mut windows_state = HashMap::new();
         for window in &windows {
-            let state = window.name() == "Diagnosis"
-            || window.name() == "Documents"; // TODO: temporary
+            let state = window.name() == "Diagnosis"; // TODO: temporary
             windows_state.insert(window.name(), state);
         }
 
