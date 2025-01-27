@@ -6,10 +6,9 @@ use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
 
 
 
-// TODO: window is too large
 pub struct Serialmanager {
-    diagnosis: Arc<Mutex<Diagnosis>>,
-    logger:    Rc<RefCell<Logger>>,
+    diagnosis:       Arc<Mutex<Diagnosis>>,
+    logger:          Rc<RefCell<Logger>>,
     serial_textedit: String,
 }
 
@@ -22,9 +21,6 @@ impl Component for Serialmanager {
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
             .show(ctx, |ui| {
                 self.ui(ui);
             });

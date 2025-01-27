@@ -73,7 +73,8 @@ impl GuiApplication {
 
         let mut windows_state = HashMap::new();
         for window in &windows {
-            let state = window.name() == "Diagnosis"; // TODO:
+            let state = window.name() == "Diagnosis"
+            || window.name() == "Documents"; // TODO: temporary
             windows_state.insert(window.name(), state);
         }
 

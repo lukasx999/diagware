@@ -226,6 +226,7 @@ impl Diagnosis {
     // Run all states until the end has been reached (=> Automatic diagnosis)
     // Will stop at an optional breakpoint
     pub fn run_to_end(&mut self, breakpoint: Option<State>) -> DiagnosisResult {
+        // TODO: breakpoint should be member of diagnosis
         loop {
 
             let result = self.run_and_next();

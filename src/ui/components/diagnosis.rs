@@ -58,8 +58,8 @@ pub struct DiagnosisUi {
     receiver:           mpsc::Receiver<State>,
     diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
 
-    breakpoint: Option<State>,
-    is_looping: bool,
+    breakpoint:     Option<State>,
+    is_looping:     bool,
     diagnosis_gist: ModuleGist,
 }
 
@@ -72,9 +72,6 @@ impl Component for DiagnosisUi {
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
             .show(ctx, |ui| {
                 self.ui(ui);
             });

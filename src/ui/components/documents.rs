@@ -1,6 +1,6 @@
 use crate::ui::components::prelude::*;
 
-use crate::Diagnosis;
+use crate::{Diagnosis, DB, db::model::{Module, Document}};
 use crate::ui::{Component, Logger, config};
 
 
@@ -11,9 +11,7 @@ pub struct Documents {
     logger:          Rc<RefCell<Logger>>,
     download_mode:   bool,
     selected_module: usize,
-    // TODO:
-    // checked_documents: HashMap<String, bool>,
-    // selected_module: i64,
+    selected_docs:   HashMap<String, HashMap<String, bool>>,
 }
 
 impl Component for Documents {
@@ -25,9 +23,6 @@ impl Component for Documents {
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
             .show(ctx, |ui| {
                 self.ui(ui);
             });
@@ -40,28 +35,35 @@ impl Documents {
         diagnosis: Arc<Mutex<Diagnosis>>,
         logger:    Rc<RefCell<Logger>>
     ) -> Self {
-        Self {
+        let mut s = Self {
             diagnosis,
             logger,
             download_mode: false,
             selected_module: 0,
+            selected_docs: HashMap::new(),
+        };
+
+        let diag = s.diagnosis.clone();
+        let db = &diag.lock().unwrap().db;
+        let modules: Vec<Module> = db.get_modules_all().unwrap();
+
+        for module in modules {
+            let docs: HashMap<String, bool> = db
+                .get_documents_by_id(module.id)
+                .unwrap()
+                .into_iter()
+                .map(|item| (item.descriptor, false))
+                .collect();
+
+            s.selected_docs.insert(module.name, docs).unwrap();
         }
+
+        s
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
 
-        ui.horizontal(|ui| {
-            ui.label(egui::RichText::new("Download Mode:").strong());
-
-            let (label, color) = if self.download_mode {
-                ("On", Color32::GREEN)
-            } else {
-                ("Off", Color32::RED)
-            };
-
-            ui.label(egui::RichText::new(label).color(color).strong());
-
-        });
+        self.ui_downloadmode(ui);
         ui.separator();
 
         ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
@@ -69,25 +71,21 @@ impl Documents {
         }
 
         let diag = self.diagnosis.clone();
-        let db = &diag.lock().unwrap().db;
-        let modules = db.get_modules_all().unwrap();
+        if let Ok(d) = diag.try_lock() {
+            let db: &DB = &d.db;
 
+            self.ui_moduleselect(ui, &db);
 
-        egui::ComboBox::from_label("Selected Module")
-            .selected_text(&modules[self.selected_module].name)
-            .show_ui(ui, |ui| {
-                for (index, module) in modules.iter().enumerate() {
-                    ui.selectable_value(&mut self.selected_module, index, &module.name);
-                }
+            let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
+            for doc in documents {
+                ui.checkbox(&mut false, doc.descriptor);
             }
-            );
 
-
-        let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
-
-        for doc in documents {
-            ui.label(doc.descriptor);
+        } else {
+            ui.label("Unavailable");
         }
+
+
 
         // TODO: logging
         // TODO: document selector
@@ -113,5 +111,35 @@ impl Documents {
             // );
 
     }
+
+    fn ui_moduleselect(&mut self, ui: &mut egui::Ui, db: &DB) {
+        let modules = db.get_modules_all().unwrap();
+
+        egui::ComboBox::from_label("Selected Module")
+            .selected_text(&modules[self.selected_module].name)
+            .show_ui(ui, |ui| {
+                for (index, module) in modules.iter().enumerate() {
+                    ui.selectable_value(&mut self.selected_module, index, &module.name);
+                }
+            }
+            );
+    }
+
+    fn ui_downloadmode(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new("Download Mode:").strong());
+
+            let (label, color) = if self.download_mode {
+                ("On", Color32::GREEN)
+            } else {
+                ("Off", Color32::RED)
+            };
+
+            ui.label(egui::RichText::new(label).color(color).strong());
+
+        });
+    }
+
+
 
 }
