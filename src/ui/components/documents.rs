@@ -1,8 +1,7 @@
 use crate::ui::components::prelude::*;
 
-use crate::{Diagnosis, DB, db::model::{Module, Document}};
+use crate::{Diagnosis, DB, db::model::Module};
 use crate::ui::{Component, Logger, config};
-
 
 
 
@@ -68,9 +67,6 @@ impl Documents {
         self.ui_downloadmode(ui);
         ui.separator();
 
-        ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
-        if self.download_mode {
-        }
 
         let diag = self.diagnosis.clone();
         if let Ok(d) = diag.try_lock() {
@@ -96,9 +92,13 @@ impl Documents {
         }
 
 
-
         // TODO: logging
-        // TODO: document selector
+
+        ui.separator();
+
+        ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
+        if self.download_mode {
+        }
 
         if ui.button("Mount").clicked() {
 
