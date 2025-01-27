@@ -40,6 +40,8 @@ where F: Future
     }
 
     pub fn get_module_by_id(&self, id: i64) -> sqlx::Result<Module> {
+        assert_ne!(id, 0);
+
         let fut = sqlx::query_as!(
             Module,
             "SELECT * FROM modules WHERE id=?1",

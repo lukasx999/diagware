@@ -10,7 +10,6 @@ pub struct Documents {
     logger:          Rc<RefCell<Logger>>,
     download_mode:   bool,
     selected_module: usize,
-    selected_module_id: i64,
     selected_docs:   HashMap<String, HashMap<String, bool>>,
 }
 
@@ -40,7 +39,6 @@ impl Documents {
             logger,
             download_mode: false,
             selected_module: 0,
-            selected_module_id: 0,
             selected_docs: HashMap::new(),
         };
 
@@ -105,9 +103,10 @@ impl Documents {
 
             // BUG: documents not shown for 'PAMP'
 
-            let documents = db.get_documents_by_id(self.selected_module_id as i64).unwrap();
+            let id = self.selected_module as i64 + 1;
+            let documents = db.get_documents_by_id(id).unwrap();
             for doc in documents {
-                let module = &db.get_module_by_id(self.selected_module_id as i64).unwrap();
+                let module = &db.get_module_by_id(id).unwrap();
 
                 let checked = &mut self.selected_docs
                     .get_mut(&module.name)
@@ -132,9 +131,6 @@ impl Documents {
             .show_ui(ui, |ui| {
 
                 for (index, module) in modules.iter().enumerate() {
-                    if self.selected_module == index {
-                        self.selected_module_id = module.id;
-                    }
                     ui.selectable_value(&mut self.selected_module, index, &module.name);
                 }
 
