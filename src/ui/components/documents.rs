@@ -46,9 +46,8 @@ impl Documents {
         let db = &diag.lock().unwrap().db;
         let modules: Vec<Module> = db.get_modules_all().unwrap();
 
-        // TODO: documents not shown for 'PAMP'
-
         for module in modules {
+
             let docs: HashMap<String, bool> = db
                 .get_documents_by_id(module.id)
                 .unwrap()
@@ -59,6 +58,7 @@ impl Documents {
             let None = s.selected_docs.insert(module.name, docs) else {
                 panic!("Key should not already exist");
             };
+
         }
         dbg!(&s.selected_docs);
 
@@ -101,6 +101,8 @@ impl Documents {
 
             self.ui_moduleselect(ui, &db);
 
+            // BUG: documents not shown for 'PAMP'
+
             let documents = db.get_documents_by_id(self.selected_module as i64).unwrap();
             for doc in documents {
                 let module = &db.get_module_by_id(self.selected_module as i64).unwrap();
@@ -126,9 +128,11 @@ impl Documents {
         egui::ComboBox::from_label("Selected Module")
             .selected_text(&modules[self.selected_module].name)
             .show_ui(ui, |ui| {
+
                 for (index, module) in modules.iter().enumerate() {
                     ui.selectable_value(&mut self.selected_module, index, &module.name);
                 }
+
             }
             );
     }

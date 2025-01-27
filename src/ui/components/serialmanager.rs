@@ -45,14 +45,20 @@ impl Serialmanager {
         let logger = &mut self.logger.borrow_mut();
 
 
+
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
         } else {
             "<Not Available>".to_owned()
         };
 
-        // TODO: colored label
-        ui.label(format!("Serial: {}", serial));
+        ui.horizontal(|ui| {
+            ui.label(egui::RichText::new("Serial: ").strong());
+            ui.label(egui::RichText::new(serial).color(Color32::GRAY).strong());
+        });
+
+
+
 
         ui.separator();
 
