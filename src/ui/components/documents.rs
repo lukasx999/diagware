@@ -101,12 +101,11 @@ impl Documents {
 
             self.ui_moduleselect(ui, &db);
 
-            // BUG: documents not shown for 'PAMP'
+            let module_id = self.selected_module as i64 + 1;
+            let documents = db.get_documents_by_id(module_id).unwrap();
 
-            let id = self.selected_module as i64 + 1;
-            let documents = db.get_documents_by_id(id).unwrap();
             for doc in documents {
-                let module = &db.get_module_by_id(id).unwrap();
+                let module = &db.get_module_by_id(module_id).unwrap();
 
                 let checked = &mut self.selected_docs
                     .get_mut(&module.name)
