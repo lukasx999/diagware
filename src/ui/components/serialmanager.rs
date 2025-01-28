@@ -70,6 +70,8 @@ impl Serialmanager {
         // TODO: confirm with enter
 
 
+
+
         ui.horizontal(|ui| {
             if ui.button("Write").clicked() {
                 if let Ok(diag) = self.diagnosis.try_lock() {
