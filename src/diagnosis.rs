@@ -10,6 +10,7 @@ use crate::{
     ShiftRegister,
     DB,
     ADC,
+    Logger,
     db::model::{Module, Matrix, TargetValue},
 };
 
@@ -95,8 +96,7 @@ pub type DiagnosisResult = Result<Report, Failure>;
 pub struct Diagnosis {
     state:        State,
     sender:       mpsc::Sender<State>, // informing the receiver about change of state
-    // TODO: logger
-    // logger:       Rc<RefCell<Logger>>,
+    pub logger:   Logger,
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub dds:      DDS,
@@ -109,14 +109,17 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(eeprom: EEPROM,
-        db: DB,
+    pub fn new(
+        logger:   Logger,
+        eeprom:   EEPROM,
+        db:       DB,
         shiftreg: ShiftRegister,
-        dds: DDS,
-        adc: ADC,
-        sender: mpsc::Sender<State>,
+        dds:      DDS,
+        adc:      ADC,
+        sender:   mpsc::Sender<State>,
     ) -> Self {
         Self {
+            logger,
             state: State::default(),
             sender,
             eeprom,

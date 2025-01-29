@@ -4,12 +4,10 @@ use std::rc::Rc;
 use std::cell::RefCell;
 
 use crate::diagnosis::{Diagnosis, State};
+use crate::Logger;
 
 mod util;
 mod config;
-
-mod logger;
-use logger::Logger;
 
 mod components;
 use components::topbar::Topbar;
@@ -29,7 +27,6 @@ pub trait Component {
 struct GuiApplication {
     // Shared data:
     diagnosis:       Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
-    logger:          Rc<RefCell<Logger>>,
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
 
@@ -58,17 +55,16 @@ impl GuiApplication {
         };
 
         let diagnosis       = Arc::new(Mutex::new(diagnosis));
-        let logger          = Rc::new(RefCell::new(Logger::new()));
         let show_windowlist = Rc::new(RefCell::new(true));
         let is_expertmode   = Rc::new(RefCell::new(false));
 
         let windows: Vec<Box<dyn Component>> = vec![
-            Box::new(Serialmanager::new(diagnosis.clone(), logger.clone())),
-            Box::new(Pinview    ::new()),
-            Box::new(DiagnosisUi  ::new(diagnosis.clone(), logger.clone(), receiver)),
-            Box::new(DBManager    ::new(diagnosis.clone(), logger.clone())),
-            Box::new(Logging      ::new(logger.clone())),
-            Box::new(Documents    ::new(diagnosis.clone(), logger.clone())),
+            Box::new(Serialmanager::new(diagnosis.clone())),
+            Box::new(Pinview      ::new()),
+            Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
+            Box::new(DBManager    ::new(diagnosis.clone())),
+            Box::new(Logging      ::new()),
+            Box::new(Documents    ::new(diagnosis.clone())),
         ];
 
         let mut windows_state = HashMap::new();
@@ -82,11 +78,9 @@ impl GuiApplication {
 
             topbar: Topbar::new(
                 show_windowlist.clone(),
-                is_expertmode.clone(),
-                logger.clone()
+                is_expertmode.clone()
             ),
 
-            logger,
             show_windowlist,
             is_expertmode,
             windows,

@@ -4,6 +4,7 @@ use std::sync::mpsc;
 use std::thread::JoinHandle;
 
 use crate::{
+    logger::{Logger, LogLevel},
     diagnosis::{
         self as diag,
         Diagnosis,
@@ -15,8 +16,6 @@ use crate::{
         Component,
         config,
         util,
-        Logger,
-        logger::LogLevel
     },
 };
 

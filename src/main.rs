@@ -19,6 +19,9 @@ use io::{
 mod transfer;
 use transfer::Transfer;
 
+mod logger;
+use logger::Logger;
+
 
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -44,12 +47,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dds      = DDS::new()?;
     let shiftreg = ShiftRegister::new()?;
     let adc      = ADC::new()?;
+    let logger   = Logger::new();
 
     let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
 
-    // TODO: add logger to main
-
     let diagnosis = Diagnosis::new(
+        logger,
         eeprom,
         db,
         shiftreg,

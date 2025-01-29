@@ -1,15 +1,16 @@
 use crate::ui::components::prelude::*;
 
 use crate::ui::Component;
-use crate::ui::logger::{LogMessage, LogLevel, Logger};
+use crate::logger::{LogMessage, LogLevel, Logger};
 use crate::ui::config;
+use crate::Diagnosis;
 
 use egui::Color32;
 
 
 
 pub struct Logging {
-    logger: Rc<RefCell<Logger>>,
+    diagnosis: Arc<Mutex<Diagnosis>>,
 }
 
 impl Component for Logging {
@@ -34,9 +35,9 @@ impl Component for Logging {
 impl Logging {
 
     pub fn new(
-        logger: Rc<RefCell<Logger>>
+        diagnosis: Arc<Mutex<Diagnosis>>
     ) -> Self {
-        Self { logger }
+        Self { diagnosis }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
@@ -83,7 +84,6 @@ impl Logging {
             });
 
         }
-
 
     }
 
