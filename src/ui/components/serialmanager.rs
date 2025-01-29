@@ -1,14 +1,13 @@
 use crate::ui::components::prelude::*;
 
 use crate::Diagnosis;
-use crate::ui::{Component, Logger, config};
+use crate::ui::config;
 use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
 
 
 
 pub struct Serialmanager {
     diagnosis:       Arc<Mutex<Diagnosis>>,
-    logger:          Rc<RefCell<Logger>>,
     serial_textedit: String,
 }
 
@@ -28,23 +27,15 @@ impl Component for Serialmanager {
 }
 
 impl Serialmanager {
-    pub fn new(
-        diagnosis: Arc<Mutex<Diagnosis>>,
-        logger:    Rc<RefCell<Logger>>
-    ) -> Self {
+    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
         Self {
             diagnosis,
-            logger,
             serial_textedit: String::new(),
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        use crate::ui::logger::LogLevel;
-
-        let logger = &mut self.logger.borrow_mut();
-
-
+        let logger = &mut self.diagnosis.lock().unwrap().logger;
 
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
@@ -56,9 +47,6 @@ impl Serialmanager {
             ui.label(egui::RichText::new("Serial: ").strong());
             ui.label(egui::RichText::new(serial).color(Color32::GRAY).strong());
         });
-
-
-
 
         ui.separator();
 

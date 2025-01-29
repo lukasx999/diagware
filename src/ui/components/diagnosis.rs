@@ -48,7 +48,6 @@ impl ModuleGist {
 
 pub struct DiagnosisUi {
     diagnosis: Arc<Mutex<Diagnosis>>,
-    logger:    Rc<RefCell<Logger>>,
 
     // the state in state machine diagram and 2. block off other ui elements
     // Handle to the diagnosis thread
@@ -84,12 +83,10 @@ impl DiagnosisUi {
 
     pub fn new(
         diagnosis: Arc<Mutex<Diagnosis>>,
-        logger:    Rc<RefCell<Logger>>,
         receiver:  mpsc::Receiver<State>,
     ) -> Self {
         Self {
             diagnosis,
-            logger,
             receiver,
             diag_thread_handle: None,
             diag_state: State::default(),

@@ -34,17 +34,14 @@ impl Component for Logging {
 
 impl Logging {
 
-    pub fn new(
-        diagnosis: Arc<Mutex<Diagnosis>>
-    ) -> Self {
+    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
         Self { diagnosis }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
+        let logger = &mut self.diagnosis.lock().unwrap().logger;
 
         ui.separator();
-
-        let logger = &mut self.logger.borrow_mut();
 
         ui.horizontal(|ui| {
 

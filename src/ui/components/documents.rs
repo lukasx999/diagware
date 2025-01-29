@@ -1,13 +1,12 @@
 use crate::ui::components::prelude::*;
 
 use crate::{Diagnosis, DB, db::model::Module};
-use crate::ui::{Component, Logger, config};
+use crate::ui::{Component, config};
 
 
 
 pub struct Documents {
     diagnosis:       Arc<Mutex<Diagnosis>>,
-    logger:          Rc<RefCell<Logger>>,
     download_mode:   bool,
     selected_module: usize,
     selected_docs:   HashMap<String, HashMap<String, bool>>,
@@ -30,13 +29,9 @@ impl Component for Documents {
 
 impl Documents {
 
-    pub fn new(
-        diagnosis: Arc<Mutex<Diagnosis>>,
-        logger:    Rc<RefCell<Logger>>
-    ) -> Self {
+    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
         let mut s = Self {
             diagnosis,
-            logger,
             download_mode: false,
             selected_module: 0,
             selected_docs: HashMap::new(),

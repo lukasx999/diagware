@@ -49,7 +49,6 @@ impl GuiApplication {
             serialmanager::Serialmanager,
             pinview::Pinview,
             diagnosis::DiagnosisUi,
-            dbmanager::DBManager,
             logging::Logging,
             documents::Documents,
         };
@@ -62,8 +61,7 @@ impl GuiApplication {
             Box::new(Serialmanager::new(diagnosis.clone())),
             Box::new(Pinview      ::new()),
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
-            Box::new(DBManager    ::new(diagnosis.clone())),
-            Box::new(Logging      ::new()),
+            Box::new(Logging      ::new(diagnosis.clone())),
             Box::new(Documents    ::new(diagnosis.clone())),
         ];
 

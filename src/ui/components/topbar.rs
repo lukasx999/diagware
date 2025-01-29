@@ -7,7 +7,6 @@ use crate::ui::{config, util};
 pub struct Topbar {
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
-    logger:          Rc<RefCell<Logger>>,
 
     modal_open: bool,
     modal_current_password: String,
@@ -24,20 +23,17 @@ impl Component for Topbar {
     }
 }
 
-
 impl Topbar {
 
     pub fn new(
         show_windowlist: Rc<RefCell<bool>>,
         is_expertmode:   Rc<RefCell<bool>>,
-        logger:          Rc<RefCell<Logger>>,
     ) -> Self {
         Self {
             show_windowlist,
             is_expertmode,
             modal_open: false,
             modal_current_password: String::new(),
-            logger,
         }
     }
 
