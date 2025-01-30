@@ -31,7 +31,6 @@ struct GuiApplication {
 
     windows:       Vec<Box<dyn Component>>,
     windows_state: HashMap<&'static str, bool>,
-
     topbar: Topbar,
 }
 
@@ -40,10 +39,8 @@ struct GuiApplication {
 
 impl GuiApplication {
 
-    pub fn new(
-        diagnosis: Diagnosis,
-        receiver:  mpsc::Receiver<State>,
-    ) -> Self {
+    pub fn new(diagnosis: Diagnosis, receiver: mpsc::Receiver<State>) -> Self {
+
         use components::{
             serialmanager::Serialmanager,
             pinview::Pinview,
@@ -64,25 +61,20 @@ impl GuiApplication {
             Box::new(Documents    ::new(diagnosis.clone())),
         ];
 
-        let mut windows_state = HashMap::new();
-        for window in &windows {
-            let state = window.name() == "Diagnosis"; // TODO: temporary
-            windows_state.insert(window.name(), state);
-        }
-
-        let topbar = Topbar::new(
-            diagnosis.clone(),
-            show_windowlist.clone(),
-            is_expertmode.clone()
-        );
-
         Self {
+            topbar: Topbar::new(
+                diagnosis.clone(),
+                show_windowlist.clone(),
+                is_expertmode.clone()
+            ),
+            windows_state: windows
+                .iter()
+                .map(|item| (item.name(), false))
+                .collect(),
+            windows,
             diagnosis,
-            topbar,
             show_windowlist,
             is_expertmode,
-            windows,
-            windows_state,
         }
 
     }

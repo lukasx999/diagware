@@ -5,24 +5,6 @@ pub struct Module {
     pub serial: String,
 }
 
-impl Module {
-    pub fn new(
-        id:     i64,
-        name:   &str,
-        serial: &str
-    ) -> Self {
-
-        Self {
-            id,
-            name:   name.to_owned(),
-            serial: serial.to_owned()
-        }
-
-    }
-}
-
-
-
 #[derive(Debug, Clone)]
 pub struct TargetValue {
     pub id:         i64,
@@ -32,30 +14,6 @@ pub struct TargetValue {
     pub value:      f64,
     pub unit:       Option<String>,
 }
-
-impl TargetValue {
-    pub fn new(
-        id:         i64,
-        module_id:  i64,
-        identifier: String,
-        descriptor: Option<String>,
-        value:      f64,
-        unit:       Option<String>
-    ) -> Self {
-
-        Self {
-            id,
-            module_id,
-            identifier,
-            descriptor,
-            value,
-            unit,
-        }
-
-    }
-}
-
-
 
 #[derive(Debug, Clone)]
 pub struct Matrix {
@@ -97,8 +55,6 @@ impl Matrix {
 
     }
 }
-
-
 
 #[derive(Debug, Clone)]
 pub struct Document {
