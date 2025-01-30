@@ -7,7 +7,6 @@
 
 ## Questions
 
-- implementing usb-stick download is complicated, maybe serving documents over http will suffice?
 - Multiple breakpoints?
 - Reset breakpoint after reaching breakpoint?
 

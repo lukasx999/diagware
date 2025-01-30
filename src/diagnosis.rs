@@ -1,7 +1,9 @@
 use std::{
     thread,
     time::Duration,
-    sync::mpsc,
+    sync::{mpsc, Arc, Mutex},
+    rc::Rc,
+    cell::RefCell,
 };
 
 use crate::{
@@ -96,7 +98,7 @@ pub type DiagnosisResult = Result<Report, Failure>;
 pub struct Diagnosis {
     state:        State,
     sender:       mpsc::Sender<State>, // informing the receiver about change of state
-    pub logger:   Logger,
+    pub logger:   Arc<Mutex<Logger>>,
     pub eeprom:   EEPROM,
     pub db:       DB,
     pub dds:      DDS,
@@ -110,7 +112,6 @@ pub struct Diagnosis {
 impl Diagnosis {
 
     pub fn new(
-        logger:   Logger,
         eeprom:   EEPROM,
         db:       DB,
         shiftreg: ShiftRegister,
@@ -119,7 +120,7 @@ impl Diagnosis {
         sender:   mpsc::Sender<State>,
     ) -> Self {
         Self {
-            logger,
+            logger: Arc::new(Mutex::new(Logger::new())),
             state: State::default(),
             sender,
             eeprom,

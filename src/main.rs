@@ -48,12 +48,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dds      = DDS::new()?;
     let shiftreg = ShiftRegister::new()?;
     let adc      = ADC::new()?;
-    let logger   = Logger::new();
 
     let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
 
     let diagnosis = Diagnosis::new(
-        logger,
         eeprom,
         db,
         shiftreg,

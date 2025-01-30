@@ -321,9 +321,11 @@ impl DiagnosisUi {
 impl DiagnosisUi {
 
     fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        // let diag = self.diagnosis.clone();
-        // let logger = &mut diag.lock().unwrap().logger;
-        let mut logger = Logger::new();
+        let diag = self.diagnosis.clone();
+        let diag = diag.lock().unwrap();
+        let logger = diag.logger.clone();
+        let logger = &mut logger.lock().unwrap();
+        // let mut logger = Logger::new();
 
         match result {
             Ok(report) => {
