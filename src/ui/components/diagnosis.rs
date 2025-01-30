@@ -41,12 +41,11 @@ impl ModuleGist {
 pub struct DiagnosisUi {
     diagnosis: Arc<Mutex<Diagnosis>>,
 
-    // the state in state machine diagram and 2. block off other ui elements
     // Handle to the diagnosis thread
     // None if diagnosis is not active
     diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
     receiver:           mpsc::Receiver<State>,
-    diag_state:         State, // UI needs to keep track of current diagnosis state to: 1. show
+    diag_state:         State,
 
     breakpoint:     Option<State>,
     is_looping:     bool,
