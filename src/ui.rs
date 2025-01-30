@@ -91,7 +91,6 @@ impl eframe::App for GuiApplication {
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
-
         /*
          * egui only redraws UI when the position of the mouse cursor
          * changes, therefore, to show the changing of states, we have to explicitly redraw the ui
@@ -104,10 +103,12 @@ impl eframe::App for GuiApplication {
 
         egui::SidePanel::left("Windows")
             .show_animated(ctx, *self.show_windowlist.borrow(), |ui| {
+
                 for window in &mut self.windows {
                     let active = self.windows_state.get_mut(window.name()).unwrap();
                     ui.toggle_value(active, window.name());
                 }
+
             });
 
         for window in &mut self.windows {
@@ -140,10 +141,7 @@ fn frame_setup() -> eframe::NativeOptions {
 }
 
 
-pub fn run_gui(
-    diagnosis: Diagnosis,
-    receiver:  mpsc::Receiver<State>
-) -> eframe::Result {
+pub fn run_gui(diagnosis: Diagnosis, receiver: mpsc::Receiver<State>) -> eframe::Result {
 
     let options: eframe::NativeOptions = frame_setup();
 

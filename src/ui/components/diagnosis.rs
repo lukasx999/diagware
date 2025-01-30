@@ -124,6 +124,7 @@ impl DiagnosisUi {
                 let handle = Option::take(&mut self.diag_thread_handle).unwrap();
                 let result: DiagnosisResult = handle.join().unwrap();
                 self.handle_diagnosis_result(result);
+
             } else {
                 self.diagnosis_gist = ModuleGist::Pending;
             }
