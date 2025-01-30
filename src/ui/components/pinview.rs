@@ -1,6 +1,4 @@
-use crate::ui::{Component, config};
-
-use egui::Color32;
+use crate::ui::components::prelude::*;
 
 
 
@@ -31,7 +29,6 @@ impl Pinview {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        use crate::ui::util;
 
         // TODO: highlight legend when hovering pin
         // multiple highlights for multiple pins
@@ -77,7 +74,6 @@ impl Pinview {
 
     fn canvas_pineditor(&mut self, ui: &mut egui::Ui) {
         use egui::{vec2, Vec2, Pos2, Painter, Response};
-        use crate::ui::{config, util};
 
         const PIN_COUNT: u32 = 4; // TODO: refactor to config.rs
 

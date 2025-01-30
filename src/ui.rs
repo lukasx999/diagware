@@ -6,8 +6,7 @@ use std::cell::RefCell;
 use crate::diagnosis::{Diagnosis, State};
 use crate::Logger;
 
-mod util;
-mod config;
+pub mod config;
 
 mod components;
 use components::topbar::Topbar;
@@ -71,14 +70,15 @@ impl GuiApplication {
             windows_state.insert(window.name(), state);
         }
 
+        let topbar = Topbar::new(
+            diagnosis.clone(),
+            show_windowlist.clone(),
+            is_expertmode.clone()
+        );
+
         Self {
             diagnosis,
-
-            topbar: Topbar::new(
-                show_windowlist.clone(),
-                is_expertmode.clone()
-            ),
-
+            topbar,
             show_windowlist,
             is_expertmode,
             windows,

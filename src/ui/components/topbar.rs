@@ -1,10 +1,9 @@
 use crate::ui::components::prelude::*;
 
-use crate::ui::{Component, Logger, logger::LogLevel};
-use crate::ui::{config, util};
-
 
 pub struct Topbar {
+    diagnosis: Arc<Mutex<Diagnosis>>,
+
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
 
@@ -26,10 +25,12 @@ impl Component for Topbar {
 impl Topbar {
 
     pub fn new(
+        diagnosis:       Arc<Mutex<Diagnosis>>,
         show_windowlist: Rc<RefCell<bool>>,
         is_expertmode:   Rc<RefCell<bool>>,
     ) -> Self {
         Self {
+            diagnosis,
             show_windowlist,
             is_expertmode,
             modal_open: false,
@@ -135,8 +136,9 @@ impl Topbar {
     }
 
     fn login(&mut self) {
-
-        let logger = &mut self.logger.borrow_mut();
+        // let diag = self.diagnosis.clone();
+        // let logger = &mut diag.lock().unwrap().logger;
+        let mut logger = Logger::new();
 
         if self.modal_current_password == config::EXPERT_PASSWORD {
             *self.is_expertmode.borrow_mut() = true;

@@ -22,6 +22,8 @@ use transfer::Transfer;
 mod logger;
 use logger::Logger;
 
+pub mod util;
+
 
 
 fn main() -> Result<(), Box<dyn Error>> {

@@ -1,7 +1,6 @@
 use crate::ui::components::prelude::*;
 
 use crate::Diagnosis;
-use crate::ui::config;
 use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
 
 
@@ -35,7 +34,9 @@ impl Serialmanager {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        let logger = &mut self.diagnosis.lock().unwrap().logger;
+        // let diag = self.diagnosis.clone();
+        // let logger = &mut diag.lock().unwrap().logger;
+        let mut logger = Logger::new();
 
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()

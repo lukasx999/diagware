@@ -39,7 +39,9 @@ impl Logging {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        let logger = &mut self.diagnosis.lock().unwrap().logger;
+        // let diag = self.diagnosis.clone();
+        // let logger = &mut diag.lock().unwrap().logger;
+        let mut logger = Logger::new();
 
         ui.separator();
 

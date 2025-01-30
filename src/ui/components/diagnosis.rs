@@ -3,20 +3,12 @@ use crate::ui::components::prelude::*;
 use std::sync::mpsc;
 use std::thread::JoinHandle;
 
-use crate::{
-    logger::{Logger, LogLevel},
-    diagnosis::{
-        self as diag,
-        Diagnosis,
-        DiagnosisResult,
-        State,
-        STATE_COUNT,
-    },
-    ui::{
-        Component,
-        config,
-        util,
-    },
+use crate::diagnosis::{
+    self as diag,
+    Diagnosis,
+    DiagnosisResult,
+    State,
+    STATE_COUNT,
 };
 
 
@@ -329,7 +321,9 @@ impl DiagnosisUi {
 impl DiagnosisUi {
 
     fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        let logger = &mut self.logger.borrow_mut();
+        // let diag = self.diagnosis.clone();
+        // let logger = &mut diag.lock().unwrap().logger;
+        let mut logger = Logger::new();
 
         match result {
             Ok(report) => {

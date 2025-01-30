@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-use crate::ui::util;
+use crate::util;
 
 
 #[cfg(target_arch = "aarch64")]

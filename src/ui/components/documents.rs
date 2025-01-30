@@ -1,7 +1,6 @@
 use crate::ui::components::prelude::*;
 
 use crate::{Diagnosis, DB, db::model::Module};
-use crate::ui::{Component, config};
 
 
 
