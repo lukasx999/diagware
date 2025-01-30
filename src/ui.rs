@@ -57,9 +57,9 @@ impl GuiApplication {
         let is_expertmode   = Rc::new(RefCell::new(false));
 
         let windows: Vec<Box<dyn Component>> = vec![
+            Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
             Box::new(Serialmanager::new(diagnosis.clone())),
             Box::new(Pinview      ::new()),
-            Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
             Box::new(Logging      ::new(diagnosis.clone())),
             Box::new(Documents    ::new(diagnosis.clone())),
         ];

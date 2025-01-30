@@ -321,27 +321,27 @@ impl DiagnosisUi {
 impl DiagnosisUi {
 
     fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        let diag = self.diagnosis.clone();
-        let diag = diag.lock().unwrap();
-        let logger = diag.logger.clone();
-        let logger = &mut logger.lock().unwrap();
-        // let mut logger = Logger::new();
+        let logger = &mut self.diagnosis.lock().unwrap().logger;
 
         match result {
             Ok(report) => {
 
                 use diag::Report as R;
                 self.diagnosis_gist = match report {
+
                     R::Pending => ModuleGist::Pending,
+
                     R::Completed { is_functional } => {
                         logger.append(LogLevel::Info, "Diagnosis successful");
                         println!("Diagnosis successful");
+
                         if is_functional {
                             ModuleGist::Functional
                         } else {
                             ModuleGist::Defective
                         }
                     }
+
                 };
 
             }

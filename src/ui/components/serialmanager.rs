@@ -34,9 +34,6 @@ impl Serialmanager {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        // let diag = self.diagnosis.clone();
-        // let logger = &mut diag.lock().unwrap().logger;
-        let mut logger = Logger::new();
 
         let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
             diag.eeprom.get_serial().unwrap()
@@ -59,12 +56,20 @@ impl Serialmanager {
         // TODO: confirm with enter
 
 
+        self.ui_buttons(ui);
 
+    }
+
+    fn ui_buttons(&mut self, ui: &mut egui::Ui) {
 
         ui.horizontal(|ui| {
+
             if ui.button("Write").clicked() {
+                let logger = &mut self.diagnosis.lock().unwrap().logger;
+
                 if let Ok(diag) = self.diagnosis.try_lock() {
                     diag.eeprom.write_serial(&self.serial_textedit).unwrap();
+
                     logger.append(
                         LogLevel::Info,
                         format!(
@@ -72,23 +77,27 @@ impl Serialmanager {
                             &self.serial_textedit
                         )
                     );
+
                     self.serial_textedit.clear();
 
                 } else {
                     logger.append(LogLevel::Error, "Writing Serial to EEPROM failed");
                 }
             }
+
             if ui.button("Clear").clicked() {
+                let logger = &mut self.diagnosis.lock().unwrap().logger;
+
                 if let Ok(diag) = self.diagnosis.try_lock() {
                     diag.eeprom.clear().unwrap();
                     logger.append(LogLevel::Info, "EEPROM cleared");
+
                 } else {
                     logger.append(LogLevel::Error, "Clearing Serial from EEPROM failed");
                 }
+
             }
         });
-
-
     }
 
 }

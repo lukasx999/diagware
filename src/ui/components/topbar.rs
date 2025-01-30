@@ -136,9 +136,7 @@ impl Topbar {
     }
 
     fn login(&mut self) {
-        // let diag = self.diagnosis.clone();
-        // let logger = &mut diag.lock().unwrap().logger;
-        let mut logger = Logger::new();
+        let logger = &mut self.diagnosis.lock().unwrap().logger;
 
         if self.modal_current_password == config::EXPERT_PASSWORD {
             *self.is_expertmode.borrow_mut() = true;
