@@ -43,7 +43,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // let xfer = Transfer::new("/home/lukas/usb".to_owned());
 
-
     let db       = DB::new()?;
     let eeprom   = EEPROM::new()?;
     let dds      = DDS::new()?;
