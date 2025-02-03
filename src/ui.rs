@@ -13,14 +13,10 @@ use components::topbar::Topbar;
 
 
 
-
-
 pub trait Component {
     fn name(&self) -> &'static str; // MUST be unique
     fn show(&mut self, ctx: &egui::Context, active: &mut bool);
 }
-
-
 
 #[allow(dead_code)]
 struct GuiApplication {
@@ -33,9 +29,6 @@ struct GuiApplication {
     windows_state: HashMap<&'static str, bool>,
     topbar: Topbar,
 }
-
-
-
 
 impl GuiApplication {
 
