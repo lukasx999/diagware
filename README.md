@@ -7,6 +7,7 @@
 
 ## Questions
 
+- Changing serial requiring admin mode?
 - Multiple breakpoints?
 - Reset breakpoint after reaching breakpoint?
 
