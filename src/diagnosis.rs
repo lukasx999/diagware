@@ -105,6 +105,7 @@ pub struct Diagnosis {
 
     // Temporary values resulting from computations within the states
     temp_module: Option<Module>,
+    temp_matrix: Option<Matrix>,
 }
 
 impl Diagnosis {
@@ -127,6 +128,7 @@ impl Diagnosis {
             adc,
             shiftreg,
             temp_module: None,
+            temp_matrix: None,
         }
     }
 
@@ -136,6 +138,7 @@ impl Diagnosis {
 
     fn reset_internal_state(&mut self) {
         self.temp_module = None;
+        self.temp_matrix = None;
     }
 
     // Transition to the next state
@@ -168,14 +171,20 @@ impl Diagnosis {
                 Self::delay();
                 let serial: String = self.eeprom.get_serial()?;
                 let module: Module = self.db.get_module_by_serial(&serial)?;
-                self.temp_module   = Some(module);
+
+                let id = module.id;
+                let matrix: Matrix = self.db.get_matrix_by_id(id)?;
+
+                self.temp_matrix = Some(matrix);
+                self.temp_module = Some(module);
             }
 
             S::SwitchMatrix => {
                 Self::delay();
-                let id = self.temp_module.as_ref().unwrap().id;
-                let matrix: Matrix = self.db.get_matrix_by_id(id)?;
-                self.shiftreg.switch(&matrix)?;
+                let matrix: &Matrix = &self.temp_matrix
+                    .as_ref()
+                    .unwrap();
+                self.shiftreg.switch(matrix)?;
             }
 
             S::ApplySignals => {

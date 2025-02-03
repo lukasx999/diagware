@@ -56,7 +56,7 @@ impl GuiApplication {
         let windows: Vec<Box<dyn Component>> = vec![
             Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
             Box::new(Serialmanager::new(diagnosis.clone())),
-            Box::new(Pinview      ::new()),
+            Box::new(Pinview      ::new(diagnosis.clone())),
             Box::new(Logging      ::new(diagnosis.clone())),
             Box::new(Documents    ::new(diagnosis.clone())),
         ];
