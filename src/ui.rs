@@ -48,7 +48,7 @@ impl GuiApplication {
 
         let windows: Vec<Box<dyn Component>> = vec![
             Box::new(DiagnosisUi  ::new(logger.clone())),
-            Box::new(Serialmanager::new(logger.clone())),
+            Box::new(Serialmanager::new(logger.clone(), is_expertmode.clone())),
             Box::new(Pinview      ::new()),
             Box::new(Logging      ::new(logger.clone())),
             Box::new(Documents    ::new()),

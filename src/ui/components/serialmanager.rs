@@ -6,8 +6,9 @@ use crate::io::eeprom::{EEPROM_SERIAL_MAX_SIZE, EEPROM};
 
 
 pub struct Serialmanager {
-    logger: Rc<RefCell<Logger>>,
-    eeprom: EEPROM,
+    logger:          Rc<RefCell<Logger>>,
+    is_expertmode:   Rc<RefCell<bool>>,
+    eeprom:          EEPROM,
     serial_textedit: String,
 }
 
@@ -27,9 +28,13 @@ impl Component for Serialmanager {
 }
 
 impl Serialmanager {
-    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
+    pub fn new(
+        logger:        Rc<RefCell<Logger>>,
+        is_expertmode: Rc<RefCell<bool>>,
+    ) -> Self {
         Self {
             logger,
+            is_expertmode,
             eeprom: EEPROM::new().unwrap(),
             serial_textedit: String::new(),
         }
@@ -61,10 +66,11 @@ impl Serialmanager {
     fn ui_buttons(&mut self, ui: &mut egui::Ui) {
 
         let mut logger = self.logger.borrow_mut();
+        let is_expert = *self.is_expertmode.borrow();
 
         ui.horizontal(|ui| {
 
-            if ui.button("Write").clicked() {
+            if ui.add_enabled(is_expert, egui::Button::new("Write")).clicked() {
 
                 self.eeprom.write_serial(&self.serial_textedit).unwrap();
                 self.serial_textedit.clear();
@@ -79,7 +85,7 @@ impl Serialmanager {
 
             }
 
-            if ui.button("Clear").clicked() {
+            if ui.add_enabled(is_expert, egui::Button::new("Clear")).clicked() {
                 self.eeprom.clear().unwrap();
                 logger.append(LogLevel::Info, "EEPROM cleared");
             }
