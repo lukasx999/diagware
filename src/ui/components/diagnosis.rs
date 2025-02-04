@@ -94,9 +94,14 @@ impl DiagnosisUi {
 
     fn ui(&mut self, ui: &mut egui::Ui) {
 
-        // Receive new state from running diagnosis
+        /* Receive new state from running diagnosis */
         if let Ok(state) = self.receiver.try_recv() {
             self.diag_state = state;
+
+            /* Reset breakpoint after reaching it */
+            if self.breakpoint.is_some_and(|state| state == self.diag_state) {
+                self.breakpoint = None;
+            }
 
             let mut logger = self.logger.borrow_mut();
             logger.append(LogLevel::Info, format!("New State: {}", self.diag_state));
@@ -356,10 +361,12 @@ impl DiagnosisUi {
                 };
 
             }
+
             Err(_error) => {
                 logger.append(LogLevel::Error, "Diagnosis failed");
                 println!("Diagnosis failed");
             }
+
         }
 
     }

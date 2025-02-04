@@ -14,11 +14,6 @@
 
 
 ## TODO
-
-- [ ] change logger to pipe
-- [ ] diagnosis.init()?
-  - button for loading current eeprom module as DUT
-- [ ] move breakpoints to diagnosis
 - [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
 
