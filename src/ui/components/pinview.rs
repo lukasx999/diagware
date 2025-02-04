@@ -1,8 +1,10 @@
 use crate::ui::components::prelude::*;
+use crate::db::DB;
 
 
 
 pub struct Pinview {
+    db: DB,
 }
 
 impl Component for Pinview {
@@ -24,7 +26,9 @@ impl Component for Pinview {
 impl Pinview {
 
     pub fn new() -> Self {
-        Self {}
+        Self {
+            db: DB::new().unwrap(),
+        }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
@@ -80,15 +84,10 @@ impl Pinview {
         let height: f32 = 150.0;
         let (response, painter, center): (Response, Painter, Pos2) = util::canvas_setup(ui, width, height);
 
-
         let radius        = 10.0;
         let gap           = 5.0;
         let offset        = radius * 2.0 + gap;
         let offset_origin = ((offset * PIN_COUNT as f32) / 2.0) - radius;
-
-        // TODO: scaling
-        // TODO: keep track of selected pins, toggle selection with click
-
 
 
         for x in 0..PIN_COUNT {

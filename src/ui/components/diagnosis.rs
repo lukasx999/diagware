@@ -81,13 +81,13 @@ impl DiagnosisUi {
         Self {
             logger,
 
-            diagnosis: Arc::new(Mutex::new(Diagnosis::new(tx))),
+            diagnosis: Arc::new(Mutex::new(Diagnosis::new(tx).unwrap())),
             receiver: rx,
             diag_thread_handle: None,
             diag_state: State::default(),
 
-            breakpoint: None,
-            is_looping: false,
+            breakpoint:     None,
+            is_looping:     false,
             diagnosis_gist: ModuleGist::default(),
         }
     }
@@ -155,7 +155,7 @@ impl DiagnosisUi {
         ui.horizontal(|ui| {
 
             if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
-                let bp = self.breakpoint; // TODO:
+                let bp = self.breakpoint;
                 self.spawn_diag_thread(move |diag| diag.run_to_end(bp));
             }
 
@@ -179,7 +179,8 @@ impl DiagnosisUi {
 
             if ui.add_enabled(!is_running, Button::new("Reset")).clicked() {
                 self.diagnosis_gist = ModuleGist::NotYetMeasured;
-                self.diagnosis.lock().unwrap().reset_state();
+                let mut diag = self.diagnosis.lock().unwrap();
+                diag.reset_state();
                 self.breakpoint = None;
             }
 
@@ -192,6 +193,7 @@ impl DiagnosisUi {
                 let state = self.diag_state as u32;
 
                 for i in 0..STATE_COUNT {
+
                     let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
 
                     let color = if i == state {
@@ -239,8 +241,8 @@ impl DiagnosisUi {
 
         for i in 0..STATE_COUNT {
 
-            let state_current = self.diag_state as u32;
             let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
+            let state_current = self.diag_state as u32;
 
             let mut color_circle = if i == state_current {
                 config::COLOR_ACCENT

@@ -109,19 +109,18 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(sender: mpsc::Sender<State>) -> Self {
-        // TODO: remove unwrap()'s
-        Self {
-            state: State::default(),
+    pub fn new(sender: mpsc::Sender<State>) -> Result<Self, Failure> {
+        Ok(Self {
             sender,
-            eeprom:   EEPROM::new().unwrap(),
-            db:       DB::new().unwrap(),
-            dds:      DDS::new().unwrap(),
-            adc:      ADC::new().unwrap(),
-            shiftreg: ShiftRegister::new().unwrap(),
+            state:       State::default(),
+            eeprom:      EEPROM::new()?,
+            db:          DB::new()?,
+            dds:         DDS::new()?,
+            adc:         ADC::new()?,
+            shiftreg:    ShiftRegister::new()?,
             temp_module: None,
             temp_matrix: None,
-        }
+        })
     }
 
     fn delay() {
@@ -192,14 +191,7 @@ impl Diagnosis {
 
             S::Evaluation => {
                 // use crate::db::model::TargetValue;
-
                 Self::delay();
-
-                // // TODO: deal with unwrap()
-                // // let id = self.temp_module.clone().unwrap().id.unwrap();
-                // let id = self.temp_module.as_ref().unwrap().id.unwrap();
-                // let targetvalues: Vec<TargetValue> = self.db.get_targetvalue_by_id(id)?;
-                // // TODO: compare measured values with targetvalues
             }
 
             S::End => {
@@ -231,7 +223,6 @@ impl Diagnosis {
     // Run all states until the end has been reached (=> Automatic diagnosis)
     // Will stop at an optional breakpoint
     pub fn run_to_end(&mut self, breakpoint: Option<State>) -> DiagnosisResult {
-        // TODO: breakpoint should be member of diagnosis
         loop {
 
             let result = self.run_and_next();
