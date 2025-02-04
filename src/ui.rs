@@ -51,7 +51,7 @@ impl GuiApplication {
             Box::new(Serialmanager::new(diagnosis.clone())),
             Box::new(Pinview      ::new(diagnosis.clone())),
             Box::new(Logging      ::new(diagnosis.clone())),
-            Box::new(Documents    ::new(diagnosis.clone())),
+            Box::new(Documents    ::new()),
         ];
 
         Self {
@@ -134,7 +134,11 @@ fn frame_setup() -> eframe::NativeOptions {
 }
 
 
-pub fn run_gui(diagnosis: Diagnosis, receiver: mpsc::Receiver<State>) -> eframe::Result {
+pub fn run_gui(
+    diagnosis: Diagnosis,
+    receiver:  mpsc::Receiver<State>,
+    logger:    Logger,
+) -> eframe::Result {
 
     let options: eframe::NativeOptions = frame_setup();
 

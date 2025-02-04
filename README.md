@@ -15,6 +15,7 @@
 
 ## TODO
 
+- [ ] change logger to pipe
 - [ ] diagnosis.init()?
   - button for loading current eeprom module as DUT
 - [ ] move breakpoints to diagnosis

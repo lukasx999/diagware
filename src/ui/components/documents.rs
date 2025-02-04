@@ -5,7 +5,7 @@ use crate::{Diagnosis, DB, db::model::Module};
 
 
 pub struct Documents {
-    diagnosis:       Arc<Mutex<Diagnosis>>,
+    db: DB,
     download_mode:   bool,
     selected_module: usize,
     selected_docs:   HashMap<String, HashMap<String, bool>>,
@@ -28,21 +28,19 @@ impl Component for Documents {
 
 impl Documents {
 
-    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
+    pub fn new() -> Self {
         let mut s = Self {
-            diagnosis,
             download_mode: false,
+            db: DB::new().unwrap(),
             selected_module: 0,
             selected_docs: HashMap::new(),
         };
 
-        let diag = s.diagnosis.clone();
-        let db = &diag.lock().unwrap().db;
-        let modules: Vec<Module> = db.get_modules_all().unwrap();
+        let modules: Vec<Module> = s.db.get_modules_all().unwrap();
 
         for module in modules {
 
-            let docs: HashMap<String, bool> = db
+            let docs: HashMap<String, bool> = s.db
                 .get_documents_by_id(module.id)
                 .unwrap()
                 .into_iter()
@@ -88,36 +86,28 @@ impl Documents {
     }
 
     fn ui_documentview(&mut self, ui: &mut egui::Ui) {
-        let diag = self.diagnosis.clone();
 
-        if let Ok(d) = diag.try_lock() {
-            let db: &DB = &d.db;
+        self.ui_moduleselect(ui);
 
-            self.ui_moduleselect(ui, &db);
+        let module_id = self.selected_module as i64 + 1;
+        let documents = self.db.get_documents_by_id(module_id).unwrap();
 
-            let module_id = self.selected_module as i64 + 1;
-            let documents = db.get_documents_by_id(module_id).unwrap();
+        for doc in documents {
+            let module = self.db.get_module_by_id(module_id).unwrap();
 
-            for doc in documents {
-                let module = &db.get_module_by_id(module_id).unwrap();
+            let checked = &mut self.selected_docs
+                .get_mut(&module.name)
+                .unwrap()
+                .get_mut(&doc.descriptor)
+                .unwrap();
 
-                let checked = &mut self.selected_docs
-                    .get_mut(&module.name)
-                    .unwrap()
-                    .get_mut(&doc.descriptor)
-                    .unwrap();
-
-                ui.checkbox(checked, doc.descriptor);
-            }
-
-        } else {
-            ui.label("<Not Available>");
-        };
+            ui.checkbox(checked, doc.descriptor);
+        }
 
     }
 
-    fn ui_moduleselect(&mut self, ui: &mut egui::Ui, db: &DB) {
-        let modules = db.get_modules_all().unwrap();
+    fn ui_moduleselect(&mut self, ui: &mut egui::Ui) {
+        let modules = self.db.get_modules_all().unwrap();
 
         egui::ComboBox::from_label("Selected Module")
             .selected_text(&modules[self.selected_module].name)

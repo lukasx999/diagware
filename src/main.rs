@@ -43,6 +43,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // let xfer = Transfer::new("/home/lukas/usb".to_owned());
 
+
+    let logger   = Logger::new();
     let db       = DB::new()?;
     let eeprom   = EEPROM::new()?;
     let dds      = DDS::new()?;
@@ -60,7 +62,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         tx
     );
 
-    ui::run_gui(diagnosis, rx)?;
+    ui::run_gui(diagnosis, rx, logger)?;
 
     Ok(())
 
