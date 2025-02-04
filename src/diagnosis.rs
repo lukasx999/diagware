@@ -94,8 +94,8 @@ pub type DiagnosisResult = Result<Report, Failure>;
 
 #[derive(Debug)]
 pub struct Diagnosis {
-    state:        State,
-    sender:       mpsc::Sender<State>, // informing the receiver about change of state
+    state:    State,
+    sender:   mpsc::Sender<State>, // informing the receiver about change of state
     eeprom:   EEPROM,
     db:       DB,
     dds:      DDS,
@@ -110,6 +110,7 @@ pub struct Diagnosis {
 impl Diagnosis {
 
     pub fn new(sender: mpsc::Sender<State>) -> Self {
+        // TODO: remove unwrap()'s
         Self {
             state: State::default(),
             sender,

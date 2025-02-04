@@ -6,6 +6,7 @@ use crate::io::eeprom::{EEPROM_SERIAL_MAX_SIZE, EEPROM};
 
 
 pub struct Serialmanager {
+    logger: Rc<RefCell<Logger>>,
     eeprom: EEPROM,
     serial_textedit: String,
 }
@@ -26,8 +27,9 @@ impl Component for Serialmanager {
 }
 
 impl Serialmanager {
-    pub fn new() -> Self {
+    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
         Self {
+            logger,
             eeprom: EEPROM::new().unwrap(),
             serial_textedit: String::new(),
         }
@@ -58,6 +60,8 @@ impl Serialmanager {
 
     fn ui_buttons(&mut self, ui: &mut egui::Ui) {
 
+        let mut logger = self.logger.borrow_mut();
+
         ui.horizontal(|ui| {
 
             if ui.button("Write").clicked() {
@@ -65,20 +69,19 @@ impl Serialmanager {
                 self.eeprom.write_serial(&self.serial_textedit).unwrap();
                 self.serial_textedit.clear();
 
-                // TODO: logging
-                //logger.append(
-                //    LogLevel::Info,
-                //    format!(
-                //        "New Serial `{}` successfully written to EEPROM",
-                //        &self.serial_textedit
-                //    )
-                //);
+                logger.append(
+                    LogLevel::Info,
+                    format!(
+                        "New Serial `{}` successfully written to EEPROM",
+                        &self.serial_textedit
+                    )
+                );
 
             }
 
             if ui.button("Clear").clicked() {
                 self.eeprom.clear().unwrap();
-                //logger.append(LogLevel::Info, "EEPROM cleared");
+                logger.append(LogLevel::Info, "EEPROM cleared");
             }
 
         });

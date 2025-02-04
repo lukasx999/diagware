@@ -4,6 +4,7 @@ use crate::ui::components::prelude::*;
 pub struct Topbar {
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
+    logger:          Rc<RefCell<Logger>>,
 
     modal_open: bool,
     modal_current_password: String,
@@ -23,10 +24,12 @@ impl Component for Topbar {
 impl Topbar {
 
     pub fn new(
+        logger:          Rc<RefCell<Logger>>,
         show_windowlist: Rc<RefCell<bool>>,
         is_expertmode:   Rc<RefCell<bool>>,
     ) -> Self {
         Self {
+            logger,
             show_windowlist,
             is_expertmode,
             modal_open: false,
@@ -132,13 +135,13 @@ impl Topbar {
     }
 
     fn login(&mut self) {
+        let mut logger = self.logger.borrow_mut();
 
-        // TODO: logging
         if self.modal_current_password == config::EXPERT_PASSWORD {
             *self.is_expertmode.borrow_mut() = true;
-            //logger.append(LogLevel::Info, "Logged in as Expert");
+            logger.append(LogLevel::Info, "Logged in as Expert");
         } else {
-            //logger.append(LogLevel::Error, "Password is incorrect");
+            logger.append(LogLevel::Error, "Password is incorrect");
         }
 
         self.modal_current_password.clear();

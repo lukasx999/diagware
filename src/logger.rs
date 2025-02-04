@@ -36,6 +36,15 @@ pub struct LogMessage {
     pub timestamp: String,
 }
 
+impl LogMessage {
+    pub fn new(level: LogLevel, message: impl std::borrow::Borrow<str>) -> Self {
+        Self {
+            level,
+            message: message.borrow().to_owned(),
+            timestamp: util::get_time()
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct Logger {
@@ -53,11 +62,7 @@ impl Logger {
     }
 
     pub fn append(&mut self, level: LogLevel, message: impl std::borrow::Borrow<str>) {
-        let msg = LogMessage {
-            level,
-            message: message.borrow().to_owned(),
-            timestamp: util::get_time()
-        };
+        let msg = LogMessage::new(level, message);
         self.log.push(msg);
     }
 

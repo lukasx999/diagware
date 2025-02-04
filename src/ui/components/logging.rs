@@ -10,6 +10,7 @@ use egui::Color32;
 
 
 pub struct Logging {
+    logger: Rc<RefCell<Logger>>,
 }
 
 impl Component for Logging {
@@ -33,13 +34,15 @@ impl Component for Logging {
 
 impl Logging {
 
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
+        Self {
+            logger,
+        }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        todo!("logger");
-        let mut logger = Logger::new();
+
+        let mut logger = self.logger.borrow_mut();
 
         ui.separator();
 

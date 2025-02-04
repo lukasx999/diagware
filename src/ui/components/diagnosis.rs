@@ -39,11 +39,15 @@ impl ModuleGist {
 
 
 pub struct DiagnosisUi {
+    logger: Rc<RefCell<Logger>>,
+
     diagnosis: Arc<Mutex<Diagnosis>>,
     // Handle to the diagnosis thread
     // None if diagnosis is not active
     diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
+    // Receiving state from running diagnosis
     receiver:           mpsc::Receiver<State>,
+    // current copy of state, updated by receiver
     diag_state:         State,
 
     breakpoint:     Option<State>,
@@ -71,10 +75,12 @@ impl Component for DiagnosisUi {
 /* Core */
 impl DiagnosisUi {
 
-    pub fn new() -> Self {
+    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
         let (tx, rx) = mpsc::channel();
 
         Self {
+            logger,
+
             diagnosis: Arc::new(Mutex::new(Diagnosis::new(tx))),
             receiver: rx,
             diag_thread_handle: None,
@@ -91,12 +97,16 @@ impl DiagnosisUi {
         // Receive new state from running diagnosis
         if let Ok(state) = self.receiver.try_recv() {
             self.diag_state = state;
+
+            let mut logger = self.logger.borrow_mut();
+            logger.append(LogLevel::Info, format!("New State: {}", self.diag_state));
         }
 
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new("State:").strong());
             ui.label(format!("{}", self.diag_state));
         });
+
         ui.separator();
 
         self.ui_controlpanel(ui);
@@ -143,8 +153,9 @@ impl DiagnosisUi {
         let is_running = self.diag_thread_handle.is_some();
 
         ui.horizontal(|ui| {
+
             if ui.add_enabled(!is_running, Button::new("Start")).clicked() {
-                let bp = self.breakpoint;
+                let bp = self.breakpoint; // TODO:
                 self.spawn_diag_thread(move |diag| diag.run_to_end(bp));
             }
 
@@ -319,7 +330,7 @@ impl DiagnosisUi {
 impl DiagnosisUi {
 
     fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        // TODO: logging
+        let mut logger = self.logger.borrow_mut();
 
         match result {
             Ok(report) => {
@@ -330,7 +341,7 @@ impl DiagnosisUi {
                     R::Pending => ModuleGist::Pending,
 
                     R::Completed { is_functional } => {
-                        //logger.append(LogLevel::Info, "Diagnosis successful");
+                        logger.append(LogLevel::Info, "Diagnosis successful");
                         println!("Diagnosis successful");
 
                         if is_functional {
@@ -344,7 +355,7 @@ impl DiagnosisUi {
 
             }
             Err(_error) => {
-                //logger.append(LogLevel::Error, "Diagnosis failed");
+                logger.append(LogLevel::Error, "Diagnosis failed");
                 println!("Diagnosis failed");
             }
         }

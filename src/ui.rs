@@ -23,6 +23,7 @@ struct GuiApplication {
     // Shared data:
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
+    logger:          Rc<RefCell<Logger>>,
 
     windows:       Vec<Box<dyn Component>>,
     windows_state: HashMap<&'static str, bool>,
@@ -43,20 +44,23 @@ impl GuiApplication {
 
         let show_windowlist = Rc::new(RefCell::new(true));
         let is_expertmode   = Rc::new(RefCell::new(false));
+        let logger          = Rc::new(RefCell::new(Logger::new()));
 
         let windows: Vec<Box<dyn Component>> = vec![
-            Box::new(DiagnosisUi  ::new()),
-            Box::new(Serialmanager::new()),
+            Box::new(DiagnosisUi  ::new(logger.clone())),
+            Box::new(Serialmanager::new(logger.clone())),
             Box::new(Pinview      ::new()),
-            Box::new(Logging      ::new()),
+            Box::new(Logging      ::new(logger.clone())),
             Box::new(Documents    ::new()),
         ];
 
         Self {
             topbar: Topbar::new(
+                logger.clone(),
                 show_windowlist.clone(),
                 is_expertmode.clone()
             ),
+            logger,
             windows_state: windows
                 .iter()
                 .map(|item| (item.name(), false))
