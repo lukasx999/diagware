@@ -1,12 +1,12 @@
 use crate::ui::components::prelude::*;
 
 use crate::Diagnosis;
-use crate::io::eeprom::EEPROM_SERIAL_MAX_SIZE;
+use crate::io::eeprom::{EEPROM_SERIAL_MAX_SIZE, EEPROM};
 
 
 
 pub struct Serialmanager {
-    diagnosis:       Arc<Mutex<Diagnosis>>,
+    eeprom: EEPROM,
     serial_textedit: String,
 }
 
@@ -26,20 +26,16 @@ impl Component for Serialmanager {
 }
 
 impl Serialmanager {
-    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
+    pub fn new() -> Self {
         Self {
-            diagnosis,
+            eeprom: EEPROM::new().unwrap(),
             serial_textedit: String::new(),
         }
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
 
-        let serial: String = if let Ok(diag) = self.diagnosis.try_lock() {
-            diag.eeprom.get_serial().unwrap()
-        } else {
-            "<Not Available>".to_owned()
-        };
+        let serial: String = self.eeprom.get_serial().unwrap();
 
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new("Serial: ").strong());
@@ -65,38 +61,26 @@ impl Serialmanager {
         ui.horizontal(|ui| {
 
             if ui.button("Write").clicked() {
-                let logger = &mut self.diagnosis.lock().unwrap().logger;
 
-                if let Ok(diag) = self.diagnosis.try_lock() {
-                    diag.eeprom.write_serial(&self.serial_textedit).unwrap();
+                self.eeprom.write_serial(&self.serial_textedit).unwrap();
+                self.serial_textedit.clear();
 
-                    logger.append(
-                        LogLevel::Info,
-                        format!(
-                            "New Serial `{}` successfully written to EEPROM",
-                            &self.serial_textedit
-                        )
-                    );
+                // TODO: logging
+                //logger.append(
+                //    LogLevel::Info,
+                //    format!(
+                //        "New Serial `{}` successfully written to EEPROM",
+                //        &self.serial_textedit
+                //    )
+                //);
 
-                    self.serial_textedit.clear();
-
-                } else {
-                    logger.append(LogLevel::Error, "Writing Serial to EEPROM failed");
-                }
             }
 
             if ui.button("Clear").clicked() {
-                let logger = &mut self.diagnosis.lock().unwrap().logger;
-
-                if let Ok(diag) = self.diagnosis.try_lock() {
-                    diag.eeprom.clear().unwrap();
-                    logger.append(LogLevel::Info, "EEPROM cleared");
-
-                } else {
-                    logger.append(LogLevel::Error, "Clearing Serial from EEPROM failed");
-                }
-
+                self.eeprom.clear().unwrap();
+                //logger.append(LogLevel::Info, "EEPROM cleared");
             }
+
         });
     }
 

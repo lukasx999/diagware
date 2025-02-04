@@ -41,28 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     //     assert_eq!(err, 0);
     // }
 
-    // let xfer = Transfer::new("/home/lukas/usb".to_owned());
-
-
-    let logger   = Logger::new();
-    let db       = DB::new()?;
-    let eeprom   = EEPROM::new()?;
-    let dds      = DDS::new()?;
-    let shiftreg = ShiftRegister::new()?;
-    let adc      = ADC::new()?;
-
-    let (tx, rx) = std::sync::mpsc::channel(); // Channel for communication between diagnosis and gui
-
-    let diagnosis = Diagnosis::new(
-        eeprom,
-        db,
-        shiftreg,
-        dds,
-        adc,
-        tx
-    );
-
-    ui::run_gui(diagnosis, rx, logger)?;
+    ui::run_gui()?;
 
     Ok(())
 

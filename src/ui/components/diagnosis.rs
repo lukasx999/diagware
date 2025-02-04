@@ -40,7 +40,6 @@ impl ModuleGist {
 
 pub struct DiagnosisUi {
     diagnosis: Arc<Mutex<Diagnosis>>,
-
     // Handle to the diagnosis thread
     // None if diagnosis is not active
     diag_thread_handle: Option<JoinHandle<DiagnosisResult>>,
@@ -72,13 +71,12 @@ impl Component for DiagnosisUi {
 /* Core */
 impl DiagnosisUi {
 
-    pub fn new(
-        diagnosis: Arc<Mutex<Diagnosis>>,
-        receiver:  mpsc::Receiver<State>,
-    ) -> Self {
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel();
+
         Self {
-            diagnosis,
-            receiver,
+            diagnosis: Arc::new(Mutex::new(Diagnosis::new(tx))),
+            receiver: rx,
             diag_thread_handle: None,
             diag_state: State::default(),
 
@@ -321,7 +319,7 @@ impl DiagnosisUi {
 impl DiagnosisUi {
 
     fn handle_diagnosis_result(&mut self, result: DiagnosisResult) {
-        let logger = &mut self.diagnosis.lock().unwrap().logger;
+        // TODO: logging
 
         match result {
             Ok(report) => {
@@ -332,7 +330,7 @@ impl DiagnosisUi {
                     R::Pending => ModuleGist::Pending,
 
                     R::Completed { is_functional } => {
-                        logger.append(LogLevel::Info, "Diagnosis successful");
+                        //logger.append(LogLevel::Info, "Diagnosis successful");
                         println!("Diagnosis successful");
 
                         if is_functional {
@@ -346,11 +344,13 @@ impl DiagnosisUi {
 
             }
             Err(_error) => {
-                logger.append(LogLevel::Error, "Diagnosis failed");
+                //logger.append(LogLevel::Error, "Diagnosis failed");
                 println!("Diagnosis failed");
             }
         }
+
     }
+
 
     // Launch a new thread, save the handle, and let the caller provide a callback receiving a
     // mutable reference to the diagnosis

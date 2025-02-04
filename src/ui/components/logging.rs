@@ -10,7 +10,6 @@ use egui::Color32;
 
 
 pub struct Logging {
-    diagnosis: Arc<Mutex<Diagnosis>>,
 }
 
 impl Component for Logging {
@@ -34,13 +33,12 @@ impl Component for Logging {
 
 impl Logging {
 
-    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
-        Self { diagnosis }
+    pub fn new() -> Self {
+        Self {}
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
-        // let diag = self.diagnosis.clone();
-        // let logger = &mut diag.lock().unwrap().logger;
+        todo!("logger");
         let mut logger = Logger::new();
 
         ui.separator();

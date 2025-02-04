@@ -96,12 +96,11 @@ pub type DiagnosisResult = Result<Report, Failure>;
 pub struct Diagnosis {
     state:        State,
     sender:       mpsc::Sender<State>, // informing the receiver about change of state
-    pub logger:   Logger,
-    pub eeprom:   EEPROM,
-    pub db:       DB,
-    pub dds:      DDS,
-    pub adc:      ADC,
-    pub shiftreg: ShiftRegister,
+    eeprom:   EEPROM,
+    db:       DB,
+    dds:      DDS,
+    adc:      ADC,
+    shiftreg: ShiftRegister,
 
     // Temporary values resulting from computations within the states
     temp_module: Option<Module>,
@@ -110,23 +109,15 @@ pub struct Diagnosis {
 
 impl Diagnosis {
 
-    pub fn new(
-        eeprom:   EEPROM,
-        db:       DB,
-        shiftreg: ShiftRegister,
-        dds:      DDS,
-        adc:      ADC,
-        sender:   mpsc::Sender<State>,
-    ) -> Self {
+    pub fn new(sender: mpsc::Sender<State>) -> Self {
         Self {
-            logger: Logger::new(),
             state: State::default(),
             sender,
-            eeprom,
-            db,
-            dds,
-            adc,
-            shiftreg,
+            eeprom:   EEPROM::new().unwrap(),
+            db:       DB::new().unwrap(),
+            dds:      DDS::new().unwrap(),
+            adc:      ADC::new().unwrap(),
+            shiftreg: ShiftRegister::new().unwrap(),
             temp_module: None,
             temp_matrix: None,
         }

@@ -21,7 +21,6 @@ pub trait Component {
 #[allow(dead_code)]
 struct GuiApplication {
     // Shared data:
-    diagnosis:       Arc<Mutex<Diagnosis>>, // All HW interfaces are owned by the diagnosis
     show_windowlist: Rc<RefCell<bool>>,
     is_expertmode:   Rc<RefCell<bool>>,
 
@@ -32,7 +31,7 @@ struct GuiApplication {
 
 impl GuiApplication {
 
-    pub fn new(diagnosis: Diagnosis, receiver: mpsc::Receiver<State>) -> Self {
+    pub fn new() -> Self {
 
         use components::{
             serialmanager::Serialmanager,
@@ -42,21 +41,19 @@ impl GuiApplication {
             documents::Documents,
         };
 
-        let diagnosis       = Arc::new(Mutex::new(diagnosis));
         let show_windowlist = Rc::new(RefCell::new(true));
         let is_expertmode   = Rc::new(RefCell::new(false));
 
         let windows: Vec<Box<dyn Component>> = vec![
-            Box::new(DiagnosisUi  ::new(diagnosis.clone(), receiver)),
-            Box::new(Serialmanager::new(diagnosis.clone())),
-            Box::new(Pinview      ::new(diagnosis.clone())),
-            Box::new(Logging      ::new(diagnosis.clone())),
+            Box::new(DiagnosisUi  ::new()),
+            Box::new(Serialmanager::new()),
+            Box::new(Pinview      ::new()),
+            Box::new(Logging      ::new()),
             Box::new(Documents    ::new()),
         ];
 
         Self {
             topbar: Topbar::new(
-                diagnosis.clone(),
                 show_windowlist.clone(),
                 is_expertmode.clone()
             ),
@@ -65,7 +62,6 @@ impl GuiApplication {
                 .map(|item| (item.name(), false))
                 .collect(),
             windows,
-            diagnosis,
             show_windowlist,
             is_expertmode,
         }
@@ -134,11 +130,7 @@ fn frame_setup() -> eframe::NativeOptions {
 }
 
 
-pub fn run_gui(
-    diagnosis: Diagnosis,
-    receiver:  mpsc::Receiver<State>,
-    logger:    Logger,
-) -> eframe::Result {
+pub fn run_gui() -> eframe::Result {
 
     let options: eframe::NativeOptions = frame_setup();
 
@@ -155,7 +147,7 @@ pub fn run_gui(
             egui_phosphor::add_to_fonts(&mut fonts, egui_phosphor::Variant::Regular);
             cc.egui_ctx.set_fonts(fonts);
 
-            Ok(Box::new(GuiApplication::new(diagnosis, receiver)))
+            Ok(Box::new(GuiApplication::new()))
 
         }),
     )

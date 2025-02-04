@@ -3,7 +3,6 @@ use crate::ui::components::prelude::*;
 
 
 pub struct Pinview {
-    diagnosis: Arc<Mutex<Diagnosis>>,
 }
 
 impl Component for Pinview {
@@ -24,10 +23,8 @@ impl Component for Pinview {
 
 impl Pinview {
 
-    pub fn new(diagnosis: Arc<Mutex<Diagnosis>>) -> Self {
-        Self {
-            diagnosis,
-        }
+    pub fn new() -> Self {
+        Self {}
     }
 
     fn ui(&mut self, ui: &mut egui::Ui) {
