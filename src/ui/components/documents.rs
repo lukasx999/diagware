@@ -8,6 +8,7 @@ pub struct Documents {
     db: DB,
     download_mode:   bool,
     selected_module: usize,
+    // TODO: factor key to module id
     selected_docs:   HashMap<String, HashMap<String, bool>>,
 }
 
@@ -72,6 +73,15 @@ impl Documents {
         ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
         if self.download_mode {
         }
+
+        if ui.button("Download").clicked() {
+            let module = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
+            let name = module.name;
+            let docs = &self.selected_docs[&name];
+            // TODO:
+        }
+
+
 
         if ui.button("Mount").clicked() {
 
