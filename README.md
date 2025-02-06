@@ -2,7 +2,7 @@
 
 ## Notes
 
-- fsync
+- fsync / libusb
 - Housekeeping is 2nd priority
 - Database Entry for DDS configuration
 
