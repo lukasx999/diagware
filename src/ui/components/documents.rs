@@ -6,9 +6,8 @@ use crate::{Diagnosis, DB, db::model::Module};
 
 pub struct Documents {
     db: DB,
-    download_mode:   bool,
     selected_module: usize,
-    // TODO: factor key to module id
+    // TODO: refactor key to module id
     selected_docs:   HashMap<String, HashMap<String, bool>>,
 }
 
@@ -31,7 +30,6 @@ impl Documents {
 
     pub fn new() -> Self {
         let mut s = Self {
-            download_mode: false,
             db: DB::new().unwrap(),
             selected_module: 0,
             selected_docs: HashMap::new(),
@@ -59,9 +57,7 @@ impl Documents {
 
     fn ui(&mut self, ui: &mut egui::Ui) {
 
-        self.ui_downloadmode(ui);
         ui.separator();
-
 
         self.ui_documentview(ui);
 
@@ -70,27 +66,10 @@ impl Documents {
 
         ui.separator();
 
-        ui.toggle_value(&mut self.download_mode, "Toggle Download Mode");
-        if self.download_mode {
-        }
-
         if ui.button("Download").clicked() {
             let module = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
-            let name = module.name;
-            let docs = &self.selected_docs[&name];
+            let docs = &self.selected_docs[&module.name];
             // TODO:
-        }
-
-
-
-        if ui.button("Mount").clicked() {
-
-            let result = drives::get_devices();
-            for device in result.unwrap() {
-                dbg!(device);
-            }
-
-
         }
 
     }
@@ -131,19 +110,29 @@ impl Documents {
             );
     }
 
-    fn ui_downloadmode(&mut self, ui: &mut egui::Ui) {
-        ui.horizontal(|ui| {
-            ui.label(egui::RichText::new("Download Mode:").strong());
+    fn mount() {
 
-            let (label, color) = if self.download_mode {
-                ("On", Color32::GREEN)
-            } else {
-                ("Off", Color32::RED)
-            };
+        let mountdir = "/mnt";
+        let device = "/dev/sda1";
 
-            ui.label(egui::RichText::new(label).color(color).strong());
+        let status: Option<i32> = std::process::Command::new("mount")
+            .args([device, mountdir])
+            .status()
+            .expect("failed to execute process")
+            .code();
+        dbg!(status);
 
-        });
+        let filename = "datasheet.txt";
+        // TODO: handle unwrap
+        std::fs::File::create_new(format!("{mountdir}/{filename}")).unwrap();
+
+        let status: Option<i32> = std::process::Command::new("umount")
+            .arg(mountdir)
+            .status()
+            .expect("failed to execute process")
+            .code();
+        dbg!(status);
+
     }
 
 }

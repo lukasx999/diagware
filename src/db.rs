@@ -62,43 +62,6 @@ where F: Future
 
     }
 
-    pub fn module_add(&self, module: Module) -> sqlx::Result<()> {
-        let fut = sqlx::query!(
-            "INSERT INTO modules (id, name, serial) VALUES (?1, ?2, ?3)",
-            module.id,
-            module.name,
-            module.serial
-        ).execute(&self.conn);
-
-        self.run_sync(fut)?;
-        Ok(())
-    }
-
-    pub fn module_update_by_id(
-        &self,
-        module: Module
-    ) -> sqlx::Result<()> {
-        let fut = sqlx::query!(
-            "UPDATE modules SET name=?1, serial=?2 WHERE id=?3;",
-            module.name,
-            module.serial,
-            module.id
-        ).execute(&self.conn);
-
-        self.run_sync(fut)?;
-        Ok(())
-    }
-
-    pub fn module_delete_by_id(&self, id: i64) -> sqlx::Result<()> {
-        let fut = sqlx::query!(
-            "DELETE FROM modules WHERE id=?1",
-            id
-        ).execute(&self.conn);
-
-        self.run_sync(fut)?;
-        Ok(())
-    }
-
     pub fn get_targetvalues_all(&self) -> sqlx::Result<Vec<TargetValue>> {
         let fut = sqlx::query_as!(
             TargetValue,
