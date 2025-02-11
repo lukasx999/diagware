@@ -170,7 +170,7 @@ impl Documents {
 
 
         let dirname = "diagnosis_documents";
-        std::fs::create_dir(dirname).unwrap();
+        std::fs::create_dir(format!("{mountdir}/{dirname}")).unwrap();
 
         let blobs: Vec<(String, Blob)> = documents
             .into_iter()
