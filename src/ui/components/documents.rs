@@ -170,7 +170,8 @@ impl Documents {
 
 
         let dirname = "diagnosis_documents";
-        std::fs::create_dir(format!("{mountdir}/{dirname}")).unwrap();
+        /* Only create dir if not existant */
+        std::fs::create_dir_all(format!("{mountdir}/{dirname}")).unwrap();
 
         let blobs: Vec<(String, Blob)> = documents
             .into_iter()
@@ -180,9 +181,11 @@ impl Documents {
         for (name, blob) in blobs {
             let f = format!("{mountdir}/{dirname}/{name}");
             let file = File::create(f).unwrap();
+            // TODO: write blob to file
             drop(file); // cannot unmount open files
         }
 
+        logger.append(LogLevel::Info, "File transfer successful");
 
 
         unsafe {
