@@ -2,9 +2,11 @@ use crate::ui::components::prelude::*;
 
 use crate::{Diagnosis, DB, db::model::{Module, Document, Blob}};
 
+const MOUNT_FAILURE: i32 = 32;
 
 
 pub struct Documents {
+    logger: Rc<RefCell<Logger>>,
     db: DB,
     selected_module: usize,
     /*
@@ -30,8 +32,9 @@ impl Component for Documents {
 
 impl Documents {
 
-    pub fn new() -> Self {
+    pub fn new(logger: Rc<RefCell<Logger>>) -> Self {
         let mut s = Self {
+            logger,
             db: DB::new().unwrap(),
             selected_module: 0,
             selected_docs: HashMap::new(),
@@ -127,6 +130,7 @@ impl Documents {
     }
 
     fn mount(&self, blobs: Vec<Blob>) {
+        let mut logger = self.logger.borrow_mut();
 
         if blobs.len() == 0 {
             return;
@@ -135,12 +139,17 @@ impl Documents {
         let mountdir = "/mnt";
         let device = "/dev/sda1";
 
-        let status: Option<i32> = std::process::Command::new("mount")
+        let status: i32 = std::process::Command::new("mount")
             .args([device, mountdir])
             .status()
             .expect("failed to execute process")
-            .code();
+            .code()
+            .unwrap();
         dbg!(status);
+
+        if status == MOUNT_FAILURE {
+            logger.append(LogLevel::Error, "Failed to mount USB Device");
+        }
 
         let filename = "datasheet.txt";
         // TODO: handle unwrap
