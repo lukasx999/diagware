@@ -1,3 +1,6 @@
+use std::io::Write;
+use std::fs::File;
+
 use crate::ui::components::prelude::*;
 use crate::{Diagnosis, DB, db::model::{Module, Document, Blob}};
 
@@ -125,28 +128,29 @@ impl Documents {
             .filter(|item| docs_state[&item.descriptor])
             .collect();
 
-        let blobs: Vec<Blob> = selected_docs.into_iter().map(|item| item.document).collect();
-        self.mount(blobs);
+        self.mount(selected_docs);
 
     }
 
-    fn mount(&self, blobs: Vec<Blob>) {
+    fn mount(&self, documents: Vec<Document>) {
         let mut logger = self.logger.borrow_mut();
 
-        if blobs.len() == 0 {
+        if documents.len() == 0 {
+            logger.append(LogLevel::Warning, "No documents selected");
             return;
         }
 
-        let mountdir = "/mnt";
+        let mountdir = format!("{}/diag_mnt", env!("HOME"));
+        //std::fs::create_dir().unwrap();
         let device = "/dev/sda1";
 
+
         let status: i32 = std::process::Command::new("mount")
-            .args([device, mountdir])
+            .args([device, &mountdir])
             .status()
             .expect("failed to execute process")
             .code()
             .unwrap();
-        dbg!(status);
 
         if status == MOUNT_FAILURE {
             // TODO: show error popup
@@ -157,9 +161,35 @@ impl Documents {
 
         logger.append(LogLevel::Info, "Mounting USB Drive successful");
 
-        let filename = "datasheet.txt";
-        // TODO: handle unwrap
-        let file = std::fs::File::create_new(format!("{mountdir}/{filename}")).unwrap();
+
+
+        unsafe {
+            let err = libc::seteuid(0);
+            assert_eq!(err, 0);
+        }
+
+
+        let dirname = "diagnosis_documents";
+        std::fs::create_dir(dirname).unwrap();
+
+        let blobs: Vec<(String, Blob)> = documents
+            .into_iter()
+            .map(|item| (item.descriptor, item.document))
+            .collect();
+
+        for (name, blob) in blobs {
+            let f = format!("{mountdir}/{dirname}/{name}");
+            let file = File::create(f).unwrap();
+            drop(file); // cannot unmount open files
+        }
+
+
+
+        unsafe {
+            let err = libc::seteuid(1000);
+            assert_eq!(err, 0);
+        }
+
 
         let status: i32 = std::process::Command::new("umount")
             .arg(mountdir)
@@ -167,7 +197,6 @@ impl Documents {
             .expect("failed to execute process")
             .code()
             .unwrap();
-
         assert_eq!(status, 0);
 
     }

@@ -54,8 +54,8 @@ VALUES (3, 0, 5, 9, 2, 3, 5, 9, 4);
 
 INSERT INTO documents
     (module_id, document, descriptor)
-VALUES (1, readfile('documents/pamp_datasheet.pdf'), 'datasheet');
+VALUES (1, readfile('documents/pamp_datasheet.pdf'), 'datasheet.pdf');
 
 INSERT INTO documents
     (module_id, document, descriptor)
-VALUES (1, readfile('documents/pamp_script.pdf'), 'script');
+VALUES (1, readfile('documents/pamp_script.pdf'), 'script.pdf');

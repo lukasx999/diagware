@@ -66,6 +66,9 @@
 - Add rustup target for ARM architecutre
   - config in `.cargo/config.toml`
   - `rustup target add aarch64-unknown-linux-gnu`
+- setting effective user id (euid) in main to 1000 (user) to not mess things up accidentally
+  - new spawned processes (mount / umount) will inherit uid=0
+  - rust std functions will require manually setting euid to 0
 
 
 
