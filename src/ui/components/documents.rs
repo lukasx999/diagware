@@ -1,6 +1,7 @@
 use crate::ui::components::prelude::*;
-
 use crate::{Diagnosis, DB, db::model::{Module, Document, Blob}};
+
+use egui::containers::Modal;
 
 const MOUNT_FAILURE: i32 = 32;
 
@@ -148,20 +149,58 @@ impl Documents {
         dbg!(status);
 
         if status == MOUNT_FAILURE {
-            logger.append(LogLevel::Error, "Failed to mount USB Device");
+            // TODO: show error popup
+            logger.append(LogLevel::Error, "Failed to mount USB Drive");
+            return;
         }
+        assert_eq!(status, 0);
+
+        logger.append(LogLevel::Info, "Mounting USB Drive successful");
 
         let filename = "datasheet.txt";
         // TODO: handle unwrap
-        std::fs::File::create_new(format!("{mountdir}/{filename}")).unwrap();
+        let file = std::fs::File::create_new(format!("{mountdir}/{filename}")).unwrap();
 
-        let status: Option<i32> = std::process::Command::new("umount")
+        let status: i32 = std::process::Command::new("umount")
             .arg(mountdir)
             .status()
             .expect("failed to execute process")
-            .code();
-        dbg!(status);
+            .code()
+            .unwrap();
+
+        assert_eq!(status, 0);
 
     }
+
+    /*
+    fn popup_error(&self, ui: &mut egui::Ui) {
+
+
+        let modal = Modal::new(egui::Id::new("Login")).show(ui.ctx(), |ui| {
+
+            ui.heading("Error");
+
+            //response.request_focus();
+
+            ui.separator();
+
+            egui::Sides::new().show( ui, |_ui| (), |ui| {
+                if ui.button("Cancel").clicked() {
+                    self.modal_current_password.clear();
+                    self.modal_open = false;
+                }
+                if ui.button("Login").clicked() {
+                    self.login();
+                }
+            },
+            );
+
+        });
+
+        if modal.should_close() {
+            self.modal_open = false;
+        }
+}
+    */
 
 }
