@@ -56,10 +56,12 @@ impl Matrix {
     }
 }
 
+pub type Blob = Vec<u8>;
+
 #[derive(Debug, Clone)]
 pub struct Document {
     pub id:         i64,
     pub module_id:  i64,
-    pub document:   Vec<u8>,
+    pub document:   Blob,
     pub descriptor: String,
 }

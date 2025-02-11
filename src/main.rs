@@ -16,9 +16,6 @@ use io::{
     adc::ADC,
 };
 
-mod transfer;
-use transfer::Transfer;
-
 mod logger;
 use logger::Logger;
 

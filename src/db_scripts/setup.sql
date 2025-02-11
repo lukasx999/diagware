@@ -21,7 +21,7 @@ CREATE TABLE documents (
     id         INTEGER PRIMARY KEY NOT NULL,
     module_id  INTEGER NOT NULL,
     document   BLOB    NOT NULL,
-    descriptor TEXT NOT NULL,
+    descriptor TEXT    NOT NULL,
     FOREIGN KEY(module_id) REFERENCES modules(id)
 );
 

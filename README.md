@@ -126,11 +126,18 @@ Run Upload Script (`up.sh`)\
 - [Rustup](https://rustup.rs/) - run command specified for `Unix`
 
 
+### Building for Prod
+- `cargo b`
+- `sudo ./install.sh`
+- `~/diagware`
+
+
 ### Building
 
 - `cargo build --release`
 *or:*
 - `cargo b -r`
+
 
 
 

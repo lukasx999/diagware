@@ -1,14 +1,16 @@
 use crate::ui::components::prelude::*;
 
-use crate::{Diagnosis, DB, db::model::Module};
+use crate::{Diagnosis, DB, db::model::{Module, Document, Blob}};
 
 
 
 pub struct Documents {
     db: DB,
     selected_module: usize,
-    // TODO: refactor key to module id
-    selected_docs:   HashMap<String, HashMap<String, bool>>,
+    /*
+     * Using String as hashmap key for easier debugging
+     */
+    selected_docs: HashMap<String, HashMap<String, bool>>,
 }
 
 impl Component for Documents {
@@ -67,9 +69,7 @@ impl Documents {
         ui.separator();
 
         if ui.button("Download").clicked() {
-            let module = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
-            let docs = &self.selected_docs[&module.name];
-            // TODO:
+            self.download();
         }
 
     }
@@ -110,7 +110,27 @@ impl Documents {
             );
     }
 
-    fn mount() {
+    fn download(&self) {
+        let module = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
+        let documents = self.db.get_documents_by_id(module.id).unwrap();
+        let docs_state = &self.selected_docs[&module.name];
+
+        /* only keep documents that are actually selected */
+        let selected_docs: Vec<Document> = documents
+            .into_iter()
+            .filter(|item| docs_state[&item.descriptor])
+            .collect();
+
+        let blobs: Vec<Blob> = selected_docs.into_iter().map(|item| item.document).collect();
+        self.mount(blobs);
+
+    }
+
+    fn mount(&self, blobs: Vec<Blob>) {
+
+        if blobs.len() == 0 {
+            return;
+        }
 
         let mountdir = "/mnt";
         let device = "/dev/sda1";
