@@ -154,6 +154,7 @@ impl Documents {
 
         if status == MOUNT_FAILURE {
             // TODO: show error popup
+            println!("Mount failed");
             logger.append(LogLevel::Error, "Failed to mount USB Drive");
             return;
         }
@@ -180,8 +181,8 @@ impl Documents {
 
         for (name, blob) in blobs {
             let f = format!("{mountdir}/{dirname}/{name}");
-            let file = File::create(f).unwrap();
-            // TODO: write blob to file
+            let mut file = File::create(f).unwrap();
+            file.write_all(&blob).unwrap();
             drop(file); // cannot unmount open files
         }
 
