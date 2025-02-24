@@ -2,20 +2,15 @@
 
 ## Notes
 
-- fsync / libusb
-- Housekeeping is 2nd priority
 - Database Entry for DDS configuration
 
 ## Questions
 
 - Changing serial requiring admin mode?
-- Multiple breakpoints?
-- Reset breakpoint after reaching breakpoint?
-
 
 
 ## TODO
-- [ ] writing to USB (documents / logfile) (popup selector for device (from lsblk))
+- [x] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
 
 - [ ] Shaders
