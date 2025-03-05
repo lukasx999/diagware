@@ -1,0 +1,16 @@
+Alle Bilder die in den LATEX Sourcen verwendet werden befinden sich in diesem Ordner.
+Da für ein Modul immer ein Lehrer- und eine Schülerexemplar erstellt wird, haben die Bilder in der Source den selben Namen, werden aber abhängig von der Version aus einem unterschiedlichen Unterordner bezogen.
+01_PICT ... darin befinden sich die Originalbilder, die in der Lehrerausgabe verwendet werden.
+02_PICT_S ... darin befinden sich die Bilder, die in der Schülerausgabe verwendet werden. Entweder gleichen Sie der Lehrerausgabe, oder sind Lückenhaft.
+
+Das Visio hat mehrere Makros
+1) Save as pdf: 
+	a) Das Bild in den PLOT-Reiter kopieren.
+	b) Cntrl+B schneidet das Bild auf minimale Größe
+	c) Cntrl+N speichert ein pdf file ab (Achtung die Location muss vorher eingestellt werden)
+
+2) Lehrer- Schülerversion:
+	a) Es ist ein Lehrerlayer definiert, der mit dem shortcut Cntrl+k bzw Cntrl+l geschaltet werden kann.
+
+
+Üblicher Weise speichere ich die PDFs mit dem Macro in das Verzeichnis 07_AUX, benenne es so wie ich will, und ferschiebe es sodann in den 01_PICT oder 02_PICT_S Ordner!

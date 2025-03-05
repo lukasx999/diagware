@@ -1,0 +1,10 @@
+\babel@toc {german}{}\relax 
+\contentsline {section}{\numberline {1}Messen von Strom und Spannung }{2}{}%
+\contentsline {subsection}{\numberline {1.1}Aufgabenstellung}{2}{}%
+\contentsline {subsection}{\numberline {1.2}Schaltung}{2}{}%
+\contentsline {subsection}{\numberline {1.3}Tabellen}{2}{}%
+\contentsline {subsection}{\numberline {1.4}Formeln}{3}{}%
+\contentsline {subsection}{\numberline {1.5}Berechnungsbeispiele}{3}{}%
+\contentsline {subsection}{\numberline {1.6}Diagramme}{3}{}%
+\contentsline {subsection}{\numberline {1.7}Diskussion}{4}{}%
+\contentsline {subsection}{\numberline {1.8}Geräteverzeichnis}{5}{}%

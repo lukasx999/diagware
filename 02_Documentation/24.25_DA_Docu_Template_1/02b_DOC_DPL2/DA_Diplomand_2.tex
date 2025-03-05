@@ -1,0 +1,135 @@
+%
+%****************************************************************************************************
+%======================= B E G I N   D O C U M E N T   S E T T I N G S ========================
+%****************************************************************************************************
+%
+\documentclass[a4paper, 12pt, xcolor=dvipsnames]{scrartcl}		% Article als Modul
+\input{./../00_LATdef/UsePackages.tex}                    			% Input file für gemeinsame Package Definitionen
+%
+%--------------------Set data for document:
+\newcommand{\SYear}{2017/18}
+\newcommand{\SClass}{5xHET}
+\newcommand{\ADatum}{04. April 2018}
+\newcommand{\DAName}{Mustervorlage zur Erstellung einer Diplomarbeitsdokumentation mit \LaTeX{}}
+\newcommand{\DPLNameOne}{Vorname Nachname1}		% Diplomand 1
+\newcommand{\DPLNameTwo}{Vorname Nachname2}		% Diplomand 2
+\newcommand{\BNameOne}{Vorname Nachname1}			% Betreuer 1
+\newcommand{\BNameTwo}{Vorname Nachname2}			% Betreuer 2
+%
+\setboolean{UseWm}{true} 								% Wasserzeichen einschalten
+%\newcommand{\WatermarkName}{Korrekturexemplar}			%Text für das Wasserzeichen
+\newcommand{\WatermarkName}{Diplomand 2}				%Text für das Wasserzeichen
+%
+%==============================S E T T I N G S ===================================
+%
+\input{./../00_LATdef/DocSettings.tex}                    % Input file für gemeinsame Definitionen
+%
+%****************************************************************************************************
+%=========================== B E G I N   S U B D O C U M E N T  ==========================
+%****************************************************************************************************
+%
+\begin{document}
+\changefont{pag}{m}{n}
+\section{Regeln für Zitate und Quellenangaben\protect\footnote{Das Quellenverzeichnis ist ein verbindlicher Bestandteil der Diplomarbeit.}}
+Ein wesentliches Prinzip wissenschaftlichen Arbeitens ist die Nachvollziehbarkeit der in einer Diplomarbeit
+getätigten Aussagen. Werden in einer derartigen schriftlichen Arbeit fremde Quellen verwendet, das heißt zitiert bzw. den eigenen Aussagen zugrunde gelegt, so sind diese Quellen vollständig und korrekt anzugeben.\\
+
+%\begin{center}
+{\begin{tabular}{p{1.0cm}p{12.0cm}}
+%\rowcolor{orange!10}
+\multicolumn{2}{p{13.0cm}}{\textbf{Derartige Quellen können zum Beispiel sein:}} \\ 
+\textcolor{black!80} {\large\textbf{$\to$}}  & Texte (Bücher, Fachzeitschriften, Firmenunterlagen \dots) \\ 
+\textcolor{black!80} {\large\textbf{$\to$}}  & Filme, Videosequenzen, Radiosendungen \\
+\textcolor{black!80} {\large\textbf{$\to$}}  & Unterrichtsinhalte, Grafiken (Diagramme, Tabellen \dots) \\
+\textcolor{black!80} {\large\textbf{$\to$}}  & Informationen aus dem Internet \\
+\textcolor{black!80} {\large\textbf{$\to$}}  & persönliche Mitteilungen, z.B. externer Fachexperten \\ 
+\end{tabular}}
+%\end{center}
+\vspace{0.5cm}
+  
+
+\subsection{Zitate}
+
+%
+%---------- BEGIN  M e r k s a t z
+\begin{Merksatz}
+Mit Zitaten belegt man Gedankengänge, Behauptungen und Aussagen.
+Sie müssen daher kommentiert und in Beziehung zum konkreten Aspekt der DA gesetzt
+werden!
+\end{Merksatz}
+%---------- END  M e r k s a t z
+%
+
+\textbf{Zu vermeiden sind:}
+%
+\begin{enumerate}
+\linespread {1.0}\changefont{pag}{m}{n}
+\item zu viele und zu umfangreiche Zitate
+\item unnötige Zitate (z. B. technisches Allgemeinwissen)
+\item ungenaue und falsche Zitate
+\item zu wenige Zitate (sind die Ergebnisse wirklich selbst gefunden und geschrieben worden?)
+\item aus ihrem Zusammenhang gerissene Zitate
+\linespread {1.25}\changefont{pag}{m}{n}
+\end{enumerate}
+
+Das Fehlen korrekter Quellenangaben (z. B. bei Texten, Bilder, Plänen, Zeichnungen, Schaltplänen, Beschreibungen etc.)
+kann im Falle der Veröffentlichung der Diplomarbeit schwerwiegende rechtliche Folgen nach sich ziehen und gravierende
+finanzielle Auswirkungen (Schadenersatz) bewirken.\\
+
+%
+%---------- BEGIN  M e r k s a t z
+\begin{Merksatz}
+Zitate sind wörtliche Übernahmen aus einem Text und durch Anführungszeichen am Anfang und am Ende als solche zu kennzeichnen!
+\end{Merksatz}
+%---------- END  M e r k s a t z
+%
+Es können ganze Sätze oder Satzteile zitiert werden. Zitate können als »wörtliches Zitat« oder als »indirektes Zitat« in den eigenen Text eingefügt werden.
+
+\subsubsection{Das wörtliche Zitat}
+Das Zitat darf nicht willkürlich aus seinem Textzusammenhang gerissen und sinnentstellend wiedergegeben werden.
+Zitate bis zu zwei Zeilen werden in den eigenen Text eingefügt.\\
+Zitate über mehr als zwei Zeilen werden eingerückt und im Blocksatz geschrieben. Die Quellenangabe sollte im Anschluss an das Zitat in Klammern angeführt werden. Werden Teile des Textes ausgelassen, so ist das durch Klammern und Auslassungspunkte [...] zu kennzeichnen. Eigene erklärende Anmerkungen im Zitat werden mittels eckiger Klammern [mein Kommentar] markiert. \\
+
+\textbf{Beispiel Langzitat: eingerückt im Blocksatz, Quelle in Kurzform:}\\
+%---------- BEGIN  LANGZITAT 
+\vspace{-0.3cm}
+
+\hspace{1.0cm}
+    \begin{minipage}{0.935\textwidth}
+	\linespread {1.25}\changefont{pag}{m}{n}
+„Sie wurde zum ersten Mal 1695 in England Wirklichkeit, als das Parlament auf die Zensur [...]
+verzichtete. Auf dem Kontinent hat man die Pressefreiheit erst knapp hundert Jahre später
+[...] verkündet.“ \cite{Buch:Killinger}
+    \end{minipage}
+\vspace{0.5cm}
+%---------- END  T e x t   and  G r a p h i k    in  S u b s e c t i o n
+%
+
+\textbf{Beispiel Kurzitat im Text: keine Einrückung, Quelle in Kurzform:}\\
+Die Pressefreiheit zählt zu den wichtigsten Kennzeichen einer Demokratie. „Sie wurde zum ersten Mal
+1695 in England Wirklichkeit, als das Parlament auf die Zensur [...] verzichtete.“ \cite{Skript:ES1}.
+
+\subsubsection{Das indirekte Zitat}
+%---------- BEGIN  M e r k s a t z
+\begin{Merksatz}
+Der Sinn des Quellentextes darf nicht verändert werden. Indirekte Zitate bleiben ohne Anführungszeichen im Arbeitstext unter Hinzufügung von (vgl. Autor, Jahreszahl, Seite)
+\end{Merksatz}
+%---------- END  M e r k s a t z
+%
+\textbf{Beispiel Indirektes Zitat:}\\
+Die Pressefreiheit zählt zu den wichtigsten Kennzeichen einer Demokratie. Sie wurde in England
+1695 zum ersten Mal verkündet. \cite{Buch:Deimel1}
+\newpage
+
+%
+% Verzeichnisse (to be commented out for compilation of main file):
+% \input{./../02_DOC_Main/DA_03_ADDendum.tex}
+%
+%
+%****************************************************************************************************
+%============================= E N D   S U B D O C U M E N T  ==========================
+%****************************************************************************************************
+%
+\end{document}
+
+

@@ -1,0 +1,102 @@
+% STYLE SHEET
+% + Definiert das Design/Aussehen
+% + Hier werden benötigte Pakete inkludiert
+% + Titelseite wird definiert (Format und Textfelder mit Inhalt)
+%--------------------------------------------------------------------
+
+%
+% Inkludierte Pakete
+%
+\usepackage[utf8]{inputenc}			% Umlaute und Silbentrennung
+\usepackage[german]{babel}				% Deutsche Rechtschreibprüfung
+\usepackage{amsmath}                    % Mathematische Symbole
+\usepackage{amssymb}                    % Mathematische Symbole
+\usepackage{amsfonts}                   % Mathematische Symbole
+\usepackage{mathrsfs}                   % Symbole für Fourier und Laplace Transformation
+\usepackage{eufrak}                     % Fraktur Symbole
+\usepackage{multirow}                   % Tabellen Paket
+\usepackage{graphicx}                   % Einbinden von Grafiken möglich
+\usepackage{geometry}					% Einstellen der Seiten Dimensionen
+\usepackage{fancyhdr}					% Einstellen der Kopf- und Fußzeilen
+\usepackage{lastpage}
+
+%---------------------------------------------------------------------
+% Layout
+%---------------------------------------------------------------------
+\geometry{right=1.5cm,top=2cm, bottom=1.5cm, includeheadfoot}
+
+
+%---------------------------------------------------------------------
+% Design der Titelseite festlegen 
+%---------------------------------------------------------------------
+% Neuer Befehl \Header wird hier definiert (Verewendung des Befehls in .tex)
+\newcommand{\HTLheader}[7]{ % Elemente (#1 bis #7) müssen im .tex ausgefüllt/ergänzt werden
+\begin{titlepage}
+\pagestyle{empty} \enlargethispage*{25cm}\samepage{
+\vspace*{-2.5cm}
+
+\begin{center}
+% Linke und rechte Seite als Felder (nebeneinander)
+\begin{tabular}[b]{lr}
+	
+% Linke Seite der Kopfzeile
+\hspace*{-1.5cm}
+\begin{tabular}{p{3.8cm}}
+\includegraphics[width=3.8cm]{./../03_PICS/HTLlogo}
+\end{tabular}
+
+% Rechte Seite der Kopfzeile
+\begin{tabular}{p{12.8cm}}
+\begin{flushright}
+	\large
+	Elektrotechnik \\
+	Informationstechnik \\
+	\bf{HTL-Weiz} 
+		
+\end{flushright}
+\end{tabular}
+\end{tabular}
+%% Ende der Kopfzeile
+
+
+%---------------------------------------------------------------------
+% Titelseite Inhalt unter Kopfzeile
+%---------------------------------------------------------------------
+
+\vspace*{2.5cm}
+\Huge {{#1}\\} 					% z.B. Elektroteches Labor
+
+\vspace*{3cm}
+\Huge{\textbf{#2}\\} 			%z.B. Laborübung 1: ....
+
+\vspace*{0.5cm}
+\Large{{#3}\\} 					%z.B. Übungsdatum: ....
+
+\vspace*{2.0cm} \vfill
+\Large{{#4}\\} \vspace*{.7cm} 	% z.B. Gruppe 2
+\Large{{#5}\\} \vspace*{.1cm}	% z.B. Teilnehmer
+\Large{#6} \vspace{1cm} 		% Name der beteiligten Studierenden
+\Large{#7\\} \vspace*{1.5cm}	% z.B. Betreuer
+%
+\end{center}}%
+%
+\clearpage \end{titlepage}}
+
+
+%---------------------------------------------------------------------
+% Kopf- und Fußzeil definieren
+%---------------------------------------------------------------------
+
+\pagestyle{fancy}
+\fancyhf{} %leert alle evtl. vorhandenen Kopf und Fusszeilen
+%\lhead{a}
+%\chead{b}
+%\rhead{c}
+\lfoot{Nur für den schulinternen Gebrauch!}
+\rfoot{\thepage~von~\pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Neue Befehle erstellen (umbenennen) - Beispiele
+%\renewcommand{\j}{\ensuremath{\mathrm{j}}} % Imaginary Unit
+

@@ -1,0 +1,1 @@
+In diesem Verzeichnis befinden sich die LATEX sourcen des MODULS. Wie schon erwähnt werden die PDFs dann in einen eigenen Ordner wegkopiert, um sie schneller zu finden.
