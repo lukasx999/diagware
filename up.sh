@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-
 USER=pi
 # IP=10.0.0.253
 IP=172.31.178.126
@@ -10,7 +9,6 @@ DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 ENV=DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db"
-
 
 function print_usage {
     echo "Usage: $0 <build | run>" 1>&2
