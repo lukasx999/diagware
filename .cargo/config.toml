@@ -1,5 +1,5 @@
 [env]
-DATABASE_URL = { relative = false, value = "sqlite:///home/lukas/code/repos/diagware-rs/src/database.db" }
+DATABASE_URL = { relative = false, value = "sqlite:///home/lukas/code/repos/diagware/src/database.db" }
 
 # [build]
 # target = "aarch64-unknown-linux-gnu"
