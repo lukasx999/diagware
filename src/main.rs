@@ -1,5 +1,3 @@
-use std::error::Error;
-
 mod ui;
 
 mod db;
@@ -25,7 +23,7 @@ pub mod util;
 
 
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     unsafe {
         let err = libc::setuid(0);
