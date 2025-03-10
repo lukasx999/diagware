@@ -2,7 +2,6 @@ use crate::ui::components::prelude::*;
 
 use std::sync::mpsc;
 use std::thread::JoinHandle;
-use std::marker::Send;
 
 use crate::diagnosis::{
     self as diag,
@@ -378,7 +377,7 @@ impl DiagnosisUi {
     // Launch a new thread, save the handle, and let the caller provide a callback receiving a
     // mutable reference to the diagnosis
     fn spawn_diag_thread<T>(&mut self, callback: T)
-        where T: Fn(&mut Diagnosis) -> DiagnosisResult + Send + 'static
+        where T: Fn(&mut Diagnosis) -> DiagnosisResult + std::marker::Send + 'static
     {
         assert!(self.diag_thread_handle.is_none(), "Diagnosis is already running");
 

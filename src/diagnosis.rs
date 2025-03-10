@@ -1,23 +1,14 @@
-use std::{
-    thread,
-    time::Duration,
-    sync::{mpsc, Arc, Mutex},
-};
+use std::thread;
+use std::time::Duration;
+use std::sync::mpsc;
 
-use crate::{
-    EEPROM,
-    DDS,
-    ShiftRegister,
-    DB,
-    ADC,
-    Logger,
-    db::model::{Module, Matrix, TargetValue},
-};
+use crate::{EEPROM, DDS, ShiftRegister, DB, ADC};
+use crate::db::model::{Module, Matrix};
 
 
 
 
-// TODO: num_traits::FromPrimitive
+// I know about `num_traits::FromPrimitive`
 pub const STATE_COUNT: u32 = 7; // needed for rendering state machine
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -30,8 +21,6 @@ pub enum State {
     Evaluation      = 5,
     End             = 6, // not included in `STATE_COUNT` (implementationdetail)
 }
-
-
 
 impl State {
     pub fn from_u32(num: u32) -> Self {
@@ -104,7 +93,6 @@ pub struct Diagnosis {
 
     // Temporary values resulting from computations within the states
     temp_module: Option<Module>,
-    temp_matrix: Option<Matrix>,
 }
 
 impl Diagnosis {
@@ -119,7 +107,6 @@ impl Diagnosis {
             adc:         ADC::new()?,
             shiftreg:    ShiftRegister::new()?,
             temp_module: None,
-            temp_matrix: None,
         })
     }
 
@@ -129,7 +116,6 @@ impl Diagnosis {
 
     fn reset_internal_state(&mut self) {
         self.temp_module = None;
-        self.temp_matrix = None;
     }
 
     // Transition to the next state
@@ -163,18 +149,20 @@ impl Diagnosis {
 
                 let serial: String = self.eeprom.get_serial()?;
                 let module: Module = self.db.get_module_by_serial(&serial)?;
-                let matrix: Matrix = self.db.get_matrix_by_id(module.id)?;
 
-                self.temp_matrix = Some(matrix);
                 self.temp_module = Some(module);
             }
 
             S::SwitchMatrix => {
                 Self::delay();
-                let matrix: &Matrix = &self.temp_matrix
+
+                let id = self.temp_module
                     .as_ref()
-                    .unwrap();
-                self.shiftreg.switch(matrix)?;
+                    .unwrap()
+                    .id;
+
+                let matrix: Matrix = self.db.get_matrix_by_id(id)?;
+                self.shiftreg.switch(&matrix)?;
             }
 
             S::ApplySignals => {
@@ -185,12 +173,21 @@ impl Diagnosis {
 
             S::Measurements => {
                 Self::delay();
+
                 self.adc.measure()?;
             }
 
             S::Evaluation => {
-                // use crate::db::model::TargetValue;
                 Self::delay();
+
+                let id = self.temp_module
+                    .as_ref()
+                    .unwrap()
+                    .id;
+
+                let targetvalues = self.db.get_targetvalues_by_id(id)?;
+                dbg!(&targetvalues);
+
             }
 
             S::End => {

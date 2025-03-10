@@ -13,7 +13,6 @@ pub struct DB {
     rt:   TokioRuntime,
 }
 
-#[allow(dead_code)]
 impl DB {
 
     pub fn new() -> sqlx::Result<Self> {
@@ -24,9 +23,7 @@ impl DB {
         })
     }
 
-    fn run_sync<F>(&self, fut: F) -> F::Output
-where F: Future
-    {
+    fn run_sync<F: Future>(&self, fut: F) -> F::Output {
         self.rt.block_on(fut)
     }
 
@@ -60,15 +57,6 @@ where F: Future
 
         Ok(self.run_sync(fut)?)
 
-    }
-
-    pub fn get_targetvalues_all(&self) -> sqlx::Result<Vec<TargetValue>> {
-        let fut = sqlx::query_as!(
-            TargetValue,
-            "SELECT * FROM targetvalues"
-        ).fetch_all(&self.conn);
-
-        Ok(self.run_sync(fut)?)
     }
 
     pub fn get_targetvalues_by_id(&self, id: i64) -> sqlx::Result<Vec<TargetValue>> {
