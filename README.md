@@ -1,4 +1,4 @@
-# Diagware
+# Diagware for Mixed Signal Building Blocks
 
 ## Notes
 
