@@ -363,9 +363,11 @@ impl DiagnosisUi {
 
             }
 
-            Err(_error) => {
+            Err(error) => {
+                // TODO: show error popup
                 logger.append(LogLevel::Error, "Diagnosis failed");
                 println!("Diagnosis failed");
+                dbg!(&error);
             }
 
         }
