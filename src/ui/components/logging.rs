@@ -15,7 +15,7 @@ pub struct Logging {
 
 impl Component for Logging {
     fn name(&self) -> &'static str {
-        config::PAGE_LOGGING
+        "Logging"
     }
     fn show(&mut self, ctx: &egui::Context, active: &mut bool) {
         egui::Window::new(self.name())

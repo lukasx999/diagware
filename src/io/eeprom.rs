@@ -27,38 +27,30 @@ const EEPROM_CLEAR_BYTE:   u8    = 0x0; // MUST be 0 for null termination
 
 
 
-
-
-
 #[derive(Debug)]
 pub struct EEPROM {
-    #[cfg(target_arch = "aarch64")]
     i2c: I2c,
 }
 
 impl EEPROM {
 
-    #[cfg(target_arch = "aarch64")]
     pub fn new() -> IoResult<Self> {
         let mut i2c = I2c::with_bus(EEPROM_I2C_BUS)?;
         i2c.set_slave_address(EEPROM_ADDRESS)?;
         Ok(Self { i2c })
     }
 
-    #[cfg(target_arch = "x86_64")]
-    pub fn new() -> IoResult<Self> {
-        Ok(Self {})
-    }
-
     fn delay() {
         std::thread::sleep(Duration::from_millis(EEPROM_I2C_DELAY_MS));
     }
 
-
-    #[cfg(target_arch = "aarch64")]
     pub fn get_serial(&self) -> IoResult<String> {
 
-        let mut buf = [0_u8; EEPROM_COLUMNS];
+        if cfg!(target_arch = "x86_64") {
+            return Ok("12345".to_owned());
+        }
+
+        let mut buf = [0; EEPROM_COLUMNS];
         self.i2c.block_read(0x0, &mut buf)?;
         Self::delay();
 
@@ -70,21 +62,13 @@ impl EEPROM {
 
     }
 
-    #[cfg(target_arch = "x86_64")]
-    pub fn get_serial(&self) -> IoResult<String> {
-        Ok("214232".to_owned())
-        // Ok("123".to_owned())
-    }
-
-    #[cfg(target_arch = "x86_64")]
-    pub fn write_serial(&self, serial: &str) -> IoResult<()> {
-        Ok(())
-    }
-
-
     // Accepts Strings with max. `EEPROM_COLUMNS` (=16) characters
-    #[cfg(target_arch = "aarch64")]
     pub fn write_serial(&self, serial: &str) -> IoResult<()> {
+
+        if cfg!(target_arch = "x86_64") {
+            return Ok(());
+        }
+
         // TODO: return eeprom error
         assert!(serial.len() <= EEPROM_SERIAL_MAX_SIZE);
 
@@ -97,13 +81,12 @@ impl EEPROM {
         Ok(())
     }
 
-    #[cfg(target_arch = "x86_64")]
     pub fn clear(&self) -> IoResult<()> {
-        Ok(())
-    }
 
-    #[cfg(target_arch = "aarch64")]
-    pub fn clear(&self) -> IoResult<()> {
+        if cfg!(target_arch = "x86_64") {
+            return Ok(());
+        }
+
         let bytes = [EEPROM_CLEAR_BYTE; EEPROM_COLUMNS];
 
         for row in (0x0..=EEPROM_ROW_MAX).step_by(EEPROM_ROW_STEP) {

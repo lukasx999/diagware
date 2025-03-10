@@ -14,7 +14,7 @@ pub struct Serialmanager {
 
 impl Component for Serialmanager {
     fn name(&self) -> &'static str {
-        config::PAGE_SERIALMANAGER
+        "Serial Management"
     }
     fn show(&mut self, ctx: &egui::Context, active: &mut bool) {
         egui::Window::new(self.name())

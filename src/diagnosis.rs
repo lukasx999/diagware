@@ -160,11 +160,10 @@ impl Diagnosis {
 
             S::ReadSerial => {
                 Self::delay();
+
                 let serial: String = self.eeprom.get_serial()?;
                 let module: Module = self.db.get_module_by_serial(&serial)?;
-
-                let id = module.id;
-                let matrix: Matrix = self.db.get_matrix_by_id(id)?;
+                let matrix: Matrix = self.db.get_matrix_by_id(module.id)?;
 
                 self.temp_matrix = Some(matrix);
                 self.temp_module = Some(module);

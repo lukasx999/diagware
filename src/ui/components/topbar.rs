@@ -12,7 +12,7 @@ pub struct Topbar {
 
 impl Component for Topbar {
     fn name(&self) -> &'static str {
-        "TopBar"
+        "Topbar"
     }
     fn show(&mut self, ctx: &egui::Context, _active: &mut bool) {
         egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {

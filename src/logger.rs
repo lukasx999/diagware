@@ -3,10 +3,7 @@ use serde::Serialize;
 use crate::util;
 
 
-#[cfg(target_arch = "aarch64")]
-const LOGDIRECTORY: &str = "/home/pi/.diagware/log";
-#[cfg(target_arch = "x86_64")]
-const LOGDIRECTORY: &str = "/home/lukas/.diagware/log";
+const LOGDIRECTORY: &str = ".diagware_logs";
 
 
 #[derive(Debug, Clone, Copy, Default, Serialize)]
@@ -87,14 +84,14 @@ impl Logger {
                 .to_string()
         );
 
-        let filepath = format!("{LOGDIRECTORY}/{filename}.json");
+        let logpath = format!("{}/{LOGDIRECTORY}", env!("HOME"));
+        let filepath = format!("{logpath}/{filename}.json");
 
         // Make sure log directory exists
         DirBuilder::new()
             .recursive(true)
-            .create(LOGDIRECTORY)
+            .create(logpath)
             .unwrap();
-
 
         let mut file = match File::create(&filepath) {
             Ok(f)  => f,

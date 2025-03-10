@@ -9,7 +9,7 @@ pub struct Pinview {
 
 impl Component for Pinview {
     fn name(&self) -> &'static str {
-        config::PAGE_PINVIEW
+        "Pinview"
     }
     fn show(&mut self, ctx: &egui::Context, active: &mut bool) {
         egui::Window::new(self.name())

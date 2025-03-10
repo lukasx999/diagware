@@ -21,7 +21,7 @@ pub struct Documents {
 
 impl Component for Documents {
     fn name(&self) -> &'static str {
-        config::PAGE_DOCUMENTMANAGER
+        "Documents"
     }
     fn show(&mut self, ctx: &egui::Context, active: &mut bool) {
         egui::Window::new(self.name())
