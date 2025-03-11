@@ -12,13 +12,19 @@ use crate::io::IoResult;
 
 pub const EEPROM_SERIAL_MAX_SIZE: usize = 16;
 
+#[cfg(target_arch = "aarch64")]
 const EEPROM_ADDRESS: u16 = 0x50;
+#[cfg(target_arch = "aarch64")]
 const EEPROM_I2C_BUS: u8  = 0x1;
 
 // Do not modify
+#[cfg(target_arch = "aarch64")]
 const EEPROM_COLUMNS:      usize = 16;
+#[cfg(target_arch = "aarch64")]
 const EEPROM_ROW_MAX:      u8    = 0xf0;
+#[cfg(target_arch = "aarch64")]
 const EEPROM_ROW_STEP:     usize = 16;
+#[cfg(target_arch = "aarch64")]
 const EEPROM_I2C_DELAY_MS: u64   = 10; // Delay after I2C transmission
 
 // `command` is actually the row of the eeprom memory

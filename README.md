@@ -6,12 +6,9 @@
 
 ## Questions
 
-- Changing serial requiring admin mode?
-
-
 ## TODO
-- [x] writing to USB (documents / logfile) (popup selector for device (from lsblk))
 - [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
+- [ ] add loop delay and visual indicator
 
 - [ ] Shaders
 - [ ] DB Manager - View DB

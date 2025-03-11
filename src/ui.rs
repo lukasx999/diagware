@@ -1,9 +1,7 @@
-use std::sync::{Arc, Mutex, mpsc};
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::diagnosis::{Diagnosis, State};
 use crate::Logger;
 
 pub mod config;
@@ -36,7 +34,6 @@ impl GuiApplication {
 
         use components::{
             serialmanager::Serialmanager,
-            pinview::Pinview,
             diagnosis::DiagnosisUi,
             logging::Logging,
             documents::Documents,
@@ -49,7 +46,6 @@ impl GuiApplication {
         let windows: Vec<Box<dyn Component>> = vec![
             Box::new(DiagnosisUi  ::new(logger.clone())),
             Box::new(Serialmanager::new(logger.clone(), is_expertmode.clone())),
-            Box::new(Pinview      ::new()),
             Box::new(Logging      ::new(logger.clone())),
             Box::new(Documents    ::new(logger.clone())),
         ];
@@ -80,15 +76,12 @@ impl eframe::App for GuiApplication {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
-        /* Config */
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
-        /*
-         * egui only redraws UI when the position of the mouse cursor
-         * changes, therefore, to show the changing of states, we have to explicitly redraw the ui
-         * every frame
-         */
+        // egui only redraws UI when the position of the mouse cursor changes,
+        // therefore, to show the changing of states, we have to explicitly
+        // redraw the ui every frame
         ctx.request_repaint();
 
         let mut topbar_active = true;

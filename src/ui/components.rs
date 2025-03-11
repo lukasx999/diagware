@@ -5,12 +5,10 @@ mod prelude {
     pub use std::collections::HashMap;
     pub use crate::logger::{Logger, LogLevel};
     pub use crate::ui::{Component, config};
-    pub use crate::diagnosis::Diagnosis;
     pub use crate::util;
     pub use egui::Color32;
 }
 
-pub mod pinview;
 pub mod serialmanager;
 pub mod diagnosis;
 pub mod logging;

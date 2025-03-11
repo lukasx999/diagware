@@ -1,4 +1,4 @@
-use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
+//use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
 
 use crate::db::model::Matrix;
 use crate::io::IoResult;
@@ -34,6 +34,7 @@ impl ShiftRegister {
         Ok(Self {})
     }
 
+    #[cfg(target_arch = "aarch64")]
     fn int_to_bits(number: u16) -> Vec<bool> {
 
         let bit_count = size_of::<u16>() * 8;
@@ -48,9 +49,7 @@ impl ShiftRegister {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
-        let bits = Self::int_to_bits(matrix.gnd);
-
+    pub fn switch(&mut self, _matrix: &Matrix) -> IoResult<()> {
         Ok(())
     }
 

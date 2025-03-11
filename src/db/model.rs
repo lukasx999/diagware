@@ -5,6 +5,10 @@ pub struct Module {
     pub serial: String,
 }
 
+
+// Rustc complains about unused fields, even if they are used by
+// SQLx's macro system, hence using allowing dead code
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TargetValue {
     pub id:         i64,
@@ -15,6 +19,7 @@ pub struct TargetValue {
     pub unit:       Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Matrix {
     pub id:       i64,
@@ -58,6 +63,7 @@ impl Matrix {
 
 pub type Blob = Vec<u8>;
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Document {
     pub id:         i64,
