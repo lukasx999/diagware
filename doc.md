@@ -4,6 +4,37 @@ Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenl
 Würde die Diagnose synchron ausgeführt werden, so würde das Rendering und Input-Handling des UI's blockieren, bis die Diagnose vollendet ist.
 Daher wird die Diagnose parallel zum UI in einem seperaten Thread ausgeführt.
 
+# Immediate-mode GUI vs Retained-mode GUI
+
+### Immediate-mode GUI
+- z.B.: DearImgui, Egui
+
+Das UI wird zu jedem Frame neu gezeichnet.
+
+**Vorteile**:
+- Einfachere Programmierung
+
+**Nachteile**:
+- Keine komplizierten Layouts möglich
+
+### Retained-mode GUI
+- z.B.: GTK, Qt
+
+UI-Komponenten werden einmalig festgelegt, und Callback-Funktionen werden für diese Komponenten festgelegt.
+
+**Vorteile**:
+- Komplizierte Layouts möglich
+
+**Nachteile**:
+- Komplizierte Programmiernung
+  - Arbeiten mit State in Callbacks ist oft kompliziert
+- Oft ein UI-Designer notwendig
+- Ist oft Teil von großen Frameworks, die auch andere Teile der Entwicklung vorgeben (zB Qt: QMake, QtDesigner, QSql, MOC (Meta Object Compiler (C++ Syntax Erweiterungen) teil des Build-Vorgangs)
+
+
+
+
+
 # Datenbank
 
 Für das Speichern der Sollwerte und Modulkonfigurationen wird eine Datenbank benötigt.
@@ -70,12 +101,16 @@ rt.block_on(future)?,
 
 # Abkürzungen/Fremdwörter
 
-Future: Ein Konzept um das Arbeiten mit Asynchronen Funktionen zu erleichtern.
-Eine Future ist ein Stück Arbeit die in der Zukunft erledigt wird. Eine Future kann "gepollt" werden, um einen kleinen Teil der Arbeit durchzuführen.
+Future:
+    Ein Konzept um das Arbeiten mit Asynchronen Funktionen zu erleichtern.
+    Eine Future ist ein Stück Arbeit die in der Zukunft erledigt wird. Eine Future kann "gepollt" werden, um einen kleinen Teil der Arbeit durchzuführen.
+    Es ist die Aufgabe einer Async-Funtime wie zB Tokio, diese Futures zu verwalten, und sie auszuführen.
 
 Struct: Compound-Type, Datentyp zusammengestellt aus mehreren anderen Datentypen.
 
-Enum: Tagged Union, kann verschiedene States annehmen. Diese States können einen konstanten Index darstellen (usize), einen tuple, ein field, oder keinen spezifischen Wert.
+Enum:
+    Tagged Union, kann verschiedene States annehmen.
+    Diese States können einen konstanten Index darstellen (usize), einen tuple, ein field, oder keinen spezifischen Wert.
 
 Tagged Union: Union, bei dem ein Tag (enum) angibt welcher Member zurzeit aktiv ist.
 
