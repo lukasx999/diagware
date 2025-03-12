@@ -1,9 +1,8 @@
 use crate::ui::components::prelude::*;
 
 use crate::ui::Component;
-use crate::logger::{LogMessage, LogLevel, Logger};
+use crate::logger::{LogLevel, Logger};
 use crate::ui::config;
-use crate::Diagnosis;
 
 use egui::Color32;
 

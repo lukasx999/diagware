@@ -2,9 +2,9 @@ use std::io::Write;
 use std::fs::File;
 
 use crate::ui::components::prelude::*;
-use crate::{Diagnosis, DB, db::model::{Module, Document, Blob}};
+use crate::{DB, db::model::{Module, Document, Blob}};
 
-use egui::containers::Modal;
+//use egui::containers::Modal;
 
 const MOUNT_FAILURE: i32 = 32;
 

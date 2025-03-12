@@ -1,6 +1,5 @@
 use crate::ui::components::prelude::*;
 
-use crate::Diagnosis;
 use crate::io::eeprom::{EEPROM_SERIAL_MAX_SIZE, EEPROM};
 
 

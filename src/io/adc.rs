@@ -1,4 +1,4 @@
-use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
+//use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
 
 use crate::io::IoResult;
 

@@ -1,5 +1,7 @@
+#[cfg(target_arch = "aarch64")]
 use std::time::Duration;
 
+#[cfg(target_arch = "aarch64")]
 use rppal::i2c::{self, I2c};
 
 use crate::io::IoResult;
@@ -90,7 +92,7 @@ impl EEPROM {
     }
 
     #[cfg(not(target_arch = "aarch64"))]
-    pub fn write_serial(&self, serial: &str) -> IoResult<()> {
+    pub fn write_serial(&self, _serial: &str) -> IoResult<()> {
         Ok(())
     }
 

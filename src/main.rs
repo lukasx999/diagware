@@ -4,7 +4,6 @@ mod db;
 use db::DB;
 
 mod diagnosis;
-use diagnosis::Diagnosis;
 
 mod io;
 use io::{
@@ -18,8 +17,6 @@ mod logger;
 use logger::Logger;
 
 pub mod util;
-
-
 
 
 
