@@ -4,6 +4,39 @@ Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenl
 Würde die Diagnose synchron ausgeführt werden, so würde das Rendering und Input-Handling des UI's blockieren, bis die Diagnose vollendet ist.
 Daher wird die Diagnose parallel zum UI in einem seperaten Thread ausgeführt.
 
+# Rust
+
+Die Software wurde in der Programmiersprache Rust implementiert.
+
+Eigenschaften der Sprache:
+- Strong typing
+- Static typing
+- Kompiliert (mit rustc)
+- Memory / Threadsicher durch den Borrowchecker
+
+Installieren von einer Rust-Toolchain:
+[Rustup](rustup.rs)
+
+Durch Rustup wird Rustup, Rustc und Cargo automatisch installiert.
+
+## Cargo
+
+Cargo ist ein Dependency- und Projectmanager für Rust.
+Cargo fungiert ebenso als Buildsystem.
+
+Für Rust Projekte ist es empfohlen den Compiler nicht direkt zu verwenden, sondern diese Aufgabe an Cargo abzugeben.
+
+Die wichtigsten Cargo Befehle:
+
+```sh
+$ cargo init            # Projekt im jetzigen Verzeichnis initialisieren
+$ cargo new             # Projekt in einem neuen Verzeichnis initialisieren
+$ cargo build           # Projekt im Debug-Modus bauen
+$ cargo build --release # Projekt im Release-Modus bauen
+$ cargo run             # Projekt im Debug-Modus bauen und ausführen
+$ cargo check           # Projekt nur überprüfen, ohne zu bauen
+```
+
 
 # GUI
 
@@ -143,7 +176,6 @@ pub struct Module {
 **Wichtig**: Der Pfad der Datenbank ist in der Umgebungsvariable DATABASE_URL enthalten.
 Der nachstehende Code ist **NICHT** funktionsfähig, da die SQLx Funktionsaufrufe impl Future<Output = _> rückgeben, und diese Future von einer Async-Runtime ausgeführt werden müssen.
 
-
 ```rust
 let conn = SqlitePool::connect(env!("DATABASE_URL"))?,
 ```
@@ -167,6 +199,45 @@ rt.block_on(future)?,
 
 
 # Abkürzungen/Fremdwörter
+
+## Dependency:
+Library die ein Programm/Library benötigt um selbst zu funktionieren.
+
+## Static Typing:
+Datentypen werden zur Compiletime überprüft.
+
+## Dynamic Typing:
+Datentypen werden zur Runtime überprüft.
+
+## Strong Typing:
+Datentypen können nicht implizit in andere umgewandelt werden.
+
+## Weak Typing:
+Datentypen können implizit in andere umgewandelt werden.
+
+## Borrowchecker:
+Teil des Rust-Compilers, welcher die Gültigkeit von Referenzen überprüft.
+
+## Referenz:
+Ein Pointer, der zur Compiletime überprüft wird.
+
+## Pointer:
+Datentyp welcher eine Speicheraddresse und den Datentypen des Wertes bei besagter Addresse beinhaltet.
+
+## Smart Pointer:
+Pointer als Owned Type.
+
+## Owned Type:
+Primitive Datentypen werden in Structs umhüllt, um Verhalten wie zB automatisches Zerstören von Resourcen zur Verfügung zu stellen.
+
+## Slice:
+Datentype welcher aus einem Pointer und einer Länge besteht.
+
+## Compiler:
+Programm, welches eine Sprache (oft menschennahe Hochsprache) in ein anderes Format (oft Assembly) übersetzt.
+
+## Assembly:
+Menschenlesbares Format von Maschinencode.
 
 ## Thread:
 Ausführungsfaden eines Prozesses.
