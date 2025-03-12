@@ -1,24 +1,9 @@
 mod ui;
-
 mod db;
-use db::DB;
-
 mod diagnosis;
-
-mod io;
-use io::{
-    eeprom::EEPROM,
-    dds::DDS,
-    shift_reg::ShiftRegister,
-    adc::ADC,
-};
-
 mod logger;
-use logger::Logger;
-
-pub mod util;
-
-
+mod io;
+pub mod util; // pub for re-exporting in components prelude
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 

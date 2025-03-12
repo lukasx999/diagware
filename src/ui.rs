@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use std::cell::RefCell;
 
-use crate::Logger;
+use crate::logger::Logger;
 
 pub mod config;
 

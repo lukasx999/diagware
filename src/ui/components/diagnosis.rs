@@ -4,9 +4,9 @@ use std::sync::mpsc;
 use std::thread::JoinHandle;
 
 use crate::diagnosis::{
-    self as diag,
     Diagnosis,
     DiagnosisResult,
+    Report,
     State,
     STATE_COUNT,
 };
@@ -211,7 +211,7 @@ impl DiagnosisUi {
 
                     ui.colored_label(color, format!("{i}"));
                     ui.colored_label(Color32::DARK_GRAY, "->");
-                    let state = diag::State::from_u32(i);
+                    let state = State::from_u32(i);
                     ui.colored_label(color, state.to_string());
                     ui.end_row();
                 }
@@ -274,7 +274,7 @@ impl DiagnosisUi {
             if clicked {
                 /* dont set breakpoint at first, last or current state */
                 if i != 0 && i != STATE_COUNT-1 && i != state_current {
-                    self.breakpoint = Some(diag::State::from_u32(i));
+                    self.breakpoint = Some(State::from_u32(i));
                 }
             }
 
@@ -284,7 +284,7 @@ impl DiagnosisUi {
                 painter.text(
                     circle_center - vec2(0.0, popup_offset),
                     egui::Align2::CENTER_CENTER,
-                    diag::State::from_u32(i).to_string(),
+                    State::from_u32(i).to_string(),
                     font.clone(),
                     Color32::WHITE
                 );
@@ -342,7 +342,7 @@ impl DiagnosisUi {
         match result {
             Ok(report) => {
 
-                use diag::Report as R;
+                use Report as R;
                 self.diagnosis_gist = match report {
 
                     R::Pending => ModuleGist::Pending,

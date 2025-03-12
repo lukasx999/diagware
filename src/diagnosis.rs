@@ -2,7 +2,7 @@ use std::thread;
 use std::time::Duration;
 use std::sync::mpsc;
 
-use crate::{EEPROM, DDS, ShiftRegister, DB, ADC};
+use crate::{io::eeprom::EEPROM, io::dds::DDS, io::shift_reg::ShiftRegister, db::DB, io::adc::ADC};
 use crate::db::model::{Module, Matrix};
 
 

@@ -10,7 +10,3 @@ pub const WINDOW_HEIGHT: f32 = 1200.0;
 pub const COLOR_ACCENT:            Color32 = Color32::from_rgb(41,  110, 214);
 pub const COLOR_CIRCLE:            Color32 = Color32::from_rgb(178, 183, 191);
 pub const COLOR_CIRCLE_BREAKPOINT: Color32 = Color32::from_rgb(176, 14,   33);
-
-pub const COLOR_LOG_INFO:    Color32 = Color32::BLUE;
-pub const COLOR_LOG_WARNING: Color32 = Color32::ORANGE;
-pub const COLOR_LOG_ERROR:   Color32 = Color32::RED;

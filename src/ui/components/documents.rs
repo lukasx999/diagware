@@ -2,7 +2,7 @@ use std::io::Write;
 use std::fs::File;
 
 use crate::ui::components::prelude::*;
-use crate::{DB, db::model::{Module, Document, Blob}};
+use crate::db::{DB, model::{Module, Document, Blob}};
 
 //use egui::containers::Modal;
 

@@ -2,7 +2,6 @@ use crate::ui::components::prelude::*;
 
 use crate::ui::Component;
 use crate::logger::{LogLevel, Logger};
-use crate::ui::config;
 
 use egui::Color32;
 
@@ -64,9 +63,9 @@ impl Logging {
 
             use LogLevel as L;
             let color = match msg.level {
-                L::Info    => config::COLOR_LOG_INFO,
-                L::Warning => config::COLOR_LOG_WARNING,
-                L::Error   => config::COLOR_LOG_ERROR,
+                L::Info    => Color32::BLUE,
+                L::Warning => Color32::ORANGE,
+                L::Error   => Color32::RED,
             };
 
             ui.horizontal(|ui| {
