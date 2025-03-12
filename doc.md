@@ -19,6 +19,22 @@ Installieren von einer Rust-Toolchain:
 
 Durch Rustup wird Rustup, Rustc und Cargo automatisch installiert.
 
+### Resourcen zum Lernen:
+[Rust Book](https://doc.rust-lang.org/stable/book/)
+[Rust by example](https://doc.rust-lang.org/stable/rust-by-example/)
+[Rustlings](https://github.com/rust-lang/rustlings)
+
+### Häufig Verwendete Typen:
+Vec<T>: Ein dynamisches Array.
+String: Owned String Type.
+Box<T>: Smart-Pointer, welcher einen Pointer zu T haltet. T ist auf dem Heap allokiert.
+Rc<T>: Dasselbe wie Box, nur mit shared Ownership.
+Arc<T>: Dasselbe wie Rc, nur mit shared Ownership zwischen Threads.
+RefCell<T>: Mutierbare Speicherzelle, basierende auf dem Interior Mutability Pattern.
+Mutex<T>: Mutex zur Synchronisation von Threads.
+
+
+
 ## Cargo
 
 Cargo ist ein Dependency- und Projectmanager für Rust.
@@ -276,3 +292,9 @@ Structured Query Language, Abfragesprachen für Datenbanken
 
 ## DB:
 Datenbank
+
+## Heap:
+Speicherabschnitt eines Prozesses, welcher von einem Allocator verwaltet wird.
+
+## Allocator:
+Ein Interface welches dynamischen Speicher verwaltet.
