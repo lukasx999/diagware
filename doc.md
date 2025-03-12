@@ -4,12 +4,15 @@ Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenl
 Würde die Diagnose synchron ausgeführt werden, so würde das Rendering und Input-Handling des UI's blockieren, bis die Diagnose vollendet ist.
 Daher wird die Diagnose parallel zum UI in einem seperaten Thread ausgeführt.
 
-# Immediate-mode GUI vs Retained-mode GUI
+
+# GUI
+
+## GUI Paradigmen: Immediate-mode GUI vs Retained-mode GUI
 
 ### Immediate-mode GUI
 - z.B.: DearImgui, Egui
 
-Das UI wird zu jedem Frame neu gezeichnet.
+Das UI wird zu jedem Frame neu gezeichnet. Dabei wird zu jedem Frame eine benutzerdefinierte Funktion aufgerufen, welche die UI-Komponenten rendert.
 
 **Vorteile**:
 - Einfachere Programmierung
@@ -31,6 +34,70 @@ UI-Komponenten werden einmalig festgelegt, und Callback-Funktionen werden für d
 - Oft ein UI-Designer notwendig
 - Ist oft Teil von großen Frameworks, die auch andere Teile der Entwicklung vorgeben (zB Qt: QMake, QtDesigner, QSql, MOC (Meta Object Compiler (C++ Syntax Erweiterungen) teil des Build-Vorgangs)
 
+
+## Egui
+
+Für die Implementation der Benutzeroberfläche wurde das Egui Crate für Rust gewählt.
+Egui rendert jediglich Dreiecke, und ist sich selbst daher nicht bewusst auf welcher Oberfläche es selbst aktiv ist.
+Für die tatsächliche Entwicklung mit egui wird eframe benötigt, ein weiteres Crate, welches ein Fenster öffnet, und einen egui Kontext zur Verfügung stellt.
+
+Eframe unterstützt folgende Platformen:
+- Web
+- Linux
+- Windows
+- Mac
+- Android
+
+
+### Beispielanwendung mit Egui:
+
+Ein Struct wird definiert, welches den Zustand der Applikation beinhaltet.
+
+```rust
+struct GuiApplication;
+
+impl GuiApplication {
+    pub fn new() -> Self { Self }
+}
+```
+
+Anschließend wird der App Trait von eframe implementiert, welcher die update Funktion beinhaltet.
+Die update Funktion wird für jeden Frame der Applikation aufgerufen.
+
+```rust
+impl eframe::App for GuiApplication {
+
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.button("Click me!");
+        });
+
+    }
+
+}
+```
+
+Um die Applikation auszuführen, muss nur noch Glue-Code geschrieben werden, um die Applikation zu initialisieren.
+
+```rust
+fn main() -> eframe::Result {
+
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default(),
+        ..Default::default()
+    };
+
+    eframe::run_native(
+        "Example",
+        options,
+        Box::new(|cc| {
+            Ok(Box::new(GuiApplication::new()))
+        }),
+    )
+
+}
+```
 
 
 
@@ -101,27 +168,40 @@ rt.block_on(future)?,
 
 # Abkürzungen/Fremdwörter
 
-Future:
-    Ein Konzept um das Arbeiten mit Asynchronen Funktionen zu erleichtern.
-    Eine Future ist ein Stück Arbeit die in der Zukunft erledigt wird. Eine Future kann "gepollt" werden, um einen kleinen Teil der Arbeit durchzuführen.
-    Es ist die Aufgabe einer Async-Funtime wie zB Tokio, diese Futures zu verwalten, und sie auszuführen.
+## Thread:
+Ausführungsfaden eines Prozesses.
+Threads können als kleinere Prozesse innerhalb eines Prozesses angesehen werden.
+Jeder Thread hat einen eigenen Ausführungskontext. (Stack / Register)
 
-Struct: Compound-Type, Datentyp zusammengestellt aus mehreren anderen Datentypen.
+## Future:
+Ein Konzept um das Arbeiten mit Asynchronen Funktionen zu erleichtern.
+Eine Future ist ein Stück Arbeit die in der Zukunft erledigt wird. Eine Future kann "gepollt" werden, um einen kleinen Teil der Arbeit durchzuführen.
+Es ist die Aufgabe einer Async-Funtime wie zB Tokio, diese Futures zu verwalten, und sie auszuführen.
 
-Enum:
-    Tagged Union, kann verschiedene States annehmen.
-    Diese States können einen konstanten Index darstellen (usize), einen tuple, ein field, oder keinen spezifischen Wert.
+## Struct:
+Compound-Type, Datentyp zusammengestellt aus mehreren anderen Datentypen.
 
-Tagged Union: Union, bei dem ein Tag (enum) angibt welcher Member zurzeit aktiv ist.
+## Enum:
+Tagged Union, kann verschiedene States annehmen.
+Diese States können einen konstanten Index darstellen (usize), einen tuple, ein field, oder keinen spezifischen Wert.
 
-Union: Ähnlich zu Struct, aber Compiler allokiert nur Speicher für den größten Member.
+## Tagged Union:
+Union, bei dem ein Tag (enum) angibt welcher Member zurzeit aktiv ist.
 
-Makro: Feature in Programmiersprachen um Metaprogrammierung zu ermöglichen
+## Union:
+Ähnlich zu Struct, aber Compiler allokiert nur Speicher für den größten Member.
 
-Metaprogrammierung: Eine Programmiermethode, bei der Code in einem Programm, weiteren Code im selben Programm erzeugt
+## Makro:
+Feature in Programmiersprachen um Metaprogrammierung zu ermöglichen
 
-Crate: Translationunit in Rust, analog zu einem "Package" in anderen Sprachen
+## Metaprogrammierung:
+Eine Programmiermethode, bei der Code in einem Programm, weiteren Code im selben Programm erzeugt
 
-SQL: Structured Query Language, Abfragesprachen für Datenbanken
+## Crate:
+Translationunit in Rust, analog zu einem "Package" in anderen Sprachen
 
-DB: Datenbank
+## SQL:
+Structured Query Language, Abfragesprachen für Datenbanken
+
+## DB:
+Datenbank
