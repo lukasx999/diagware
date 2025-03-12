@@ -16,11 +16,11 @@ VALUES
     (3, 'power_factor', NULL,     0.5,     NULL);
 
 INSERT INTO matrix
-    (id, gnd, v_plus, v_minus, dds_out1, dds_out2, dds_out3, adc_in1, adc_in2)
+    (gnd, v_plus, v_minus, dds_out1, dds_out2, dds_out3, adc_in1, adc_in2)
 VALUES
-    (1, 0, 5, 9, 2, 3, 5, 9, 4),
-    (2, 2, 3, 6, 5, 6, 3, 5, 6),
-    (3, 0, 5, 9, 2, 3, 5, 9, 4);
+    (0, 5, 9, 2, 3, 5, 9, 4),
+    (2, 3, 6, 5, 6, 3, 5, 6),
+    (0, 5, 9, 2, 3, 5, 9, 4);
 
 INSERT INTO documents
     (module_id, document, descriptor)
