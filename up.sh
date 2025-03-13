@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 REMOTE=pi@172.31.180.12
-DIAGWARE_DIR=/home/pi/Code/diagware-rs
+DIAGWARE_DIR=/home/pi/Code/diagware
 CARGO=/home/pi/.cargo/bin/cargo
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 # ENV=DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db"
