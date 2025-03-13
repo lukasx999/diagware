@@ -88,6 +88,8 @@ Für die Implementation der Benutzeroberfläche wurde das egui Crate für Rust g
 Egui rendert jediglich Dreiecke, und ist sich selbst daher nicht bewusst auf welcher Oberfläche es selbst aktiv ist.
 Für die tatsächliche Entwicklung mit egui wird eframe benötigt, ein weiteres Crate, welches ein Fenster öffnet, und einen egui Kontext zur Verfügung stellt.
 
+[egui](https://www.egui.rs/)
+
 Eframe unterstützt folgende Platformen:
 - Web
 - Linux
