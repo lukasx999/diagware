@@ -1,5 +1,5 @@
 use crate::ui::components::prelude::*;
-
+use config::EXPERT_PASSWORD;
 
 pub struct Topbar {
     show_windowlist: Rc<RefCell<bool>>,
@@ -137,7 +137,7 @@ impl Topbar {
     fn login(&mut self) {
         let mut logger = self.logger.borrow_mut();
 
-        if self.modal_current_password == config::EXPERT_PASSWORD {
+        if self.modal_current_password == EXPERT_PASSWORD {
             *self.is_expertmode.borrow_mut() = true;
             logger.append(LogLevel::Info, "Logged in as Expert");
         } else {

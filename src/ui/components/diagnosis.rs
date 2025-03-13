@@ -11,8 +11,9 @@ use crate::diagnosis::{
     STATE_COUNT,
 };
 
-
-
+const COLOR_ACCENT:     Color32 = Color32::from_rgb(41,  110, 214); // blue
+const COLOR_REGULAR:    Color32 = Color32::from_rgb(178, 183, 191); // gray
+const COLOR_BREAKPOINT: Color32 = Color32::from_rgb(176, 14,   33); // red
 
 #[derive(Debug, Clone, Copy, Default)]
 enum ModuleGist {
@@ -202,9 +203,9 @@ impl DiagnosisUi {
                     let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
 
                     let color = if i == state {
-                        config::COLOR_ACCENT
+                        COLOR_ACCENT
                     } else if is_breakpoint {
-                        config::COLOR_CIRCLE_BREAKPOINT
+                        COLOR_BREAKPOINT
                     } else {
                         Color32::GRAY
                     };
@@ -250,11 +251,11 @@ impl DiagnosisUi {
             let state_current = self.diag_state as u32;
 
             let mut color_circle = if i == state_current {
-                config::COLOR_ACCENT
+                COLOR_ACCENT
             } else if is_breakpoint {
-                config::COLOR_CIRCLE_BREAKPOINT
+                COLOR_BREAKPOINT
             } else {
-                config::COLOR_CIRCLE
+                COLOR_REGULAR
             };
 
             let circle_center = center

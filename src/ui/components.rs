@@ -4,8 +4,9 @@ mod prelude {
     pub use std::cell::RefCell;
     pub use std::collections::HashMap;
     pub use crate::logger::{Logger, LogLevel};
-    pub use crate::ui::{Component, config};
+    pub use crate::ui::Component;
     pub use crate::util;
+    pub use crate::config;
     pub use egui::Color32;
 }
 

@@ -4,28 +4,24 @@ use std::cell::RefCell;
 
 use crate::logger::Logger;
 
-pub mod config;
-
 mod components;
 use components::topbar::Topbar;
 
-
+pub const WINDOW_WIDTH:  f32 = 1600.0;
+pub const WINDOW_HEIGHT: f32 = 900.0;
 
 pub trait Component {
-    fn name(&self) -> &'static str; // MUST be unique
+    fn name(&self) -> &'static str; // MUST be unique, as its a key for a hashtable
     fn show(&mut self, ctx: &egui::Context, active: &mut bool);
 }
 
-#[allow(dead_code)]
 struct GuiApplication {
     // Shared data:
     show_windowlist: Rc<RefCell<bool>>,
-    is_expertmode:   Rc<RefCell<bool>>,
-    logger:          Rc<RefCell<Logger>>,
 
     windows:       Vec<Box<dyn Component>>,
     windows_state: HashMap<&'static str, bool>,
-    topbar: Topbar,
+    topbar:        Topbar,
 }
 
 impl GuiApplication {
@@ -56,14 +52,12 @@ impl GuiApplication {
                 show_windowlist.clone(),
                 is_expertmode.clone()
             ),
-            logger,
             windows_state: windows
                 .iter()
                 .map(|item| (item.name(), false))
                 .collect(),
             windows,
             show_windowlist,
-            is_expertmode,
         }
 
     }
@@ -76,6 +70,7 @@ impl eframe::App for GuiApplication {
 
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 
+        // Visual options
         ctx.set_pixels_per_point(2.0);
         ctx.set_theme(egui::Theme::Dark);
 
@@ -116,16 +111,14 @@ fn frame_setup() -> eframe::NativeOptions {
     eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_title("Diagware")
-            // .with_resizable(true)
-            // .with_fullscreen(false)
-            // .with_maximized(true)
-            .with_inner_size([config::WINDOW_WIDTH, config::WINDOW_HEIGHT]),
+            .with_resizable(true)
+            .with_fullscreen(false)
+            .with_inner_size([WINDOW_WIDTH, WINDOW_HEIGHT]),
         centered: true,
         ..Default::default()
     }
 
 }
-
 
 pub fn run_gui() -> eframe::Result {
 
