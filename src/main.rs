@@ -10,10 +10,9 @@ pub mod util;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     unsafe {
-        let err = libc::setuid(0);
-        assert_eq!(err, 0);
-        let err = libc::seteuid(1000); // prevent us from accidentely messing something up as root
-        assert_eq!(err, 0);
+        assert_eq!(libc::setuid(0), 0);
+        // prevent us from accidentely messing something up as root
+        assert_eq!(libc::seteuid(1000), 0);
     }
 
     ui::run_gui()?;

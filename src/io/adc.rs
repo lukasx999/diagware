@@ -1,4 +1,5 @@
-//use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
+#[cfg(target_arch = "aarch64")]
+use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
 
 use crate::io::IoResult;
 

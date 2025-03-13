@@ -1,14 +1,17 @@
 use std::io::Write;
-use std::fs::File;
+use std::fs::{self, File};
 use std::process::Command;
 
 use crate::ui::components::prelude::*;
 use crate::db::{DB, model::{Module, Document, Blob}};
 
+//use egui::containers::Modal;
+
 const MOUNT_DIRNAME: &str = "diagnosis_documents";
+
+// dont modify.
 const MOUNT_FAILURE: i32 = 32;
 
-//use egui::containers::Modal;
 
 pub struct Documents {
     logger: Rc<RefCell<Logger>>,
@@ -131,11 +134,10 @@ impl Documents {
         self.download_docs(selected_docs);
     }
 
-    fn mount(&self, device: &str, mountdir: &str) {
-        let mut logger = self.logger.borrow_mut();
+    fn mount(&self, device: &str, mountdir: &str, logger: &mut Logger) {
 
         // Create mountpoint if not existant
-        std::fs::create_dir_all(&mountdir).unwrap();
+        fs::create_dir_all(&mountdir).unwrap();
 
         let status: i32 = Command::new("mount")
             .args([device, &mountdir])
@@ -176,16 +178,15 @@ impl Documents {
         let mountdir = format!("{}/diag_mnt", env!("HOME"));
         let device = "/dev/sda1";
 
-        self.mount(device, &mountdir);
+        self.mount(device, &mountdir, &mut logger);
         logger.append(LogLevel::Info, "Mounting USB Drive successful");
 
         unsafe {
-            let err = libc::seteuid(0);
-            assert_eq!(err, 0);
+            assert_eq!(libc::seteuid(0), 0);
         }
 
         // Create mount directory if not existant
-        std::fs::create_dir_all(format!("{mountdir}/{MOUNT_DIRNAME}")).unwrap();
+        fs::create_dir_all(format!("{mountdir}/{MOUNT_DIRNAME}")).unwrap();
 
         let blobs: Vec<(String, Blob)> = documents
             .into_iter()
@@ -193,21 +194,19 @@ impl Documents {
             .collect();
 
         for (name, blob) in blobs {
-            let f = format!("{mountdir}/{MOUNT_DIRNAME}/{name}");
-            let mut file = File::create(f).unwrap();
+            let filename = format!("{mountdir}/{MOUNT_DIRNAME}/{name}");
+            let mut file = File::create(filename).unwrap();
             file.write_all(&blob).unwrap();
-            drop(file); // cannot unmount open files
+            // cannot unmount open files, `file` is dropped at the end of this scope
         }
 
         logger.append(LogLevel::Info, "File transfer successful");
 
         unsafe {
-            let err = libc::seteuid(1000);
-            assert_eq!(err, 0);
+            assert_eq!(libc::seteuid(1000), 0);
         }
 
         self.unmount(&mountdir);
-
     }
 
     /*
