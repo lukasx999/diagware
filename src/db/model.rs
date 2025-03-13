@@ -5,9 +5,8 @@ pub struct Module {
     pub serial: String,
 }
 
-
 // Rustc complains about unused fields, even if they are used by
-// SQLx's macro system, hence using allowing dead code
+// SQLx's macro system, hence allowing dead code
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct TargetValue {
