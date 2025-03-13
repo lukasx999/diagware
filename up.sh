@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-USER=pi
-# IP=10.0.0.253
-IP=172.31.178.126
-REMOTE=${USER}@${IP}
+REMOTE=pi@172.31.180.12
 DIAGWARE_DIR=/home/pi/Code/diagware-rs
 CARGO=/home/pi/.cargo/bin/cargo
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
-ENV=DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db"
+# ENV=DATABASE_URL="sqlite://${DIAGWARE_DIR}/src/database.db"
 
 function print_usage {
     echo "Usage: $0 <build | run>" 1>&2
@@ -20,11 +17,11 @@ function transfer {
 }
 
 function run {
-    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} r -r --color always"
+    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} run --release --color always"
 }
 
 function build {
-    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} b -r --color always"
+    ssh ${REMOTE} "cd ${DIAGWARE_DIR}; ${ENV} ${CARGO} build --release --color always"
 }
 
 
