@@ -11,7 +11,7 @@ Die Software wurde in der Programmiersprache Rust implementiert.
 Eigenschaften der Sprache:
 - Strong typing
 - Static typing
-- Kompiliert (mit rustc)
+- Kompiliert (bei rustc)
 - Memory / Threadsicher durch den Borrowchecker
 
 Installieren von einer Rust-Toolchain:
@@ -32,8 +32,6 @@ Rc<T>: Dasselbe wie Box, nur mit shared Ownership.
 Arc<T>: Dasselbe wie Rc, nur mit shared Ownership zwischen Threads.
 RefCell<T>: Mutierbare Speicherzelle, basierende auf dem Interior Mutability Pattern.
 Mutex<T>: Mutex zur Synchronisation von Threads.
-
-
 
 ## Cargo
 
@@ -59,7 +57,7 @@ $ cargo check           # Projekt nur überprüfen, ohne zu bauen
 ## GUI Paradigmen: Immediate-mode GUI vs Retained-mode GUI
 
 ### Immediate-mode GUI
-- z.B.: DearImgui, Egui
+- z.B.: DearImGui, egui
 
 Das UI wird zu jedem Frame neu gezeichnet. Dabei wird zu jedem Frame eine benutzerdefinierte Funktion aufgerufen, welche die UI-Komponenten rendert.
 
@@ -86,7 +84,7 @@ UI-Komponenten werden einmalig festgelegt, und Callback-Funktionen werden für d
 
 ## Egui
 
-Für die Implementation der Benutzeroberfläche wurde das Egui Crate für Rust gewählt.
+Für die Implementation der Benutzeroberfläche wurde das egui Crate für Rust gewählt.
 Egui rendert jediglich Dreiecke, und ist sich selbst daher nicht bewusst auf welcher Oberfläche es selbst aktiv ist.
 Für die tatsächliche Entwicklung mit egui wird eframe benötigt, ein weiteres Crate, welches ein Fenster öffnet, und einen egui Kontext zur Verfügung stellt.
 
@@ -98,7 +96,7 @@ Eframe unterstützt folgende Platformen:
 - Android
 
 
-### Beispielanwendung mit Egui:
+### Beispielanwendung mit egui:
 
 Ein Struct wird definiert, welches den Zustand der Applikation beinhaltet.
 
@@ -206,7 +204,7 @@ let data: Vec<Module> = sqlx::query_as!(
 ```
 
 SQLx ist eine asynchrone Library, dazu ausgelegt um mit der Tokio Async Runtime Netzwerkanwendungen zu implementieren.
-Die offizielle Egui Implementation unterstützt kein Async, daher werden die Abfragen synchron ausgeführt.
+Die offizielle egui Implementation unterstützt kein Async, daher werden die Abfragen synchron ausgeführt.
 
 ```rust
 let rt = tokio::runtime::Runtime::new()?;
