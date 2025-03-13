@@ -88,6 +88,7 @@ impl Topbar {
 
             let username = whoami::username();
             let ip = local_ip_address::local_ip().unwrap();
+            // TODO: log error and show nothing, as internet connection could crash anytime
             ui.label(format!("{}@{}", username, ip));
 
         });

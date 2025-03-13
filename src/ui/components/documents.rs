@@ -1,13 +1,14 @@
 use std::io::Write;
 use std::fs::File;
+use std::process::Command;
 
 use crate::ui::components::prelude::*;
 use crate::db::{DB, model::{Module, Document, Blob}};
 
-//use egui::containers::Modal;
-
+const MOUNT_DIRNAME: &str = "diagnosis_documents";
 const MOUNT_FAILURE: i32 = 32;
 
+//use egui::containers::Modal;
 
 pub struct Documents {
     logger: Rc<RefCell<Logger>>,
@@ -71,7 +72,6 @@ impl Documents {
         self.ui_documentview(ui);
 
         // TODO: logging
-        // TODO: implement mounting & download
 
         ui.separator();
 
@@ -118,37 +118,29 @@ impl Documents {
     }
 
     fn download(&self) {
-        let module = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
-        let documents = self.db.get_documents_by_id(module.id).unwrap();
+        let module     = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
+        let documents  = self.db.get_documents_by_id(module.id).unwrap();
         let docs_state = &self.selected_docs[&module.name];
 
-        /* only keep documents that are actually selected */
+        // only keep documents that are actually selected
         let selected_docs: Vec<Document> = documents
             .into_iter()
             .filter(|item| docs_state[&item.descriptor])
             .collect();
 
-        self.mount(selected_docs);
-
+        self.download_docs(selected_docs);
     }
 
-    fn mount(&self, documents: Vec<Document>) {
+    fn mount(&self, device: &str, mountdir: &str) {
         let mut logger = self.logger.borrow_mut();
 
-        if documents.len() == 0 {
-            logger.append(LogLevel::Warning, "No documents selected");
-            return;
-        }
+        // Create mountpoint if not existant
+        std::fs::create_dir_all(&mountdir).unwrap();
 
-        let mountdir = format!("{}/diag_mnt", env!("HOME"));
-        //std::fs::create_dir().unwrap();
-        let device = "/dev/sda1";
-
-
-        let status: i32 = std::process::Command::new("mount")
+        let status: i32 = Command::new("mount")
             .args([device, &mountdir])
             .status()
-            .expect("failed to execute process")
+            .expect("spawning process failed")
             .code()
             .unwrap();
 
@@ -158,21 +150,42 @@ impl Documents {
             logger.append(LogLevel::Error, "Failed to mount USB Drive");
             return;
         }
+
         assert_eq!(status, 0);
+    }
 
+    fn unmount(&self, mountdir: &str) {
+        let status = Command::new("umount")
+            .arg(mountdir)
+            .status()
+            .expect("spawning process failed")
+            .code()
+            .unwrap();
+
+        assert_eq!(status, 0);
+    }
+
+    fn download_docs(&self, documents: Vec<Document>) {
+        let mut logger = self.logger.borrow_mut();
+
+        if documents.len() == 0 {
+            logger.append(LogLevel::Warning, "No documents selected");
+            return;
+        }
+
+        let mountdir = format!("{}/diag_mnt", env!("HOME"));
+        let device = "/dev/sda1";
+
+        self.mount(device, &mountdir);
         logger.append(LogLevel::Info, "Mounting USB Drive successful");
-
-
 
         unsafe {
             let err = libc::seteuid(0);
             assert_eq!(err, 0);
         }
 
-
-        let dirname = "diagnosis_documents";
-        /* Only create dir if not existant */
-        std::fs::create_dir_all(format!("{mountdir}/{dirname}")).unwrap();
+        // Create mount directory if not existant
+        std::fs::create_dir_all(format!("{mountdir}/{MOUNT_DIRNAME}")).unwrap();
 
         let blobs: Vec<(String, Blob)> = documents
             .into_iter()
@@ -180,7 +193,7 @@ impl Documents {
             .collect();
 
         for (name, blob) in blobs {
-            let f = format!("{mountdir}/{dirname}/{name}");
+            let f = format!("{mountdir}/{MOUNT_DIRNAME}/{name}");
             let mut file = File::create(f).unwrap();
             file.write_all(&blob).unwrap();
             drop(file); // cannot unmount open files
@@ -188,20 +201,12 @@ impl Documents {
 
         logger.append(LogLevel::Info, "File transfer successful");
 
-
         unsafe {
             let err = libc::seteuid(1000);
             assert_eq!(err, 0);
         }
 
-
-        let status: i32 = std::process::Command::new("umount")
-            .arg(mountdir)
-            .status()
-            .expect("failed to execute process")
-            .code()
-            .unwrap();
-        assert_eq!(status, 0);
+        self.unmount(&mountdir);
 
     }
 
