@@ -10,21 +10,36 @@ pub mod util;
 const LOGFILE_DEV: &str = "diaglog";
 
 // Redirect stdout to logfile
-fn setup_logging() -> Result<*mut libc::FILE, std::ffi::NulError> {
-    use std::ffi::CString;
-    use std::ptr::null_mut;
+#[derive(Debug, Clone)]
+struct LoggingContext(*mut libc::FILE);
 
-    unsafe {
-        let path = CString::new(format!("{}/{LOGFILE_DEV}", env!("HOME")))?;
-        let mode = CString::new("w")?;
-        let file = libc::fopen(path.as_ptr(), mode.as_ptr());
-        assert_ne!(file, null_mut());
+impl LoggingContext {
+    pub fn new() -> Result<Self, std::ffi::NulError> {
+        use std::ffi::CString;
+        use std::ptr::null_mut;
 
-        libc::dup2(libc::fileno(file), libc::STDOUT_FILENO);
-        Ok(file)
+        let file = unsafe {
+            let path = CString::new(format!("{}/{LOGFILE_DEV}", env!("HOME")))?;
+            let mode = CString::new("w")?;
+            let file = libc::fopen(path.as_ptr(), mode.as_ptr());
+            assert_ne!(file, null_mut());
+
+            libc::dup2(libc::fileno(file), libc::STDOUT_FILENO);
+            file
+        };
+
+        Ok(Self(file))
     }
-
 }
+
+impl Drop for LoggingContext {
+    fn drop(&mut self) {
+        unsafe {
+            libc::fclose(self.0);
+        }
+    }
+}
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -35,13 +50,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
 
-    let file = setup_logging()?;
+    // Drop implementation will automatically close logfile at end of main
+    let _log = LoggingContext::new()?;
 
     println!("foobar");
 
     ui::run_gui()?;
 
-    unsafe { libc::fclose(file); }
     Ok(())
 
 }
