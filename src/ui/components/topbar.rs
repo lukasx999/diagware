@@ -72,7 +72,7 @@ impl Topbar {
                 if cfg!(target_arch = "aarch64") {
                     // TODO: interactive auth required error
                     std::process::Command::new("systemctl")
-                        .args(["poweroff", "-i"]) // -i: ignore inhibitors
+                        .args(["poweroff", "-i", "--force"])
                         .spawn()
                         .unwrap();
                 }
