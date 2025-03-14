@@ -12,11 +12,13 @@ const LOGFILE_DEV: &str = "diaglog";
 // Redirect stdout to logfile
 fn setup_logging() -> Result<*mut libc::FILE, std::ffi::NulError> {
     use std::ffi::CString;
+    use std::ptr::null_mut;
 
     unsafe {
         let path = CString::new(format!("{}/{LOGFILE_DEV}", env!("HOME")))?;
         let mode = CString::new("w")?;
         let file = libc::fopen(path.as_ptr(), mode.as_ptr());
+        assert_ne!(file, null_mut());
 
         libc::dup2(libc::fileno(file), libc::STDOUT_FILENO);
         Ok(file)
@@ -27,17 +29,7 @@ fn setup_logging() -> Result<*mut libc::FILE, std::ffi::NulError> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     unsafe {
-        use std::ffi::CString;
-        let path = CString::new("/dev/nvme0")?;
-        let mode = CString::new("w")?;
-        let f = libc::fopen(path.as_ptr(), mode.as_ptr());
-        dbg!(&f);
-    }
-
-    return Ok(());
-
-    unsafe {
-        assert_eq!(libc::setuid(0), 0);
+        assert_eq!(libc::setuid(0), 0, "Setting uid failed. Are you running as root?");
         // prevent us from accidentely messing something up as root
         assert_eq!(libc::seteuid(1000), 0);
     }
