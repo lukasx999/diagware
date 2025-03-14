@@ -134,7 +134,7 @@ impl Documents {
         self.download_docs(selected_docs);
     }
 
-    fn mount(&self, device: &str, mountdir: &str, logger: &mut Logger) {
+    fn mount(&self, device: &str, mountdir: &str) -> Option<()> {
 
         // Create mountpoint if not existant
         fs::create_dir_all(&mountdir).unwrap();
@@ -146,14 +146,12 @@ impl Documents {
             .code()
             .unwrap();
 
-        if status == MOUNT_FAILURE {
-            // TODO: show error popup
-            println!("Mount failed");
-            logger.append(LogLevel::Error, "Failed to mount USB Drive");
-            return;
+        match status {
+            MOUNT_FAILURE => None,
+            0 => Some(()),
+            _ => panic!("Failed to mount"),
         }
 
-        assert_eq!(status, 0);
     }
 
     fn unmount(&self, mountdir: &str) {
@@ -178,7 +176,13 @@ impl Documents {
         let mountdir = format!("{}/diag_mnt", env!("HOME"));
         let device = "/dev/sda1";
 
-        self.mount(device, &mountdir, &mut logger);
+        if let None = self.mount(device, &mountdir) {
+            // TODO: show error popup
+            println!("Mount failed");
+            logger.append(LogLevel::Error, "Failed to mount USB Drive");
+            return;
+        }
+
         logger.append(LogLevel::Info, "Mounting USB Drive successful");
 
         unsafe {
