@@ -6,6 +6,8 @@
 
 ## Questions
 
+- Export Logfile to USB
+
 ## TODO
 - [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
 - [ ] add loop delay and visual indicator

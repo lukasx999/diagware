@@ -50,13 +50,9 @@ impl Serialmanager {
 
         ui.separator();
 
-        let response = egui::TextEdit::singleline(&mut self.serial_textedit)
+        egui::TextEdit::singleline(&mut self.serial_textedit)
             .char_limit(EEPROM_SERIAL_MAX_SIZE)
             .show(ui).response;
-
-        response.request_focus();
-        // TODO: confirm with enter
-
 
         self.ui_buttons(ui);
 

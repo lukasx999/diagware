@@ -32,13 +32,11 @@ impl ADC {
 
     #[cfg(target_arch = "x86_64")]
     pub fn measure(&mut self) -> IoResult<()> {
-        // TODO: adc measurement results struct
         Ok(())
     }
 
     #[cfg(target_arch = "aarch64")]
     pub fn measure(&mut self) -> IoResult<()> {
-        todo!();
         Ok(())
     }
 

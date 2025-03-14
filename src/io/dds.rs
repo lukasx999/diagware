@@ -32,16 +32,11 @@ impl DDS {
 
     #[cfg(target_arch = "x86_64")]
     pub fn apply_signals(&mut self) -> IoResult<()> {
-        /* TODO:
-           DDS configuration:
-           get DDS config from DB
-           pass config as parameters or config object */
         Ok(())
     }
 
     #[cfg(target_arch = "aarch64")]
     pub fn apply_signals(&mut self) -> IoResult<()> {
-        todo!();
         Ok(())
     }
 

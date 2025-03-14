@@ -67,13 +67,11 @@ impl Topbar {
 
             }
 
-
-
             if ui.button(egui_phosphor::regular::POWER).clicked() {
 
-                if cfg!(all(target_arch = "aarch64", not(debug_assertions))) {
+                if cfg!(target_arch = "aarch64") {
                     std::process::Command::new("systemctl")
-                        .args(["poweroff"])
+                        .args(["poweroff", "-i"]) // -i: ignore inhibitors
                         .spawn()
                         .unwrap();
                 }
