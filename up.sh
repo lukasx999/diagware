@@ -15,7 +15,7 @@ function transfer {
 }
 
 function run {
-    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR}; cargo build --release --color always && ./install.sh && ./diagware"
+    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR} && ./install.sh && ./diagware"
 }
 
 [[ $# < 1 ]] && opt="run" || opt=$1
