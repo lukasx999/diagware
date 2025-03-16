@@ -1,3 +1,31 @@
+# Funktionalität
+
+Features des Programms:
+- Durchführen von Diagnosen:
+  - Manuell / Automatisch
+- Download von Datenblättern und Skripten auf USB-Stick
+- Bearbeiten der Seriennummer des jetzigen Moduls
+
+
+# Dianosis State Machine
+
+Features:
+
+- Start:
+  - Automatischer Durchlauf bis zu Fehler/Breakpoint
+- Next:
+  - Manueller Step
+- Repeat:
+  - Jetziger Schritt wird noch einmal durchgeführt
+- Loop:
+  - Jetziger Schritt zyklisch durchgeführt bis Cancel gedrückt wird
+- Reset:
+  - Setzt die State Machine zurück
+    - Geht in den Anfangsstate
+    - Breakpoint wird gelöscht
+
+
+
 # Multithreading
 
 Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenläufig zum UI durchgeführt wird.
