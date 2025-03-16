@@ -4,9 +4,17 @@ Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenl
 Würde die Diagnose synchron ausgeführt werden, so würde das Rendering und Input-Handling des UI's blockieren, bis die Diagnose vollendet ist.
 Daher wird die Diagnose parallel zum UI in einem seperaten Thread ausgeführt.
 
+# Aufsetzen des Raspberry Pi
+
+## Login über SSH
+
+SSH steht für Secure Shell und erlaubt es Shellzugriff auf einem anderen Computer über eine sichere TLS Verbindung zu bekommen.
+`$ ssh <user>@<ip>`
+
+
 # Rust
 
-Die Software wurde in der Programmiersprache Rust implementiert.
+Das Programm wurde in der Programmiersprache Rust implementiert.
 
 Eigenschaften der Sprache:
 - Strong typing
