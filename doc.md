@@ -9,7 +9,17 @@ Features des Programms:
 
 # Dianosis State Machine
 
-Features:
+## States:
+
+- 1. Idle
+- 2. ReadSerial
+- 3. SwitchMatrix
+- 4. ApplySignals
+- 5. Measurements
+- 6. Evaluation
+- 7. End
+
+## Features:
 
 - Start:
   - Automatischer Durchlauf bis zu Fehler/Breakpoint
