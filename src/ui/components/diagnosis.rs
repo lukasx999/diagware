@@ -274,8 +274,17 @@ impl DiagnosisUi {
 
             if clicked {
                 /* dont set breakpoint at first, last or current state */
-                if i != 0 && i != STATE_COUNT-1 && i != state_current {
-                    self.breakpoint = Some(State::from_u32(i));
+                if i != 0
+                && i != STATE_COUNT - 1
+                && i != state_current {
+
+                    self.breakpoint =
+                        if self.breakpoint.is_some_and(|j| j as u32 == i) {
+                            None // reset active breakpoint by clicking on it again
+                        } else {
+                            Some(State::from_u32(i))
+                        };
+
                 }
             }
 
