@@ -117,6 +117,10 @@ Mit Rsync können lokale Änderungen in einem Verzeichnis mit einem Remote direc
 ## Workflow
 
 - Änderungen an der Codebase durchführen
+- Testen auf der Entwicklungsmaschine
+- Übertragen und Ausführen des Programms am RPi:
+  - `$ ./up.sh run`
+- Synchronisieren des lokalen Repos mit Remote Repo auf GitHub
 
 
 
