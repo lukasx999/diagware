@@ -44,7 +44,6 @@ impl Matrix {
         adc_in1:  u16,
         adc_in2:  u16,
     ) -> Self {
-
         Self {
             id,
             gnd,
@@ -54,9 +53,8 @@ impl Matrix {
             dds_out2,
             dds_out3,
             adc_in1,
-            adc_in2,
+            adc_in2
         }
-
     }
 }
 

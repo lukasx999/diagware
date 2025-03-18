@@ -123,9 +123,7 @@ impl DiagnosisUi {
             self.spawn_diag_thread(|diag| diag.run_state());
         }
 
-        util::canvas_new(ui).show(ui, |ui| {
-            self.ui_statemachine(ui);
-        });
+        util::canvas_new(ui).show(ui, |ui| self.ui_statemachine(ui));
 
         ui.separator();
         ui.label(self.diagnosis_gist.get_richtext());

@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use crate::ui::components::prelude::*;
 use config::EXPERT_PASSWORD;
 
@@ -47,7 +49,7 @@ impl Topbar {
 
             ui.toggle_value(
                 &mut self.show_windowlist.borrow_mut(),
-                format!("🗖 Windows")
+                "🗖 Windows"
             );
 
             let icon_lock      = egui_phosphor::regular::LOCK_SIMPLE;
@@ -71,13 +73,13 @@ impl Topbar {
 
                 if cfg!(target_arch = "aarch64") {
                     // TODO: interactive auth required error
-                    std::process::Command::new("systemctl")
+                    Command::new("systemctl")
                         .args(["poweroff", "-i", "--force"])
-                        .spawn()
-                        .unwrap();
-                }
-                else {
-                    panic!("Shutdown");
+                        .status()
+                        .expect("spawning process failed");
+
+                } else {
+                    unimplemented!("shutdown not implemented on dev platform");
                 }
 
             }

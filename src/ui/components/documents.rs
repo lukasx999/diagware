@@ -137,10 +137,10 @@ impl Documents {
     fn mount(&self, device: &str, mountdir: &str) -> Option<()> {
 
         // Create mountpoint if not existant
-        fs::create_dir_all(&mountdir).unwrap();
+        fs::create_dir_all(mountdir).unwrap();
 
         let status: i32 = Command::new("mount")
-            .args([device, &mountdir])
+            .args([device, mountdir])
             .status()
             .expect("spawning process failed")
             .code()
@@ -168,7 +168,7 @@ impl Documents {
     fn download_docs(&self, documents: Vec<Document>) {
         let mut logger = self.logger.borrow_mut();
 
-        if documents.len() == 0 {
+        if documents.is_empty() {
             logger.append(LogLevel::Warning, "No documents selected");
             return;
         }
@@ -176,7 +176,7 @@ impl Documents {
         let mountdir = format!("{}/diag_mnt", env!("HOME"));
         let device = "/dev/sda1";
 
-        if let None = self.mount(device, &mountdir) {
+        if self.mount(device, &mountdir).is_none() {
             // TODO: show error popup
             println!("Mount failed");
             logger.append(LogLevel::Error, "Failed to mount USB Drive");

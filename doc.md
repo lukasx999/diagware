@@ -42,12 +42,6 @@ Während dem Durchführen von Diagnosen ist es wichtig, dass die Diagnose nebenl
 Würde die Diagnose synchron ausgeführt werden, so würde das Rendering und Input-Handling des UI's blockieren, bis die Diagnose vollendet ist.
 Daher wird die Diagnose parallel zum UI in einem seperaten Thread ausgeführt.
 
-# Aufsetzen des Raspberry Pi
-
-## Login über SSH
-
-SSH steht für Secure Shell und erlaubt es Shellzugriff auf einem anderen Computer über eine sichere TLS Verbindung zu bekommen.
-`$ ssh <user>@<ip>`
 
 
 # Rust
@@ -86,7 +80,7 @@ Cargo fungiert ebenso als Buildsystem.
 
 Für Rust Projekte ist es empfohlen den Compiler nicht direkt zu verwenden, sondern diese Aufgabe an Cargo abzugeben.
 
-Die wichtigsten Cargo Befehle:
+### Die wichtigsten Cargo Befehle:
 
 ```sh
 $ cargo init            # Projekt im jetzigen Verzeichnis initialisieren
@@ -96,6 +90,41 @@ $ cargo build --release # Projekt im Release-Modus bauen
 $ cargo run             # Projekt im Debug-Modus bauen und ausführen
 $ cargo check           # Projekt nur überprüfen, ohne zu bauen
 ```
+
+# Wichtige Tools
+
+## SSH
+
+SSH steht für Secure Shell und erlaubt es Shellzugriff auf einem anderen Computer über eine sichere TLS Verbindung zu bekommen.
+`$ ssh <user>@<ip>`
+
+## Git
+
+Git ist ein Tool für Versionskontrolle.
+Mit Git können Änderung am Sourcecode nachverfolgt werden und ältere Versionen wiederhergestellt werden.
+
+```sh
+$ git status
+$ git add . -A                 # Änderungen hinzufügen
+$ git commit -m "made changes" # Snapshot des jetzigen Standpunkts erstellen mit Nachricht
+$ git push -u origin main      # Lokale Änderungen mit denen von Remote Repository synchronisieren
+```
+
+## Rsync
+
+Mit Rsync können lokale Änderungen in einem Verzeichnis mit einem Remote directory auf einem anderen Computer, in unserem Fall einem Raspberry Pi synchronisiert werden.
+
+## Workflow
+
+- Änderungen an der Codebase durchführen
+
+
+
+## (Optional) Bacon
+
+Bacon ist ein Testrunner für Rust.
+Mit ihm kann der Clippy-Linter von Rust im Hintergrund ausgeführt werden.
+Der Linter gibt Vorschläge und Verbesserungsansätze zum Code.
 
 
 # GUI

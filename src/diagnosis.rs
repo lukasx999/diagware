@@ -133,6 +133,7 @@ impl Diagnosis {
         self.sender.send(self.state).unwrap();
     }
 
+    // TODO: run_state_delayed for loop
     // Execute the current state
     pub fn run_state(&mut self) -> DiagnosisResult {
         println!("{}: {}", self.state as u32, self.state);

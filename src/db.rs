@@ -33,7 +33,7 @@ impl DB {
             "SELECT * FROM modules"
         ).fetch_all(&self.conn);
 
-        Ok(self.run_sync(fut)?)
+        self.run_sync(fut)
     }
 
     pub fn get_module_by_id(&self, id: i64) -> sqlx::Result<Module> {
@@ -45,7 +45,7 @@ impl DB {
             id
         ).fetch_one(&self.conn);
 
-        Ok(self.run_sync(fut)?)
+        self.run_sync(fut)
     }
 
     pub fn get_module_by_serial(&self, serial: &str) -> sqlx::Result<Module> {
@@ -55,7 +55,7 @@ impl DB {
             serial
         ).fetch_one(&self.conn);
 
-        Ok(self.run_sync(fut)?)
+        self.run_sync(fut)
 
     }
 
@@ -66,7 +66,7 @@ impl DB {
             id
         ).fetch_all(&self.conn);
 
-        Ok(self.run_sync(fut)?)
+        self.run_sync(fut)
     }
 
     pub fn get_matrix_by_id(&self, id: i64) -> sqlx::Result<Matrix> {
@@ -102,7 +102,7 @@ impl DB {
             id
         ).fetch_all(&self.conn);
 
-        Ok(self.run_sync(fut)?)
+        self.run_sync(fut)
     }
 
 }

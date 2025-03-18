@@ -76,12 +76,10 @@ impl Logger {
         let filename = format!("{}_{}",
             chrono::Local::now()
                 .date_naive()
-                .format("%d_%m_%Y")
-                .to_string(),
+                .format("%d_%m_%Y"),
             chrono::Local::now()
                 .time()
                 .format("%H_%M_%S")
-                .to_string()
         );
 
         let logpath = format!("{}/{LOGDIRECTORY}", env!("HOME"));
@@ -101,7 +99,7 @@ impl Logger {
             }
         };
 
-        if let Err(_) = file.write_all(log_json.as_bytes()) {
+        if file.write_all(log_json.as_bytes()).is_err() {
             self.append(LogLevel::Error, "Saving log failed");
             return;
         }

@@ -52,7 +52,7 @@ impl Serialmanager {
 
         egui::TextEdit::singleline(&mut self.serial_textedit)
             .char_limit(EEPROM_SERIAL_MAX_SIZE)
-            .show(ui).response;
+            .show(ui);
 
         self.ui_buttons(ui);
 
