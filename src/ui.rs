@@ -7,8 +7,8 @@ use crate::logger::Logger;
 mod components;
 use components::topbar::Topbar;
 
-pub const WINDOW_WIDTH:  f32 = 1600.0;
-pub const WINDOW_HEIGHT: f32 = 900.0;
+pub const WINDOW_WIDTH:  f32 = 1920.0;
+pub const WINDOW_HEIGHT: f32 = 1080.0;
 
 pub trait Component {
     fn name(&self) -> &'static str; // MUST be unique, as its a key for a hashtable
