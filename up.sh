@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-REMOTE=pi@172.31.180.12
+REMOTE=pi@172.31.177.95
 DIAGWARE_DIR=/home/pi/Code/diagware
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 
@@ -18,6 +18,10 @@ function run {
     ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR} && ./install.sh && ./diagware"
 }
 
+function build {
+    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR} && ./install.sh"
+}
+
 [[ $# < 1 ]] && opt="run" || opt=$1
 
 if [[ $# > 1 ]]; then
@@ -30,6 +34,10 @@ if [[ $opt == "run" ]]; then
     run
 elif [[ $opt == "xfer" ]]; then
     transfer
+
+elif [[ $opt == "build" ]]; then
+    transfer
+    build
 else
     echo "$0: invalid option: $opt" 1>&2
     print_usage
