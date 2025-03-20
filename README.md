@@ -7,6 +7,9 @@
 ## Questions
 
 - Export Logfile to USB
+- isolated env
+- diagware
+- extending io modules
 
 ## TODO
 - [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
