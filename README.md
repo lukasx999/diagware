@@ -3,22 +3,12 @@
 ## Notes
 
 - Database Entry for DDS configuration
-
-## Questions
-
 - Export Logfile to USB
-- isolated env
-- diagware
-- extending io modules
 
 ## TODO
-- [ ] Show DDS waveform + Pin editor when diagnosis is running, else <Not Available>
 - [ ] add loop delay and visual indicator
 
-- [ ] Shaders
-- [ ] DB Manager - View DB
 - [ ] Using sqlitestudio for DB management instead
-- [ ] crosscompile to aarch64 -> rsync binary only
 - [ ] EGUI: Error Popup for error handling
 - [ ] Multiple DB (stable/experimental)
 - [ ] Hardware checker page to see if all devices are connected and working
