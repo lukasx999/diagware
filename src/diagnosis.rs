@@ -20,11 +20,11 @@ pub const STATE_COUNT: u32 = 7; // needed for rendering state machine
 pub enum State {
     #[default] Idle = 0, // Start
     ReadSerial      = 1,
-    SwitchMatrix    = 2,
+    ConfigureMatrix = 2,
     ApplySignals    = 3,
     Measurements    = 4,
     Evaluation      = 5,
-    End             = 6, // not included in `STATE_COUNT` (implementationdetail)
+    End             = 6, // not included in `STATE_COUNT`
 }
 
 impl State {
@@ -32,7 +32,7 @@ impl State {
         match num {
             0 => Self::Idle,
             1 => Self::ReadSerial,
-            2 => Self::SwitchMatrix,
+            2 => Self::ConfigureMatrix,
             3 => Self::ApplySignals,
             4 => Self::Measurements,
             5 => Self::Evaluation,
@@ -48,7 +48,7 @@ impl std::fmt::Display for State {
         let repr = match self {
             S::Idle          => "Idle",
             S::ReadSerial    => "Read Serial",
-            S::SwitchMatrix  => "Switching Matrix",
+            S::ConfigureMatrix  => "Switching Matrix",
             S::ApplySignals  => "Applying Signals",
             S::Measurements  => "Measurements",
             S::Evaluation    => "Evaluation",
@@ -128,8 +128,8 @@ impl Diagnosis {
         use State as S;
         self.state = match self.state {
             S::Idle         => S::ReadSerial,
-            S::ReadSerial   => S::SwitchMatrix,
-            S::SwitchMatrix => S::ApplySignals,
+            S::ReadSerial   => S::ConfigureMatrix,
+            S::ConfigureMatrix => S::ApplySignals,
             S::ApplySignals => S::Measurements,
             S::Measurements => S::Evaluation,
             S::Evaluation   => S::End,
@@ -159,7 +159,7 @@ impl Diagnosis {
                 self.temp_module = Some(module);
             }
 
-            S::SwitchMatrix => {
+            S::ConfigureMatrix => {
                 Self::delay();
 
                 let id = self.temp_module

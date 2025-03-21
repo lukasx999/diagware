@@ -6,6 +6,7 @@
 - Export Logfile to USB
 - Document mounting error popup
 - Remove libc::setuid() calls
+- isolated HW interfaces
 
 ## TODO
 - [ ] add loop delay and visual indicator
