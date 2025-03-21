@@ -4,30 +4,12 @@
 
 - Database Entry for DDS configuration
 - Export Logfile to USB
+- Document mounting error popup
 
 ## TODO
 - [ ] add loop delay and visual indicator
-
-- [ ] Using sqlitestudio for DB management instead
-- [ ] EGUI: Error Popup for error handling
-- [ ] Multiple DB (stable/experimental)
-- [ ] Hardware checker page to see if all devices are connected and working
-- [ ] X11 isolated enviroment
-- [ ] File path handling for SQLx and egui::include\_image!
+- [ ] sqlitestudio
 - [ ] Visio Drawing & Explanation for Drawing States
-- [ ] egui: slider and preview for DDS waveform
-- [x] Set breakpoints for states
-- [x] make `next` move to next state and execute that state
-- [x] cyclic state loop
-- [x] Diagnosis breakpoints
-- [x] export new json to file (logger)
-- [x] State machine for diagnosis
-- [x] Cargo Script for uploading to rpi
-- [x] Login
-- [x] UI (probably last)
-- [x] make use of async
-- [x] Testing Code on RPi4
-- [x] Writing serial to EEPROM
 
 
 ## Docs
