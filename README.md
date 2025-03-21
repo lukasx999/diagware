@@ -5,6 +5,7 @@
 - Database Entry for DDS configuration
 - Export Logfile to USB
 - Document mounting error popup
+- Remove libc::setuid() calls
 
 ## TODO
 - [ ] add loop delay and visual indicator
