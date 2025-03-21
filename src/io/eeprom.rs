@@ -6,6 +6,8 @@ use rppal::i2c::{self, I2c};
 
 use crate::io::IoResult;
 
+// eeprom: AT24C02D
+
 // Show I2C devices:
 // `i2cdetect -y 1`
 // Dump contents of I2C device:
