@@ -86,14 +86,18 @@ impl eframe::App for GuiApplication {
             .show_animated(ctx, *self.show_windowlist.borrow(), |ui| {
 
                 for window in &mut self.windows {
-                    let active = self.windows_state.get_mut(window.name()).unwrap();
+                    let active = self.windows_state
+                        .get_mut(window.name())
+                        .unwrap();
                     ui.toggle_value(active, window.name());
                 }
 
             });
 
         for window in &mut self.windows {
-            let active = self.windows_state.get_mut(window.name()).unwrap();
+            let active = self.windows_state
+                .get_mut(window.name())
+                .unwrap();
             window.show(ctx, active);
         }
 

@@ -65,9 +65,7 @@ impl Component for DiagnosisUi {
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .show(ctx, |ui| {
-                self.ui(ui);
-            });
+            .show(ctx, |ui| self.ui(ui));
     }
 }
 

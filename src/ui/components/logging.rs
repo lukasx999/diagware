@@ -20,12 +20,9 @@ impl Component for Logging {
             .fade_in(true)
             .fade_out(true)
             .open(active)
-            .enabled(true)
-            .vscroll(true)
-            .hscroll(true)
-            .show(ctx, |ui| {
-                self.ui(ui);
-            });
+            //.vscroll(true)
+            //.hscroll(true)
+            .show(ctx, |ui| self.ui(ui));
     }
 }
 

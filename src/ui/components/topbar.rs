@@ -17,9 +17,8 @@ impl Component for Topbar {
         "Topbar"
     }
     fn show(&mut self, ctx: &egui::Context, _active: &mut bool) {
-        egui::TopBottomPanel::top("TopPanel").show(ctx, |ui| {
-            self.ui(ui);
-        });
+        egui::TopBottomPanel::top("TopPanel")
+            .show(ctx, |ui| self.ui(ui));
     }
 }
 
