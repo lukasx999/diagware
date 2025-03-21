@@ -2,11 +2,13 @@
 
 ## Notes
 
-- Database Entry for DDS configuration
+- loop: cycle delay
 - Export Logfile to USB
 - Document mounting error popup
 - Remove libc::setuid() calls
+  - run as root?
 - isolated HW interfaces
+- improved state machine ui
 
 ## TODO
 - [ ] add loop delay and visual indicator
