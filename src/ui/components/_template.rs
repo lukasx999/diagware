@@ -1,5 +1,7 @@
 use crate::ui::components::prelude::*;
 
+// Template for a new ui component
+
 pub struct MyComponent;
 
 impl Component for MyComponent {
