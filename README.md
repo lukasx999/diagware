@@ -4,8 +4,6 @@
 
 - Export Logfile to USB
 - Document mounting error popup
-- Remove libc::setuid() calls
-  - run as root?
 - isolated HW interfaces
 - improved state machine ui
 

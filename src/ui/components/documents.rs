@@ -183,10 +183,6 @@ impl Documents {
 
         logger.append(LogLevel::Info, "Mounting USB Drive successful");
 
-        unsafe {
-            assert_eq!(libc::seteuid(0), 0);
-        }
-
         // Create mount directory if not existant
         fs::create_dir_all(format!("{mountdir}/{MOUNT_DIRNAME}")).unwrap();
 
@@ -203,10 +199,6 @@ impl Documents {
         }
 
         logger.append(LogLevel::Info, "File transfer successful");
-
-        unsafe {
-            assert_eq!(libc::seteuid(1000), 0);
-        }
 
         self.unmount(&mountdir);
     }
