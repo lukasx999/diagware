@@ -2,7 +2,6 @@
 
 ## Notes
 
-- loop: cycle delay
 - Export Logfile to USB
 - Document mounting error popup
 - Remove libc::setuid() calls

@@ -118,7 +118,9 @@ impl DiagnosisUi {
         /* State Loop */
         let is_active = self.diag_thread_handle.is_some();
         if self.is_looping && !is_active {
-            self.spawn_diag_thread(|diag| diag.run_state());
+            self.spawn_diag_thread(|diag|
+                diag.run_state_delayed(config::LOOP_DELAY_MILLIS)
+            );
         }
 
         util::canvas_new(ui).show(ui, |ui| self.ui_statemachine(ui));

@@ -138,8 +138,12 @@ impl Diagnosis {
         self.sender.send(self.state).unwrap();
     }
 
-    // TODO: run_state_delayed for loop
-    // Execute the current state
+    // Needed for loop
+    pub fn run_state_delayed(&mut self, millis: u64) -> DiagnosisResult {
+        thread::sleep(Duration::from_millis(millis));
+        self.run_state()
+    }
+
     pub fn run_state(&mut self) -> DiagnosisResult {
         println!("{}: {}", self.state as u32, self.state);
 
@@ -222,7 +226,7 @@ impl Diagnosis {
         report
     }
 
-    // Run all states until the end has been reached (=> Automatic diagnosis)
+    // Run all states until the end has been reached (=> automatic diagnosis)
     // Will stop at an optional breakpoint
     pub fn run_to_end(&mut self, breakpoint: Option<State>) -> DiagnosisResult {
         loop {
