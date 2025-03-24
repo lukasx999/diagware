@@ -6,8 +6,7 @@ use crate::io::IoResult;
 
 #[derive(Debug)]
 pub struct DDS {
-    #[cfg(target_arch = "aarch64")]
-    spi: Spi,
+    #[cfg(target_arch = "aarch64")] spi: Spi,
 }
 
 impl DDS {
@@ -37,8 +36,8 @@ impl DDS {
 
     #[cfg(target_arch = "aarch64")]
     pub fn apply_signals(&mut self) -> IoResult<()> {
+        // TODO:
         Ok(())
     }
 
 }
-

@@ -4,7 +4,6 @@
 
 - Export Logfile to USB
 - Document mounting error popup
-- isolated HW interfaces
 - improved state machine ui
 
 ## TODO

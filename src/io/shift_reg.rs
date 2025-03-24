@@ -5,14 +5,10 @@ use crate::db::model::Matrix;
 use crate::io::IoResult;
 
 
-// TODO: handle multiple SPI devices on different buses
-
-
 
 #[derive(Debug)]
 pub struct ShiftRegister {
-    #[cfg(target_arch = "aarch64")]
-    spi: Spi,
+    #[cfg(target_arch = "aarch64")] spi: Spi,
 }
 
 impl ShiftRegister {
@@ -46,7 +42,6 @@ impl ShiftRegister {
         }).collect();
 
         bits
-
     }
 
     #[cfg(target_arch = "x86_64")]
@@ -54,15 +49,13 @@ impl ShiftRegister {
         Ok(())
     }
 
-
-
     #[cfg(target_arch = "aarch64")]
     pub fn switch(&mut self, matrix: &Matrix) -> IoResult<()> {
 
         let bits = Self::int_to_bits(matrix.gnd);
+        // TODO:
 
         Ok(())
     }
 
 }
-

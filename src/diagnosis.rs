@@ -6,7 +6,7 @@ use crate::io::{
     eeprom::EEPROM,
     dds::DDS,
     shift_reg::ShiftRegister,
-    adc::ADC,
+    adc::{ADC, MeasurementData},
 };
 use crate::db::{DB, model::{Module, Matrix}};
 
@@ -97,7 +97,9 @@ pub struct Diagnosis {
     shiftreg: ShiftRegister,
 
     // Temporary values resulting from computations within the states
-    temp_module: Option<Module>,
+    temp_module:        Option<Module>,
+    temp_measurement:   Option<MeasurementData>,
+    temp_is_functional: bool,
 }
 
 impl Diagnosis {
@@ -105,13 +107,15 @@ impl Diagnosis {
     pub fn new(sender: mpsc::Sender<State>) -> Result<Self, Failure> {
         Ok(Self {
             sender,
-            state:       State::default(),
-            eeprom:      EEPROM::new()?,
-            db:          DB::new()?,
-            dds:         DDS::new()?,
-            adc:         ADC::new()?,
-            shiftreg:    ShiftRegister::new()?,
-            temp_module: None,
+            state:              State::default(),
+            eeprom:             EEPROM::new()?,
+            db:                 DB::new()?,
+            dds:                DDS::new()?,
+            adc:                ADC::new()?,
+            shiftreg:           ShiftRegister::new()?,
+            temp_module:        None,
+            temp_measurement:   None,
+            temp_is_functional: false,
         })
     }
 
@@ -120,20 +124,21 @@ impl Diagnosis {
     }
 
     fn reset_internal_state(&mut self) {
-        self.temp_module = None;
+        self.temp_module      = None;
+        self.temp_measurement = None;
     }
 
     // Transition to the next state
     pub fn next_state(&mut self) {
         use State as S;
         self.state = match self.state {
-            S::Idle         => S::ReadSerial,
-            S::ReadSerial   => S::ConfigureMatrix,
+            S::Idle            => S::ReadSerial,
+            S::ReadSerial      => S::ConfigureMatrix,
             S::ConfigureMatrix => S::ApplySignals,
-            S::ApplySignals => S::Measurements,
-            S::Measurements => S::Evaluation,
-            S::Evaluation   => S::End,
-            S::End          => S::Idle,
+            S::ApplySignals    => S::Measurements,
+            S::Measurements    => S::Evaluation,
+            S::Evaluation      => S::End,
+            S::End             => S::Idle,
         };
         self.sender.send(self.state).unwrap();
     }
@@ -150,60 +155,49 @@ impl Diagnosis {
         use State as S;
         match self.state {
 
-            S::Idle => {
-                Self::delay();
-            }
+            S::Idle => Self::delay(),
 
             S::ReadSerial => {
                 Self::delay();
-
                 let serial: String = self.eeprom.get_serial()?;
                 let module: Module = self.db.get_module_by_serial(&serial)?;
-
                 self.temp_module = Some(module);
             }
 
             S::ConfigureMatrix => {
                 Self::delay();
-
-                let id = self.temp_module
-                    .as_ref()
-                    .unwrap()
-                    .id;
-
+                let id = self.temp_module.as_ref().unwrap().id;
                 let matrix: Matrix = self.db.get_matrix_by_id(id)?;
                 self.shiftreg.switch(&matrix)?;
             }
 
             S::ApplySignals => {
                 Self::delay();
-                // TODO: fetch DDS config from DB
                 self.dds.apply_signals()?;
             }
 
             S::Measurements => {
                 Self::delay();
-
-                self.adc.measure()?;
+                let data: MeasurementData = self.adc.measure()?;
+                self.temp_measurement = Some(data);
             }
 
             S::Evaluation => {
                 Self::delay();
-
-                let id = self.temp_module
-                    .as_ref()
-                    .unwrap()
-                    .id;
-
+                let id           = self.temp_module.as_ref().unwrap().id;
+                let data         = self.temp_measurement.unwrap();
                 let targetvalues = self.db.get_targetvalues_by_id(id)?;
+                // TODO: check all targetvalues against measurements
+                self.temp_is_functional = targetvalues[0].value == data;
                 dbg!(&targetvalues);
-
             }
 
             S::End => {
                 Self::delay();
                 self.reset_internal_state();
-                return Ok(Report::Completed { is_functional: true });
+                return Ok(Report::Completed {
+                    is_functional: self.temp_is_functional
+                });
             }
 
         }

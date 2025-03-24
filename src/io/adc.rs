@@ -3,11 +3,11 @@ use rppal::spi::{self, Spi, Bus, SlaveSelect, Mode};
 
 use crate::io::IoResult;
 
+pub type MeasurementData = f64;
 
 #[derive(Debug)]
 pub struct ADC {
-    #[cfg(target_arch = "aarch64")]
-    spi: Spi,
+    #[cfg(target_arch = "aarch64")] spi: Spi,
 }
 
 impl ADC {
@@ -31,13 +31,14 @@ impl ADC {
     }
 
     #[cfg(target_arch = "x86_64")]
-    pub fn measure(&mut self) -> IoResult<()> {
-        Ok(())
+    pub fn measure(&mut self) -> IoResult<MeasurementData> {
+        Ok(45.0)
     }
 
     #[cfg(target_arch = "aarch64")]
-    pub fn measure(&mut self) -> IoResult<()> {
-        Ok(())
+    pub fn measure(&mut self) -> IoResult<MeasurementData> {
+        // TODO:
+        Ok(0.0)
     }
 
 }

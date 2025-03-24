@@ -238,11 +238,6 @@ impl DiagnosisUi {
         font.size = 15.0;
         // font.size = radius * 1.3; // resizing will cause lag at first, because new font size is not cached yet
 
-        // TODO: dont show anything if available_width is smaller than min size
-        // TODO: increase font step-wise
-        // TODO: hover popup for descriptions
-
-
         for i in 0..STATE_COUNT {
 
             let is_breakpoint = self.breakpoint.is_some_and(|state| state as u32 == i);
