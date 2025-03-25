@@ -1,19 +1,19 @@
 -- Module
 CREATE TABLE modules (
-    id      INTEGER PRIMARY KEY NOT NULL, -- NOT NULL, so that SQLx wont require a Option<T> wrapping the id
-    name    TEXT    NOT NULL UNIQUE,
-    serial  TEXT    NOT NULL UNIQUE
+    id      INTEGER PRIMARY KEY NOT NULL, -- NOT NULL, so SQLx wont require wrapping with Option<T>
+    name    TEXT                NOT NULL UNIQUE,
+    serial  TEXT                NOT NULL UNIQUE
 );
 
 -- Sollwerte
 CREATE TABLE targetvalues (
     id         INTEGER PRIMARY KEY NOT NULL,
-    module_id  INTEGER NOT NULL,
-    identifier TEXT    NOT NULL,
+    module_id  INTEGER             NOT NULL,
+    identifier TEXT                NOT NULL,
     descriptor TEXT,
-    value      DOUBLE  NOT NULL,
+    value      DOUBLE              NOT NULL,
     unit       TEXT,
-    FOREIGN KEY(module_id) REFERENCES modules(id)
+    FOREIGN KEY (module_id) REFERENCES modules(id)
 );
 
 -- Übungsblätter
