@@ -12,6 +12,7 @@ pub mod util;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     unsafe {
+        // spawned child processes like mount should run as root
         libc::setuid(0);
     }
 

@@ -1,23 +1,13 @@
-# Diagware for Mixed Signal Building Blocks
-
-## Notes
-
-- Export Logfile to USB
-- Document mounting error popup
-- improved state machine ui
+# Mixed Signal Building Blocks - Diagware
 
 ## TODO
 - [ ] add loop delay and visual indicator
 - [ ] sqlitestudio
-- [ ] Visio Drawing & Explanation for Drawing States
-
+- [ ] States
 
 ## Docs
-- ImGui vs Retained-mode GUI
-- State Machine diagram + explaination
 - State Machine GUI rendering
 - State and Ownership diagram (channels, arcs, mutexes, ...)
-- R/W EEPROM
 - DB Management (table & column layout)
 
 
