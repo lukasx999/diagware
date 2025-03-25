@@ -10,6 +10,11 @@ pub mod util;
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    unsafe {
+        libc::setuid(0);
+    }
+
     ui::run_gui()?;
     Ok(())
 }
