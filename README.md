@@ -2,7 +2,6 @@
 
 ## Notes
 
-- fix db foreign key 1:1
 - Export Logfile to USB
 - Document mounting error popup
 - improved state machine ui

@@ -19,21 +19,23 @@ CREATE TABLE targetvalues (
 -- Übungsblätter
 CREATE TABLE documents (
     id         INTEGER PRIMARY KEY NOT NULL,
-    module_id  INTEGER NOT NULL,
-    document   BLOB    NOT NULL,
-    descriptor TEXT    NOT NULL,
+    module_id  INTEGER             NOT NULL,
+    document   BLOB                NOT NULL,
+    descriptor TEXT                NOT NULL,
     FOREIGN KEY(module_id) REFERENCES modules(id)
 );
 
 -- Schaltmatrix
 CREATE TABLE matrix (
-    id       INTEGER PRIMARY KEY NOT NULL,
-    gnd      INTEGER NOT NULL,
-    v_plus   INTEGER NOT NULL,
-    v_minus  INTEGER NOT NULL,
-    dds_out1 INTEGER NOT NULL,
-    dds_out2 INTEGER NOT NULL,
-    dds_out3 INTEGER NOT NULL,
-    adc_in1  INTEGER NOT NULL,
-    adc_in2  INTEGER NOT NULL
+    id        INTEGER PRIMARY KEY NOT NULL,
+    module_id INTEGER             NOT NULL,
+    gnd       INTEGER             NOT NULL,
+    v_plus    INTEGER             NOT NULL,
+    v_minus   INTEGER             NOT NULL,
+    dds_out1  INTEGER             NOT NULL,
+    dds_out2  INTEGER             NOT NULL,
+    dds_out3  INTEGER             NOT NULL,
+    adc_in1   INTEGER             NOT NULL,
+    adc_in2   INTEGER             NOT NULL,
+    FOREIGN KEY (module_id) REFERENCES modules(id)
 );

@@ -3,9 +3,6 @@ use serde::Serialize;
 use crate::util;
 
 
-const LOGDIRECTORY: &str = ".diagware_logs";
-
-
 #[derive(Debug, Clone, Copy, Default, Serialize)]
 pub enum LogLevel {
     #[default] Info,
@@ -67,8 +64,8 @@ impl Logger {
         self.log.clear();
     }
 
-    pub fn export(&mut self) {
-        use std::fs::{File, DirBuilder};
+    pub fn export(&mut self, dirname: impl AsRef<str>) {
+        use std::fs::File;
         use std::io::Write;
 
         let log_json: String = serde_json::to_string_pretty(&self.log).unwrap();
@@ -82,14 +79,7 @@ impl Logger {
                 .format("%H_%M_%S")
         );
 
-        let logpath = format!("{}/{LOGDIRECTORY}", env!("HOME"));
-        let filepath = format!("{logpath}/{filename}.json");
-
-        // Make sure log directory exists
-        DirBuilder::new()
-            .recursive(true)
-            .create(logpath)
-            .unwrap();
+        let filepath = format!("{}/{filename}.json", dirname.as_ref());
 
         let mut file = match File::create(&filepath) {
             Ok(f)  => f,

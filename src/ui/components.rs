@@ -8,6 +8,7 @@ mod prelude {
     pub use crate::util;
     pub use crate::config;
     pub use egui::Color32;
+    pub use egui::containers::Modal;
 }
 
 pub mod serialmanager;

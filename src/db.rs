@@ -84,6 +84,7 @@ impl DB {
 
         Ok(Matrix::new(
             raw.id,
+            raw.module_id,
             raw.gnd      as u16,
             raw.v_plus   as u16,
             raw.v_minus  as u16,

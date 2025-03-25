@@ -95,7 +95,6 @@ impl Topbar {
     }
 
     fn login_modal(&mut self, ui: &mut egui::Ui) {
-        use egui::containers::Modal;
         use egui::Id;
 
         let modal = Modal::new(Id::new("Login")).show(ui.ctx(), |ui| {

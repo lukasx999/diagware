@@ -3,6 +3,8 @@ use crate::ui::components::prelude::*;
 use crate::ui::Component;
 use crate::logger::{LogLevel, Logger};
 
+use std::fs::DirBuilder;
+
 use egui::Color32;
 
 
@@ -48,7 +50,15 @@ impl Logging {
             }
 
             if ui.button("Export").clicked() {
-                logger.export();
+                let logpath = format!("{}/{}", env!("HOME"), config::LOGDIRECTORY);
+
+                // Make sure log directory exists
+                DirBuilder::new()
+                    .recursive(true)
+                    .create(&logpath)
+                    .unwrap();
+
+                logger.export(logpath);
             }
 
         });

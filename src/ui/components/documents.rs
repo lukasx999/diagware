@@ -4,10 +4,8 @@ use std::process::Command;
 
 use crate::ui::components::prelude::*;
 use crate::db::{DB, model::{Module, Document, Blob}};
+use config::MOUNT_DIRNAME;
 
-//use egui::containers::Modal;
-
-const MOUNT_DIRNAME: &str = "diagnosis_documents";
 
 // dont modify.
 const MOUNT_FAILURE: i32 = 32;
@@ -21,6 +19,8 @@ pub struct Documents {
      * Using String as hashmap key for easier debugging
      */
     selected_docs: HashMap<String, HashMap<String, bool>>,
+    export_log: bool,
+    modal_open: bool,
 }
 
 impl Component for Documents {
@@ -44,6 +44,8 @@ impl Documents {
             db: DB::new().unwrap(),
             selected_module: 0,
             selected_docs: HashMap::new(),
+            export_log: false,
+            modal_open: false,
         };
 
         let modules: Vec<Module> = s.db.get_modules_all().unwrap();
@@ -69,12 +71,12 @@ impl Documents {
     fn ui(&mut self, ui: &mut egui::Ui) {
 
         ui.separator();
-
         self.ui_documentview(ui);
-
-        // TODO: logging
-
         ui.separator();
+
+        if self.modal_open {
+            self.popup_error(ui);
+        }
 
         if ui.button("Download").clicked() {
             self.download();
@@ -83,6 +85,9 @@ impl Documents {
     }
 
     fn ui_documentview(&mut self, ui: &mut egui::Ui) {
+
+        ui.checkbox(&mut self.export_log, "Export Log");
+        ui.separator();
 
         self.ui_moduleselect(ui);
 
@@ -118,7 +123,7 @@ impl Documents {
             );
     }
 
-    fn download(&self) {
+    fn download(&mut self) {
         let module     = self.db.get_module_by_id(self.selected_module as i64 + 1).unwrap();
         let documents  = self.db.get_documents_by_id(module.id).unwrap();
         let docs_state = &self.selected_docs[&module.name];
@@ -147,7 +152,7 @@ impl Documents {
         match status {
             MOUNT_FAILURE => None,
             0 => Some(()),
-            _ => panic!("Failed to mount"),
+            _ => panic!("Failed to mount: Unknown reason"),
         }
 
     }
@@ -163,7 +168,7 @@ impl Documents {
         assert_eq!(status, 0);
     }
 
-    fn download_docs(&self, documents: Vec<Document>) {
+    fn download_docs(&mut self, documents: Vec<Document>) {
         let mut logger = self.logger.borrow_mut();
 
         if documents.is_empty() {
@@ -175,7 +180,7 @@ impl Documents {
         let device = "/dev/sda1";
 
         if self.mount(device, &mountdir).is_none() {
-            // TODO: show error popup
+            self.modal_open = true;
             println!("Mount failed");
             logger.append(LogLevel::Error, "Failed to mount USB Drive");
             return;
@@ -191,8 +196,14 @@ impl Documents {
             .map(|item| (item.descriptor, item.document))
             .collect();
 
+        let basepath = format!("{mountdir}/{MOUNT_DIRNAME}");
+
+        if self.export_log {
+            logger.export(&basepath);
+        }
+
         for (name, blob) in blobs {
-            let filename = format!("{mountdir}/{MOUNT_DIRNAME}/{name}");
+            let filename = format!("{basepath}/{name}");
             let mut file = File::create(filename).unwrap();
             file.write_all(&blob).unwrap();
             // cannot unmount open files, `file` is dropped at the end of this scope
@@ -203,25 +214,17 @@ impl Documents {
         self.unmount(&mountdir);
     }
 
-    /*
-    fn popup_error(&self, ui: &mut egui::Ui) {
+    fn popup_error(&mut self, ui: &mut egui::Ui) {
 
-
-        let modal = Modal::new(egui::Id::new("Login")).show(ui.ctx(), |ui| {
+        let modal = Modal::new(egui::Id::new("Error")).show(ui.ctx(), |ui| {
 
             ui.heading("Error");
-
-            //response.request_focus();
-
             ui.separator();
+            ui.label("Failed to mount USB device");
 
             egui::Sides::new().show( ui, |_ui| (), |ui| {
-                if ui.button("Cancel").clicked() {
-                    self.modal_current_password.clear();
+                if ui.button("Ok").clicked() {
                     self.modal_open = false;
-                }
-                if ui.button("Login").clicked() {
-                    self.login();
                 }
             },
             );
@@ -231,7 +234,6 @@ impl Documents {
         if modal.should_close() {
             self.modal_open = false;
         }
-}
-    */
+    }
 
 }
