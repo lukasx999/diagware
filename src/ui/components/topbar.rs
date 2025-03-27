@@ -100,17 +100,14 @@ impl Topbar {
 
             ui.heading("Login");
 
-            let response = egui::TextEdit::singleline(&mut self.modal_current_password)
+            egui::TextEdit::singleline(&mut self.modal_current_password)
                 .password(true)
                 .show(ui).response;
 
-            response.request_focus();
-
-            let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
-            if enter_pressed {
-                self.login();
-            }
-
+            //let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
+            //if enter_pressed {
+            //    self.login();
+            //}
 
             ui.separator();
 
