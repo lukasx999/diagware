@@ -6,12 +6,16 @@ DIAGWARE_DIR=/home/pi/Code/diagware
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 
 function print_usage {
-    echo "Usage: $0 <build | run>" 1>&2
+    echo "Usage: $0 <build | run | stop>" 1>&2
     exit 1
 }
 
 function transfer {
     rsync --delete -r . ${REMOTE}:${DIAGWARE_DIR} --exclude-from=${RSYNC_EXCLUDE_FILE}
+}
+
+function stop {
+    ssh ${REMOTE} "sudo pkill diagware"
 }
 
 function run {
@@ -32,12 +36,14 @@ fi
 if [[ $opt == "run" ]]; then
     transfer
     run
-elif [[ $opt == "xfer" ]]; then
-    transfer
+
+elif [[ $opt == "stop" ]]; then
+    stop
 
 elif [[ $opt == "build" ]]; then
     transfer
     build
+
 else
     echo "$0: invalid option: $opt" 1>&2
     print_usage

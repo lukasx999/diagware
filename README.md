@@ -1,22 +1,10 @@
 # Mixed Signal Building Blocks - Diagware
 
 ## TODO
-- [ ] add loop delay and visual indicator
-- [ ] sqlitestudio
-- [ ] States
-
-## Docs
-- State Machine GUI rendering
-- State and Ownership diagram (channels, arcs, mutexes, ...)
-- DB Management (table & column layout)
-
-
+- fix login textedit
 
 ## NOTES
 
-- Bei SQLx Datenbank Fehlern bei cargo build -> .cargo/config.toml (path muss stimmen)
-- Egui ONLY redraws ui when moving cursor => `ctx.request_repaint()`
-- Always (cargo) run from the project root
 - Ensure that `.cargo/config.toml` holds the correct url to the database
   - (needed for compile-time query checking by sqlx)
 - **RPi**: username: `pi`, password: `piuser4`

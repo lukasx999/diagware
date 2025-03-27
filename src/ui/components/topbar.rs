@@ -101,13 +101,13 @@ impl Topbar {
             ui.heading("Login");
 
             egui::TextEdit::singleline(&mut self.modal_current_password)
-                //.password(true)
+                .password(true)
                 .show(ui);
 
-            //let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
-            //if enter_pressed {
-            //    self.login();
-            //}
+            let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
+            if enter_pressed {
+                self.login();
+            }
 
             ui.separator();
 
@@ -119,8 +119,7 @@ impl Topbar {
                 if ui.button("Login").clicked() {
                     self.login();
                 }
-            },
-            );
+            });
 
         });
 
