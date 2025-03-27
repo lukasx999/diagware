@@ -71,9 +71,8 @@ impl Topbar {
             if ui.button(egui_phosphor::regular::POWER).clicked() {
 
                 if cfg!(target_arch = "aarch64") {
-                    // TODO: interactive auth required error
                     Command::new("systemctl")
-                        .args(["poweroff", "-i", "--force"])
+                        .args(["poweroff"])
                         .status()
                         .expect("spawning process failed");
 

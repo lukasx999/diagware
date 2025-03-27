@@ -15,7 +15,7 @@ function transfer {
 }
 
 function run {
-    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR} && ./install.sh && ./diagware"
+    ssh ${REMOTE} "export DISPLAY=:0; cd ${DIAGWARE_DIR} && ./install.sh && sudo xinit ./diagware"
 }
 
 function build {
