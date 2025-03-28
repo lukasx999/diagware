@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-REMOTE=pi@172.31.177.95
+REMOTE=pi@172.31.180.113
 DIAGWARE_DIR=/home/pi/Code/diagware
 RSYNC_EXCLUDE_FILE=rsync_exclude.txt
 
