@@ -85,14 +85,14 @@ impl DB {
         Ok(Matrix::new(
             raw.id,
             raw.module_id,
-            raw.gnd      as u16,
-            raw.v_plus   as u16,
-            raw.v_minus  as u16,
-            raw.dds_out1 as u16,
-            raw.dds_out2 as u16,
-            raw.dds_out3 as u16,
-            raw.adc_in1  as u16,
-            raw.adc_in2  as u16
+            raw.gnd           as u16,
+            raw.v_plus        as u16,
+            raw.v_minus       as u16,
+            raw.dds_out_plus  as u16,
+            raw.dds_out_minus as u16,
+            raw.v3_3          as u16,
+            raw.adc_in1       as u16,
+            raw.adc_in2       as u16
         ))
     }
 

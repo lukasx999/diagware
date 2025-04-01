@@ -44,8 +44,7 @@ pub fn canvas_setup(
 
 pub fn canvas_new(ui: &egui::Ui) -> egui::containers::Frame {
     egui::containers::Frame::canvas(ui.style())
-        .rounding(10.0)
+        .corner_radius(10.0)
         .outer_margin(10.0)
-        // .stroke(egui::Stroke::new(1.0, config::COLOR_BACKGROUND))
         .fill(Color32::from_rgb(35, 35, 35))
 }

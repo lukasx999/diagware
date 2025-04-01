@@ -21,30 +21,30 @@ pub struct TargetValue {
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Matrix {
-    pub id:        i64,
-    pub module_id: i64,
-    pub gnd:       u16,
-    pub v_plus:    u16,
-    pub v_minus:   u16,
-    pub dds_out1:  u16,
-    pub dds_out2:  u16,
-    pub dds_out3:  u16,
-    pub adc_in1:   u16,
-    pub adc_in2:   u16,
+    pub id:            i64,
+    pub module_id:     i64,
+    pub gnd:           u16,
+    pub v_plus:        u16,
+    pub v_minus:       u16,
+    pub dds_out_plus:  u16,
+    pub dds_out_minus: u16,
+    pub v3_3:          u16,
+    pub adc_in1:       u16,
+    pub adc_in2:       u16,
 }
 
 impl Matrix {
     pub fn new(
-        id:       i64,
-        module_id: i64,
-        gnd:      u16,
-        v_plus:   u16,
-        v_minus:  u16,
-        dds_out1: u16,
-        dds_out2: u16,
-        dds_out3: u16,
-        adc_in1:  u16,
-        adc_in2:  u16,
+        id:            i64,
+        module_id:     i64,
+        gnd:           u16,
+        v_plus:        u16,
+        v_minus:       u16,
+        dds_out_plus:  u16,
+        dds_out_minus: u16,
+        v3_3:          u16,
+        adc_in1:       u16,
+        adc_in2:       u16,
     ) -> Self {
         Self {
             id,
@@ -52,9 +52,9 @@ impl Matrix {
             gnd,
             v_plus,
             v_minus,
-            dds_out1,
-            dds_out2,
-            dds_out3,
+            dds_out_plus,
+            dds_out_minus,
+            v3_3,
             adc_in1,
             adc_in2
         }

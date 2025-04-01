@@ -20,9 +20,9 @@ INSERT INTO matrix (
     gnd,
     v_plus,
     v_minus,
-    dds_out1,
-    dds_out2,
-    dds_out3,
+    dds_out_plus,
+    dds_out_minus,
+    v3_3,
     adc_in1,
     adc_in2
     ) VALUES
